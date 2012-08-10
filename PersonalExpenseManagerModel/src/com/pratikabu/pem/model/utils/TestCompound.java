@@ -20,7 +20,7 @@ public class TestCompound {
 	}
 
 	/**
-	 * @param args
+	 * @param args d
 	 */
 	public static void initializeDB() {
 		//to execute the configuration
