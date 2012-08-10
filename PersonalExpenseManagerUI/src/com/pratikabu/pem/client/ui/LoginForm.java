@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
+import com.pratikabu.pem.client.Constants;
 import com.pratikabu.pem.client.Utility;
 import com.pratikabu.pem.shared.model.PEMUser;
 
@@ -60,6 +61,7 @@ public class LoginForm extends FlexTable {
 		Utility.updateNameAndId(confirmEmail, "regConfirmEmail", "confirmEmail");
 		
 		password = new PasswordTextBox();
+		password.setStyleName(Constants.CSS_NORMAL_TEXT);
 		password.setWidth(width);
 		Utility.updateNameAndId(password, "regPassword", "password");
 		
@@ -99,7 +101,7 @@ public class LoginForm extends FlexTable {
 		int row = 0;
 
 	    // Add a title to the form
-	    this.setWidget(row, 0, Utility.getLabel("Sign Up! Its Free!", "formHeading"));
+	    this.setWidget(row, 0, Utility.getLabel("Sign Up! Its Free!", Constants.CSS_FORM_HEADING));
 	    cellFormatter.setColSpan(row, 0, 2);
 	    cellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER);
 		

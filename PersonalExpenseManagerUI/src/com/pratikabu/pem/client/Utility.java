@@ -62,7 +62,7 @@ public class Utility {
 	 * @return
 	 */
 	public static Label getLabel(String text) {
-		return getLabel(text, null);
+		return getLabel(text, "normalLabel");
 	}
 	
 	/**
@@ -149,6 +149,7 @@ public class Utility {
 	
 	public static TextBox getTextBox(String defaultText) {
 		TextBox t = new TextBox();
+		t.setStyleName(Constants.CSS_NORMAL_TEXT);
 		t.setText(defaultText);
 		
 		return t;
