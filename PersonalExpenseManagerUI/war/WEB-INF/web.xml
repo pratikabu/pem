@@ -1,24 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
               http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-         version="2.5"
-         xmlns="http://java.sun.com/xml/ns/javaee">
+	version="2.5" xmlns="http://java.sun.com/xml/ns/javaee">
 
-  <!-- Servlets -->
-  <servlet>
-    <servlet-name>pemServlet</servlet-name>
-    <servlet-class>com.pratikabu.pem.server.PEMServiceImpl</servlet-class>
-  </servlet>
-  
-  <servlet-mapping>
-    <servlet-name>pemServlet</servlet-name>
-    <url-pattern>/personalexpensemanager/pemService</url-pattern>
-  </servlet-mapping>
-  
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>PersonalExpenseManager.html</welcome-file>
-  </welcome-file-list>
+	<!-- Servlets -->
+	<servlet>
+		<servlet-name>pemServlet</servlet-name>
+		<servlet-class>com.pratikabu.pem.server.PEMServiceImpl</servlet-class>
+	</servlet>
+	<servlet>
+		<display-name>RegisterUserServlet</display-name>
+		<servlet-name>RegisterUserServlet</servlet-name>
+		<servlet-class>com.pratikabu.pem.server.servlet.ProcessRegisterUserServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>pemServlet</servlet-name>
+		<url-pattern>/personalexpensemanager/pemService</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>RegisterUserServlet</servlet-name>
+		<url-pattern>/registerUser</url-pattern>
+	</servlet-mapping>
+
+	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>PersonalExpenseManager.html</welcome-file>
+	</welcome-file-list>
 
 </web-app>

@@ -5,9 +5,10 @@ package com.pratikabu.pem.client.ui;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
+import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -15,13 +16,14 @@ import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.pratikabu.pem.client.Constants;
 import com.pratikabu.pem.client.Utility;
-import com.pratikabu.pem.shared.model.PEMUser;
 
 /**
  * @author pratsoni
  *
  */
-public class LoginForm extends FlexTable {
+public class LoginForm extends FormPanel {
+	private FlexTable ft;
+	
 	private TextBox firstName, lastName, city;
 	private TextBox email, confirmEmail;
 	private PasswordTextBox password;
@@ -38,7 +40,11 @@ public class LoginForm extends FlexTable {
 	}
 
 	private void initializeComponents() {
-		this.setCellSpacing(1);
+		this.setAction("registerUser");
+		this.setMethod(METHOD_POST);
+		
+		ft = new FlexTable();
+		ft.setCellSpacing(1);
 		Utility.updateNameAndId(this, "signUpContainer");
 		
 		final String width = "280px";
@@ -97,66 +103,49 @@ public class LoginForm extends FlexTable {
 	}
 
 	private void placeComponents() {
-		FlexCellFormatter cellFormatter = this.getFlexCellFormatter();
+		FlexCellFormatter cellFormatter = ft.getFlexCellFormatter();
 		int row = 0;
 
 	    // Add a title to the form
-	    this.setWidget(row, 0, Utility.getLabel("Sign Up! Its Free!", Constants.CSS_FORM_HEADING));
+	    ft.setWidget(row, 0, Utility.getLabel("Sign Up! Its Free!", Constants.CSS_FORM_HEADING));
 	    cellFormatter.setColSpan(row, 0, 2);
 	    cellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER);
 		
-		this.setWidget(++row, 0, Utility.getLabel("First Name"));
-		this.setWidget(row, 1, firstName);
-		this.setWidget(++row, 0, Utility.getLabel("Last Name"));
-		this.setWidget(row, 1, lastName);
-		this.setWidget(++row, 0, Utility.getLabel("Email"));
-		this.setWidget(row, 1, email);
-		this.setWidget(++row, 0, Utility.getLabel("Confrim Email"));
-		this.setWidget(row, 1, confirmEmail);
-		this.setWidget(++row, 0, Utility.getLabel("Password"));
-		this.setWidget(row, 1, password);
+		ft.setWidget(++row, 0, Utility.getLabel("First Name"));
+		ft.setWidget(row, 1, firstName);
+		ft.setWidget(++row, 0, Utility.getLabel("Last Name"));
+		ft.setWidget(row, 1, lastName);
+		ft.setWidget(++row, 0, Utility.getLabel("Email"));
+		ft.setWidget(row, 1, email);
+		ft.setWidget(++row, 0, Utility.getLabel("Confrim Email"));
+		ft.setWidget(row, 1, confirmEmail);
+		ft.setWidget(++row, 0, Utility.getLabel("Password"));
+		ft.setWidget(row, 1, password);
 		
-		this.setWidget(++row, 0, Utility.getLabel("I am"));
-		this.setWidget(row, 1, genderBox);
-		this.setWidget(++row, 0, Utility.getLabel("Birthday"));
-		this.setWidget(row, 1, Utility.addHorizontally(-1, bdMonth, bdDay, bdYear));
+		ft.setWidget(++row, 0, Utility.getLabel("I am"));
+		ft.setWidget(row, 1, genderBox);
+		ft.setWidget(++row, 0, Utility.getLabel("Birthday"));
+		ft.setWidget(row, 1, Utility.addHorizontally(-1, bdMonth, bdDay, bdYear));
 		
-		this.setWidget(++row, 0, Utility.getLabel("City"));
-		this.setWidget(row, 1, city);
+		ft.setWidget(++row, 0, Utility.getLabel("City"));
+		ft.setWidget(row, 1, city);
 		
-		this.setWidget(++row, 1, signUpButton);
+		ft.setWidget(++row, 1, signUpButton);
 		
 		// Add the error label
-	    this.setWidget(++row, 0, errorLabel);
+	    ft.setWidget(++row, 0, errorLabel);
 	    cellFormatter.setColSpan(row, 0, 2);
 	    cellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER);
 	    errorLabel.setVisible(false);
+	    
+	    this.add(ft);
 	}
 	
 	private void signUp() {
 		validateData();
 		
 		if (null == validationMessage) {
-			PEMUser u = new PEMUser();
-			u.setFirstName(firstName.getText());
-			u.setLastName(lastName.getText());
-			u.setEmail(email.getText());
-			u.setGender(genderBox.getValue(genderBox.getSelectedIndex()).charAt(0));
-			u.setBdMonth(Integer.parseInt(bdMonth.getValue(bdMonth.getSelectedIndex())));
-			u.setBdDate(Integer.parseInt(bdDay.getValue(bdDay.getSelectedIndex())));
-			u.setBdYear(Integer.parseInt(bdYear.getValue(bdYear.getSelectedIndex())));
-			
-			Utility.getPemService().createUser(u, new AsyncCallback<Void>() {
-				@Override
-				public void onSuccess(Void result) {
-				}
-				
-				@Override
-				public void onFailure(Throwable caught) {
-					validationMessage = "There is some error from server side. Please try again.";
-					showError();
-				}
-			});
+			this.submit();
 		} else {
 			showError();
 		}
@@ -184,7 +173,7 @@ public class LoginForm extends FlexTable {
 			validationMessage = "Email and Confirm email doesnt't match.";
 		}
 		
-		if(null == validationMessage && password.getText().length() >= 6) {
+		if(null == validationMessage && password.getText().length() < 6) {
 			validationMessage = "Password should be atleast 6 characters long.";
 		}
 	}
@@ -195,7 +184,7 @@ public class LoginForm extends FlexTable {
 	}
 	
 	private void populateBirthday() {
-		int mnth = 0;
+		int mnth = -1;
 		bdMonth.addItem("Jaunary", (++mnth) + "");
 		bdMonth.addItem("February", (++mnth) + "");
 		bdMonth.addItem("March", (++mnth) + "");

@@ -5,5 +5,8 @@
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/PersonalExpenseManagerModel"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Hibernate3.0"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/log4j"/>
+	<classpathentry kind="lib" path="D:/prog/Libraries/db-derby Drivers/derbyclient.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

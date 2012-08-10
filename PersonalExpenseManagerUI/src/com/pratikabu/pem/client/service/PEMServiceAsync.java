@@ -3,8 +3,6 @@
  */
 package com.pratikabu.pem.client.service;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.pratikabu.pem.shared.model.PEMUser;
 
 
 /**
@@ -13,6 +11,4 @@ import com.pratikabu.pem.shared.model.PEMUser;
  */
 public interface PEMServiceAsync {
 
-	void createUser(PEMUser user, AsyncCallback<Void> callback);
-	
 }

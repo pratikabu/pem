@@ -28,12 +28,15 @@ public class PEMUser {
 	private String email;
 	
 	private String firstName, lastName;
+	private String password;
 	
 	private char gender;
 	
 	private Date birthday;
 	
 	private String city, country;
+	
+	private boolean active;
 
 	public long getUid() {
 		return uid;
@@ -97,5 +100,21 @@ public class PEMUser {
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 }
