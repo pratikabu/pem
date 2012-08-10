@@ -7,8 +7,10 @@ import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 
+import com.pratikabu.pem.model.PEMUser;
 import com.pratikabu.pem.model.utils.HibernateConfiguration;
 import com.pratikabu.pem.model.utils.SearchFacade;
 
@@ -66,5 +68,17 @@ public class SearchFacadeImpl implements SearchFacade {
 			session.getTransaction().rollback();
 			return false;
 		}
+	}
+
+	@Override
+	public boolean isValidUser(String email, String password) {
+		Session s = HibernateConfiguration.getFactory().getCurrentSession();
+		s.beginTransaction();
+		Query query = s.createQuery("FROM PEMUser WHERE email=:email");
+		query.setString("email", email);
+		PEMUser user = (PEMUser)query.uniqueResult();
+		s.getTransaction().commit();
+		
+		return null != user && password.equals(user.getPassword());
 	}
 }

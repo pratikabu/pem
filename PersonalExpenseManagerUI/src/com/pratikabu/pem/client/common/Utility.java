@@ -1,9 +1,8 @@
 /**
  * 
  */
-package com.pratikabu.pem.client;
+package com.pratikabu.pem.client.common;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasName;
@@ -13,16 +12,12 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.gwt.user.client.ui.Widget;
-import com.pratikabu.pem.client.service.PEMService;
-import com.pratikabu.pem.client.service.PEMServiceAsync;
 
 /**
  * @author pratsoni
  *
  */
 public class Utility {
-	
-	private static final PEMServiceAsync pemService = GWT.create(PEMService.class);
 	
 	/**
 	 * Set the id of the widget to the specified one.
@@ -62,7 +57,7 @@ public class Utility {
 	 * @return
 	 */
 	public static Label getLabel(String text) {
-		return getLabel(text, "normalLabel");
+		return getLabel(text, Constants.CSS_NORMAL_LABEL);
 	}
 	
 	/**
@@ -104,10 +99,6 @@ public class Utility {
 
 	public static void setAutoCompleteOff(Element element) {
 		element.setAttribute("autocomplete", "off");
-	}
-
-	public static PEMServiceAsync getPemService() {
-		return pemService;
 	}
 	
 	public static boolean isEmptyValidation(TextBoxBase... boxes) {
@@ -158,5 +149,10 @@ public class Utility {
 	public static ListBox getListBox(boolean isMultipleSelect) {
 		ListBox lb = new ListBox(isMultipleSelect);
 		return lb;
+	}
+
+	public static void navigateRelative(String results) {
+		// TODO Auto-generated method stub
+		System.out.println(results);
 	}
 }

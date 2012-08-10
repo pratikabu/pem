@@ -42,11 +42,12 @@ public class ProcessRegisterUserServlet extends HttpServlet {
 		user.setBirthday(cal.getTime());
 		user.setCity(request.getParameter("city"));
 		
+		response.setContentType("text/html");
 		if(SearchHelper.getFacade().saveModel(user)) {
-			// send a mail with activation link for this account
-			response.sendRedirect("http://google.com");
+			// TODO send a mail with activation link for this account
+			response.sendRedirect("proceed.jsp");
 		} else {
-			response.sendRedirect("");
+			response.getWriter().print("INVALID");
 		}
 	}
 

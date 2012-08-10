@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.pratikabu.pem.client.ui;
+package com.pratikabu.pem.client.wc.ui;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -14,14 +14,14 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
-import com.pratikabu.pem.client.Constants;
-import com.pratikabu.pem.client.Utility;
+import com.pratikabu.pem.client.common.Constants;
+import com.pratikabu.pem.client.common.Utility;
 
 /**
  * @author pratsoni
  *
  */
-public class LoginForm extends FormPanel {
+public class UserCreationForm extends FormPanel {
 	private FlexTable ft;
 	
 	private TextBox firstName, lastName, city;
@@ -34,7 +34,7 @@ public class LoginForm extends FormPanel {
 	private Label errorLabel;
 	private String validationMessage;
 	
-	public LoginForm() {
+	public UserCreationForm() {
 		initializeComponents();
 		placeComponents();
 	}
@@ -42,6 +42,17 @@ public class LoginForm extends FormPanel {
 	private void initializeComponents() {
 		this.setAction("registerUser");
 		this.setMethod(METHOD_POST);
+		this.addSubmitCompleteHandler(new SubmitCompleteHandler() {
+			@Override
+			public void onSubmitComplete(SubmitCompleteEvent event) {
+				if("INVALID".equals(event.getResults())) {
+					validationMessage = "Error while account creation. Pleas try again.";
+					showError();
+				} else {
+					Utility.navigateRelative(event.getResults());
+				}
+			}
+		});
 		
 		ft = new FlexTable();
 		ft.setCellSpacing(1);

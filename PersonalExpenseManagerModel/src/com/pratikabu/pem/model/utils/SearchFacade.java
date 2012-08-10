@@ -26,4 +26,6 @@ public interface SearchFacade {
 	 * @return
 	 */
 	public <T> boolean deleteModel(T t);
+	
+	boolean isValidUser(String email, String password);
 }
