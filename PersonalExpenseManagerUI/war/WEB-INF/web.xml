@@ -7,13 +7,13 @@
 
   <!-- Servlets -->
   <servlet>
-    <servlet-name>greetServlet</servlet-name>
-    <servlet-class>com.pratikabu.pem.server.GreetingServiceImpl</servlet-class>
+    <servlet-name>pemServlet</servlet-name>
+    <servlet-class>com.pratikabu.pem.server.PEMServiceImpl</servlet-class>
   </servlet>
   
   <servlet-mapping>
-    <servlet-name>greetServlet</servlet-name>
-    <url-pattern>/personalexpensemanager/greet</url-pattern>
+    <servlet-name>pemServlet</servlet-name>
+    <url-pattern>/personalexpensemanager/pemService</url-pattern>
   </servlet-mapping>
   
   <!-- Default page to serve -->

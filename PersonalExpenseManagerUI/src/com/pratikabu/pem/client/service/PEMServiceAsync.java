@@ -3,13 +3,16 @@
  */
 package com.pratikabu.pem.client.service;
 
-import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.pratikabu.pem.shared.model.PEMUser;
+
 
 /**
  * @author pratsoni
  *
  */
-@RemoteServiceRelativePath("pemService")
 public interface PEMServiceAsync {
+
+	void createUser(PEMUser user, AsyncCallback<Void> callback);
 	
 }
