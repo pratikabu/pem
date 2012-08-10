@@ -33,7 +33,7 @@ public class PEMUser {
 	
 	private Date birthday;
 	
-	private String city, state, country;
+	private String city, country;
 
 	public long getUid() {
 		return uid;
@@ -89,14 +89,6 @@ public class PEMUser {
 
 	public void setCity(String city) {
 		this.city = city;
-	}
-
-	public String getState() {
-		return state;
-	}
-
-	public void setState(String state) {
-		this.state = state;
 	}
 
 	public String getCountry() {
