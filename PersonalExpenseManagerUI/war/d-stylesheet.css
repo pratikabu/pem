@@ -1,0 +1,31 @@
+.footerSlot {
+	width: 100%;
+	border-top: 1px SOLID #CBCBCB;
+	background-color: #F8F8F8;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}
+
+.zeroMargin {
+	margin: 0;
+	position: absoulte;
+}
+
+html, body {
+	height: 100%
+}
+
+.mainContent {
+	width: 100%;
+	position: absolute;
+	padding: 0;
+	overflow: hidden;
+}
+
+.headerSlot {
+	position: absolute;
+	background-color: #F8F8F8;
+	border-bottom: 1px SOLID #CBCBCB;
+	padding-bottom: 0;
+}
