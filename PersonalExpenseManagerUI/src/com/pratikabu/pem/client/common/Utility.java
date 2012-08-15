@@ -3,21 +3,31 @@
  */
 package com.pratikabu.pem.client.common;
 
+import java.util.Date;
+
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasName;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.datepicker.client.DateBox;
 
 /**
  * @author pratsoni
  *
  */
 public class Utility {
+	public static final NumberFormat amountFormatter = NumberFormat.getFormat("#,##0.00");
 	
 	/**
 	 * Set the id of the widget to the specified one.
@@ -134,6 +144,7 @@ public class Utility {
 		if(null != styleName) {
 			b.setStyleName(styleName);
 		}
+		b.setTitle(text);
 		updateNameAndId(b, text.replaceAll(" ", ""));
 		return b;
 	}
@@ -146,6 +157,12 @@ public class Utility {
 		return t;
 	}
 	
+	public static TextArea getTextArea() {
+		TextArea t = new TextArea();
+		t.setStyleName(Constants.CSS_NORMAL_TEXT);
+		return t;
+	}
+	
 	public static ListBox getListBox(boolean isMultipleSelect) {
 		ListBox lb = new ListBox(isMultipleSelect);
 		return lb;
@@ -154,5 +171,36 @@ public class Utility {
 	public static void navigateRelative(String results) {
 		// TODO Auto-generated method stub
 		System.out.println(results);
+	}
+	
+	public static String get2DecimalAmount(double amount) {
+		return amountFormatter.format(amount);
+	}
+	
+	public static String getPrintableAmountWithSign(String symbol, double amount) {
+		return symbol + " " + get2DecimalAmount(amount);
+	}
+	
+	public static String getDateFormatted(Date date) {
+		DateTimeFormat formatter = DateTimeFormat.getFormat("dd MMM, yyyy");
+		return formatter.format(date);
+	}
+	
+	public static SafeHtml getSafeHtml(String readerContent) {
+		return SafeHtmlUtils.fromSafeConstant(readerContent);
+	}
+	
+	public static Widget getLoadingWidget() {
+		return getLabel("Loading...");
+	}
+	
+	public static DateBox getDateBox() {
+		DateTimeFormat formatter = DateTimeFormat.getFormat("dd/MMM/yyyy");
+		DateBox db = new DateBox();
+		db.setFormat(new DateBox.DefaultFormat(formatter));
+		db.setStyleName(Constants.CSS_NORMAL_TEXT);
+		db.getElement().getStyle().setMargin(0, Unit.PX);
+		
+		return db;
 	}
 }

@@ -28,6 +28,7 @@ public class TransactionGroup {
 	private long txnGrpId;
 	
 	private Date creationDate;
+	private String tgName;
 	private String notes;
 	
 	@ManyToOne
@@ -91,5 +92,13 @@ public class TransactionGroup {
 
 	public void setTags(List<Tag> tags) {
 		this.tags = tags;
+	}
+
+	public String getTgName() {
+		return tgName;
+	}
+
+	public void setTgName(String tgName) {
+		this.tgName = tgName;
 	}
 }

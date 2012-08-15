@@ -24,7 +24,7 @@ public class Trip {
 	@GeneratedValue
 	private long tripId;
 	
-	private String aboutTrip;
+	private String tripName;
 
 	@OneToMany(targetEntity = TransactionGroup.class, fetch = FetchType.LAZY,
 			mappedBy = "trip", cascade = CascadeType.ALL)
@@ -42,12 +42,12 @@ public class Trip {
 		this.tripId = tripId;
 	}
 
-	public String getAboutTrip() {
-		return aboutTrip;
+	public String getTripName() {
+		return tripName;
 	}
 
-	public void setAboutTrip(String aboutTrip) {
-		this.aboutTrip = aboutTrip;
+	public void setTripName(String tripName) {
+		this.tripName = tripName;
 	}
 
 	public List<TransactionGroup> getTransactionGroups() {

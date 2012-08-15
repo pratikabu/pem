@@ -17,10 +17,9 @@ html, body {
 }
 
 .mainContent {
-	width: 100%;
 	position: absolute;
 	padding: 0;
-	overflow: hidden;
+	overflow: auto;
 }
 
 .headerSlot {
@@ -28,4 +27,18 @@ html, body {
 	background-color: #F8F8F8;
 	border-bottom: 1px SOLID #CBCBCB;
 	padding-bottom: 0;
+}
+
+.readerHeader {
+	margin: 5px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	color: #4D4D4D;
+}
+
+.readerPTag {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	color: black;
+	margin-left: 5px;
 }
