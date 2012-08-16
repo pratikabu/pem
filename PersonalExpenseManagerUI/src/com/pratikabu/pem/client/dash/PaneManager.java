@@ -16,11 +16,11 @@ public class PaneManager {
 	private static TransactionReaderPanel trp;
 	private static IPaidFormPanel ipfp;
 	
-	public static void renderTransactionDetails(long txnId) {
+	public static void renderTransactionDetails(long txnId, int entryType) {
 		if(null == trp) {
 			trp = new TransactionReaderPanel();
 		}
-		trp.renderRecord(txnId);
+		trp.renderRecord(new long[] {txnId, entryType});
 	}
 	
 	public static void editTransactionDetails(long txnId) {

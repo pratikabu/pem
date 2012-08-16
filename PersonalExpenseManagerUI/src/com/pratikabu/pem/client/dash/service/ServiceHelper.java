@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.pratikabu.pem.client.service;
+package com.pratikabu.pem.client.dash.service;
 
 import com.google.gwt.core.client.GWT;
 

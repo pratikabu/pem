@@ -14,42 +14,42 @@
  * the License.
  */
 
-package com.pratikabu.pem.client.dash.ui;
+package com.pratikabu.pem.client.dash.components;
 
-import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.user.client.Random;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
-import com.pratikabu.pem.shared.model.TgCellData;
+import com.pratikabu.pem.shared.model.AccountDTO;
+import com.sun.corba.se.pept.transport.ContactInfo;
 
 /**
  * The data source for contact information used in the sample.
  */
-public class TransactionDatabase {
+public class PaymentDistributionDatabase {
 
-	public static final ProvidesKey<TgCellData> KEY_PROVIDER = new ProvidesKey<TgCellData>() {
+	public static final ProvidesKey<Data> KEY_PROVIDER = new ProvidesKey<Data>() {
 		@Override
-		public Object getKey(TgCellData item) {
-			return item == null ? null : item.getTgId();
+		public Object getKey(Data item) {
+			return item == null ? null : item.getAccount().getAccountId();
 		}
 	};
 
 	/**
 	 * The singleton instance of the database.
 	 */
-	private static TransactionDatabase instance;
+	private static PaymentDistributionDatabase instance;
 
 	/**
 	 * Get the singleton instance of the contact database.
 	 * 
 	 * @return the singleton instance
 	 */
-	public static TransactionDatabase get() {
+	public static PaymentDistributionDatabase get() {
 		if (instance == null) {
-			instance = new TransactionDatabase();
+			instance = new PaymentDistributionDatabase();
 		}
 		return instance;
 	}
@@ -57,14 +57,14 @@ public class TransactionDatabase {
 	/**
 	 * The provider that holds the list of contacts in the database.
 	 */
-	private ListDataProvider<TgCellData> dataProvider = new ListDataProvider<TgCellData>();
+	private ListDataProvider<Data> dataProvider = new ListDataProvider<Data>();
 
 	/**
 	 * Construct a new contact database.
 	 */
-	private TransactionDatabase() {
+	private PaymentDistributionDatabase() {
 		// Generate initial data.
-		generateContacts(20);
+		generateContacts(5);
 	}
 
 	/**
@@ -73,8 +73,8 @@ public class TransactionDatabase {
 	 * @param contact
 	 *            the contact to add.
 	 */
-	public void addContact(TgCellData contact) {
-		List<TgCellData> contacts = dataProvider.getList();
+	public void addContact(Data contact) {
+		List<Data> contacts = dataProvider.getList();
 		// Remove the contact first so we don't add a duplicate.
 		contacts.remove(contact);
 		contacts.add(contact);
@@ -87,7 +87,7 @@ public class TransactionDatabase {
 	 * @param display
 	 *            a {@Link HasData}.
 	 */
-	public void addDataDisplay(HasData<TgCellData> display) {
+	public void addDataDisplay(HasData<Data> display) {
 		dataProvider.addDataDisplay(display);
 	}
 
@@ -99,13 +99,13 @@ public class TransactionDatabase {
 	 *            the number of contacts to generate.
 	 */
 	public void generateContacts(int count) {
-		List<TgCellData> tgCellsData = dataProvider.getList();
+		List<Data> tgCellsData = dataProvider.getList();
 		for (int i = 0; i < count; i++) {
 			tgCellsData.add(createTgCellData(i));
 		}
 	}
 
-	public ListDataProvider<TgCellData> getDataProvider() {
+	public ListDataProvider<Data> getDataProvider() {
 		return dataProvider;
 	}
 
@@ -121,18 +121,50 @@ public class TransactionDatabase {
 	 * 
 	 * @return the new {@link ContactInfo}.
 	 */
-	private TgCellData createTgCellData(int id) {
-		TgCellData tgData = new TgCellData();
-		tgData.setTgId(id);
-		tgData.setEntryType(1 + Random.nextInt(3));
-		tgData.setAmount(Random.nextInt(5000000) + Random.nextDouble());
-		Date date = new Date();
-		date.setDate(Random.nextInt(31));
-		date.setMonth(Random.nextInt(12));
-		tgData.setDate(date);
-		
-		tgData.setName("Hello Transaction");
+	private Data createTgCellData(int id) {
+		Data tgData = new Data();
+		AccountDTO acc = new AccountDTO();
+		acc.setAccountId(id);
+		acc.setAccountName("Acc Name " + id);
+		tgData.setAccount(acc);
+		tgData.setAmount(Random.nextInt(30000) + Random.nextDouble());
 		return tgData;
+	}
+	
+	public class Data {
+		private boolean selected;
+		private AccountDTO account;
+		private Double amount;
+
+		public AccountDTO getAccount() {
+			return account;
+		}
+
+		public void setAccount(AccountDTO account) {
+			this.account = account;
+		}
+
+		public Double getAmount() {
+			return amount;
+		}
+
+		public void setAmount(Double amount) {
+			this.amount = amount;
+		}
+
+		public boolean isSelected() {
+			return selected;
+		}
+
+		public void setSelected(boolean selected) {
+			this.selected = selected;
+		}
+
+		@Override
+		public String toString() {
+			return "Data [selected=" + selected + ", account=" + account
+					+ ", amount=" + amount + "]";
+		}
 	}
 
 }

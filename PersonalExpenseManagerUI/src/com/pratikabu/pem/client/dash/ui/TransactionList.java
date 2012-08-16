@@ -10,24 +10,27 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.PaneManager;
-import com.pratikabu.pem.shared.model.TgCellData;
+import com.pratikabu.pem.client.dash.components.TransactionDatabase;
+import com.pratikabu.pem.shared.model.TransactionDTO;
 
 /**
  * @author pratsoni
  *
  */
-public class TransactionGroupList extends VerticalPanel {
-	private CellList<TgCellData> tgList;
+public class TransactionList extends VerticalPanel {
+	private CellList<TransactionDTO> tgList;
 	
 	
-	public TransactionGroupList() {
-		TransactionGroupCell tgCell = new TransactionGroupCell();
-		tgList = new CellList<TgCellData>(tgCell);
+	public TransactionList() {
+		TransactionCell tgCell = new TransactionCell();
+		tgList = new CellList<TransactionDTO>(tgCell);
 
 		tgList.setPageSize(30);
 		tgList.setKeyboardPagingPolicy(KeyboardPagingPolicy.INCREASE_RANGE);
 		tgList.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.BOUND_TO_SELECTION);
+		tgList.setLoadingIndicator(Utility.getLoadingWidget());
 		
 		TransactionDatabase.get().addDataDisplay(tgList);
 		
@@ -35,12 +38,13 @@ public class TransactionGroupList extends VerticalPanel {
 		sp.setHeight("100%");
 
 		// Add a selection model so we can select cells.
-		final SingleSelectionModel<TgCellData> selectionModel = new SingleSelectionModel<TgCellData>(
+		final SingleSelectionModel<TransactionDTO> selectionModel = new SingleSelectionModel<TransactionDTO>(
 				TransactionDatabase.KEY_PROVIDER);
 		tgList.setSelectionModel(selectionModel);
 		selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
 			public void onSelectionChange(SelectionChangeEvent event) {
-				PaneManager.renderTransactionDetails(selectionModel.getSelectedObject().getTgId());
+				TransactionDTO dto = selectionModel.getSelectedObject();
+				PaneManager.renderTransactionDetails(dto.getTransactionId(), dto.getEntryType());
 			}
 		});
 		

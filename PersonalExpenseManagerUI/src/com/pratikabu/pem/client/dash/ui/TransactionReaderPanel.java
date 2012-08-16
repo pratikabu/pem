@@ -1,9 +1,14 @@
 package com.pratikabu.pem.client.dash.ui;
 
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.PaneManager;
+import com.pratikabu.pem.client.dash.service.ServiceHelper;
+import com.pratikabu.pem.shared.model.IPaidDTO;
+import com.pratikabu.pem.shared.model.TransactionDTO;
 
 /**
  * 
@@ -48,12 +53,25 @@ public class TransactionReaderPanel extends HTML implements DetailPaneable {
 
 	@Override
 	public void renderRecord(Object obj) {
-		transactionId = (Long)obj;
+		long[] data = (long[]) obj;
+		transactionId = data[0];
 		
 		PaneManager.setInReaderPane(Utility.getLoadingWidget());
 		
-		setHTML(Utility.getSafeHtml(content));
-		PaneManager.setInReaderPane(TransactionReaderPanel.this);
+		if(TransactionDTO.ET_OUTWARD_TG == data[1]) {
+			ServiceHelper.getPemservice().getTransactionDetail((Long) transactionId, new AsyncCallback<IPaidDTO>() {
+				@Override
+				public void onSuccess(IPaidDTO result) {
+					setHTML(Utility.getSafeHtml(content));
+					PaneManager.setInReaderPane(TransactionReaderPanel.this);
+				}
+				
+				@Override
+				public void onFailure(Throwable caught) {
+					Window.alert("Error fetching transaction details.");
+				}
+			});
+		}
 	}
 
 	public static void editTransaction() {

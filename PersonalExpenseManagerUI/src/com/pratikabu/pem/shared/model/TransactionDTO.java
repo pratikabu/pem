@@ -11,10 +11,10 @@ import java.util.Date;
  *
  */
 @SuppressWarnings("serial")
-public class TgCellData implements Serializable {
-	public static final int ET_OUTWARD_TG = 1, ET_INWARD_TG = 2, ET_TRIP = 3;
+public class TransactionDTO implements Serializable {
+	public static final int ET_OUTWARD_TG = 1, ET_INWARD_TG = 2;
 	
-	private long tgId;
+	private long transactionId;
 	private String name;
 	private int entryType = ET_INWARD_TG;
 	private double amount;
@@ -36,12 +36,12 @@ public class TgCellData implements Serializable {
 		this.entryType = entryType;
 	}
 
-	public long getTgId() {
-		return tgId;
+	public long getTransactionId() {
+		return transactionId;
 	}
 
-	public void setTgId(long tgId) {
-		this.tgId = tgId;
+	public void setTransactionId(long tgId) {
+		this.transactionId = tgId;
 	}
 
 	public double getAmount() {

@@ -32,7 +32,7 @@ public class TransactionEntry {
 	
 	@ManyToOne
 	@JoinColumn(name = "txnGrpId")
-	private TransactionGroup transactionGroup;
+	private TransactionTable transactionGroup;
 
 	public long getTxnId() {
 		return txnId;
@@ -66,11 +66,11 @@ public class TransactionEntry {
 		this.amount = amount;
 	}
 
-	public TransactionGroup getTransactionGroup() {
+	public TransactionTable getTransactionGroup() {
 		return transactionGroup;
 	}
 
-	public void setTransactionGroup(TransactionGroup transactionGroup) {
+	public void setTransactionGroup(TransactionTable transactionGroup) {
 		this.transactionGroup = transactionGroup;
 	}
 }

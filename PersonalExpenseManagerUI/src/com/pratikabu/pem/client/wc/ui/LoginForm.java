@@ -106,10 +106,10 @@ public class LoginForm extends FormPanel {
 
 	private void placeComponents() {
 		FlexCellFormatter cellFormatter = ft.getFlexCellFormatter();
-		int row = 0;
+		int row = -1;
 
 	    // Add a title to the form
-	    ft.setWidget(row, 0, Utility.getLabel("Login with PEM account", Constants.CSS_FORM_HEADING));
+	    ft.setWidget(++row, 0, Utility.getLabel("Login with PEM account", Constants.CSS_FORM_HEADING));
 	    cellFormatter.setColSpan(row, 0, 2);
 	    cellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER);
 		

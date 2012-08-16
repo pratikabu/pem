@@ -160,11 +160,13 @@ public class Utility {
 	public static TextArea getTextArea() {
 		TextArea t = new TextArea();
 		t.setStyleName(Constants.CSS_NORMAL_TEXT);
+		t.getElement().getStyle().setProperty("resize", "none");
 		return t;
 	}
 	
 	public static ListBox getListBox(boolean isMultipleSelect) {
 		ListBox lb = new ListBox(isMultipleSelect);
+		lb.setStyleName(Constants.CSS_NORMAL_TEXT);
 		return lb;
 	}
 

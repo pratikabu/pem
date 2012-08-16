@@ -22,7 +22,7 @@
 
 	<servlet-mapping>
 		<servlet-name>pemServlet</servlet-name>
-		<url-pattern>/personalexpensemanager/pemService</url-pattern>
+		<url-pattern>/dashboard/pemService</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>RegisterUserServlet</servlet-name>

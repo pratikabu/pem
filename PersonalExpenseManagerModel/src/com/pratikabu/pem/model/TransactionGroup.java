@@ -3,7 +3,6 @@
  */
 package com.pratikabu.pem.model;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -12,8 +11,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -25,80 +22,47 @@ import javax.persistence.OneToMany;
 public class TransactionGroup {
 	@Id
 	@GeneratedValue
-	private long txnGrpId;
+	private long tripId;
 	
-	private Date creationDate;
-	private String tgName;
-	private String notes;
+	private String tripName;
+
+	@OneToMany(targetEntity = TransactionTable.class, fetch = FetchType.LAZY,
+			mappedBy = "trip", cascade = CascadeType.ALL)
+	private List<TransactionTable> transactionGroups;
 	
 	@ManyToOne
-	@JoinColumn(name = "tripId")
-	private Trip trip;
-	
-	@OneToMany(targetEntity = TransactionEntry.class, fetch = FetchType.LAZY,
-			mappedBy = "transactionGroup", cascade = CascadeType.ALL)
-	private List<TransactionEntry> transactionEntries;
-	
-	@ManyToMany
-	@JoinTable(name = "JOIN_TXNGRP_TAG",
-		joinColumns = {@JoinColumn(name = "txnGrpId")},
-		inverseJoinColumns = {@JoinColumn(name = "tagName")}
-	)
-	private List<Tag> tags;
+	@JoinColumn(name = "uid")
+	private PEMUser user;
 
-	public long getTxnGrpId() {
-		return txnGrpId;
+	public long getTripId() {
+		return tripId;
 	}
 
-	public void setTxnGrpId(long txnGrpId) {
-		this.txnGrpId = txnGrpId;
+	public void setTripId(long tripId) {
+		this.tripId = tripId;
 	}
 
-	public Date getCreationDate() {
-		return creationDate;
+	public String getTripName() {
+		return tripName;
 	}
 
-	public void setCreationDate(Date creationDate) {
-		this.creationDate = creationDate;
+	public void setTripName(String tripName) {
+		this.tripName = tripName;
 	}
 
-	public String getNotes() {
-		return notes;
+	public List<TransactionTable> getTransactionGroups() {
+		return transactionGroups;
 	}
 
-	public void setNotes(String notes) {
-		this.notes = notes;
+	public void setTransactionGroups(List<TransactionTable> transactionGroups) {
+		this.transactionGroups = transactionGroups;
 	}
 
-	public Trip getTrip() {
-		return trip;
+	public PEMUser getUser() {
+		return user;
 	}
 
-	public void setTrip(Trip trip) {
-		this.trip = trip;
-	}
-
-	public List<TransactionEntry> getTransactionEntries() {
-		return transactionEntries;
-	}
-
-	public void setTransactionEntries(List<TransactionEntry> transactionEntries) {
-		this.transactionEntries = transactionEntries;
-	}
-
-	public List<Tag> getTags() {
-		return tags;
-	}
-
-	public void setTags(List<Tag> tags) {
-		this.tags = tags;
-	}
-
-	public String getTgName() {
-		return tgName;
-	}
-
-	public void setTgName(String tgName) {
-		this.tgName = tgName;
+	public void setUser(PEMUser user) {
+		this.user = user;
 	}
 }

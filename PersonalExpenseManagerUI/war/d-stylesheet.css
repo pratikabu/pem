@@ -42,3 +42,9 @@ html, body {
 	color: black;
 	margin-left: 5px;
 }
+
+.readerPanelStrip {
+	background-color: #F8F8F8;
+	border-bottom: 1px SOLID #CBCBCB;
+	height: 45px;
+}

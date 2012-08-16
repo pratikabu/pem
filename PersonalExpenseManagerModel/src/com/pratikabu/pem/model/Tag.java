@@ -30,7 +30,7 @@ public class Tag {
 		joinColumns = {@JoinColumn(name = "tagName")},
 		inverseJoinColumns = {@JoinColumn(name = "txnGrpId")}
 	)
-	private List<TransactionGroup> transactionGroups;
+	private List<TransactionTable> transactionGroups;
 
 	public String getTagName() {
 		return tagName;
@@ -48,11 +48,11 @@ public class Tag {
 		this.user = user;
 	}
 
-	public List<TransactionGroup> getTransactionGroups() {
+	public List<TransactionTable> getTransactionGroups() {
 		return transactionGroups;
 	}
 
-	public void setTransactionGroups(List<TransactionGroup> transactionGroups) {
+	public void setTransactionGroups(List<TransactionTable> transactionGroups) {
 		this.transactionGroups = transactionGroups;
 	}
 }
