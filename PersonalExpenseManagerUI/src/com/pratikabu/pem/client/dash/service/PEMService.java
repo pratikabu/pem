@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.pratikabu.pem.shared.OneTimeData;
+import com.pratikabu.pem.shared.model.AccountDTO;
 import com.pratikabu.pem.shared.model.IPaidDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 
@@ -24,4 +26,8 @@ public interface PEMService extends RemoteService {
 	ArrayList<TransactionDTO> getAllTransactionsForGroupId(Long groupId);
 	
 	IPaidDTO getTransactionDetail(Long transactionId);
+	
+	OneTimeData fetchOneTimeData();
+	
+	ArrayList<AccountDTO> getAllAccounts();
 }

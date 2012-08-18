@@ -11,6 +11,7 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasName;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -204,5 +205,25 @@ public class Utility {
 		db.getElement().getStyle().setMargin(0, Unit.PX);
 		
 		return db;
+	}
+	
+	public static int[] getCenterOfWindow(int reqHeight, int reqWidth) {
+		int browserHeight = Window.getClientHeight();
+		int browserWidth = Window.getClientWidth();
+		
+		int top = 0, left = 0;
+		if (browserHeight > reqHeight) {
+			top = (browserHeight - reqHeight) / 2;
+		}
+		
+		if(browserWidth > reqWidth) {
+			left = (browserWidth - reqWidth) / 2;
+		}
+		
+		return new int[] {top, left};
+	}
+
+	public static void alert(String text) {
+		Window.alert(text);
 	}
 }

@@ -34,8 +34,6 @@ public class TransactionTable {
 	/** This should be of type outward = 2 or inward = 1 */
 	private int entryType;
 	
-	private double amount;
-	
 	@ManyToOne
 	@JoinColumn(name = "tripId")
 	private TransactionGroup trip;
@@ -113,13 +111,5 @@ public class TransactionTable {
 
 	public void setEntryType(int entryType) {
 		this.entryType = entryType;
-	}
-
-	public double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(double amount) {
-		this.amount = amount;
 	}
 }

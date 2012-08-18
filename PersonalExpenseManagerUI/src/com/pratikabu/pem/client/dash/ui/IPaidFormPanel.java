@@ -1,8 +1,13 @@
 package com.pratikabu.pem.client.dash.ui;
 
+import java.util.Date;
+
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -19,15 +24,18 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.pratikabu.pem.client.common.Constants;
 import com.pratikabu.pem.client.common.Utility;
+import com.pratikabu.pem.client.dash.OneTimeDataManager;
 import com.pratikabu.pem.client.dash.PaneManager;
+import com.pratikabu.pem.client.dash.components.AccountsDatabase;
+import com.pratikabu.pem.client.dash.components.AccountsDatabase.AccountsLoadingDoneListener;
 import com.pratikabu.pem.client.dash.components.AmountTextBox;
-import com.pratikabu.pem.client.dash.components.PaymentDistributionPanel;
-import com.pratikabu.pem.shared.OneTimeData;
+import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase;
+import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase.Data;
+import com.pratikabu.pem.client.dash.service.ServiceHelper;
+import com.pratikabu.pem.shared.model.AccountDTO;
 import com.pratikabu.pem.shared.model.IPaidDTO;
-import com.pratikabu.pem.shared.model.TransactionDTO;
 
 public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
-	private long transactionId;
 	private IPaidDTO dto;
 	
 	private FlexTable ft;
@@ -73,6 +81,12 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		Utility.updateNameAndId(amountBox, "amount");
 		amountBox.setWidth(width);
 		amountBox.setTabIndex(tabIndex++);
+		amountBox.addBlurHandler(new BlurHandler() {
+			@Override
+			public void onBlur(BlurEvent event) {
+				pdp.distributeEqualAmount();
+			}
+		});
 		
 		notes = Utility.getTextArea();
 		Utility.updateNameAndId(notes, "notes");
@@ -92,6 +106,8 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		populateTagList();
 		tagList.setTabIndex(tabIndex++);
 		
+		pdp = new PaymentDistributionPanel(PaymentDistributionPanel.TYPE_IPAID);
+		
 		save = Utility.getActionButton("Save");
 		save.getElement().getStyle().setFontSize(12, Unit.PX);
 		save.addClickHandler(new ClickHandler() {
@@ -106,7 +122,7 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		cancel.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				PaneManager.renderTransactionDetails(transactionId, TransactionDTO.ET_OUTWARD_TG);
+				PaneManager.renderDTOObject(dto);
 			}
 		});
 	}
@@ -147,7 +163,7 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		ft.setWidget(++row, 0, Utility.getLabel("Name"));
 		ft.setWidget(row, 1, transactionName);
 		
-		ft.setWidget(++row, 0, Utility.getLabel("Amount (in " + OneTimeData.getCurrecnySymbol() + ")"));
+		ft.setWidget(++row, 0, Utility.getLabel("Amount (in " + OneTimeDataManager.getOTD().getCurrecnySymbol() + ")"));
 		ft.setWidget(row, 1, amountBox);
 		
 		ft.setWidget(row, 2, Utility.getLabel("Payment Mode"));
@@ -161,9 +177,6 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		cellFormatter.setHorizontalAlignment(row, 2, HasHorizontalAlignment.ALIGN_LEFT);
 		
 		//////////////////add more people
-		pdp = new PaymentDistributionPanel();
-		pdp.updateData(null);
-
 		ft.setWidget(++row, 0, pdp);
 		cellFormatter.setColSpan(row, 0, 2);
 		cellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_LEFT);
@@ -191,27 +204,91 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 
 	@Override
 	public void renderRecord(Object obj) {
-		transactionId = (Long)obj;
+		PaneManager.setInReaderPane(Utility.getLoadingWidget());
+		if(null == obj || obj instanceof IPaidDTO) {
+			this.dto = (IPaidDTO)obj;
+			populateData();
+			PaneManager.setInReaderPane(IPaidFormPanel.this);
+		} else {
+			long transactionId = (Long)obj;
+			ServiceHelper.getPemservice().getTransactionDetail((Long) transactionId, new AsyncCallback<IPaidDTO>() {
+				@Override
+				public void onSuccess(IPaidDTO result) {
+					renderRecord(result);
+				}
+				
+				@Override
+				public void onFailure(Throwable caught) {
+					Utility.alert("Error fetching transaction details.");
+				}
+			});
+		}
+		
 		transactionName.setFocus(true);
 	}
 
-	private void populateTagList() {
-		tagList.addItem("Others", "other");
-		tagList.addItem("Entertainement", "entr");
-		tagList.addItem("Clothing", "clothing");
-		tagList.addItem("Shopping", "shop");
-		tagList.addItem("Sanyo", "san");
-		tagList.addItem("Sanyo1", "san1");
-		tagList.addItem("Sanyo2", "san2");
-		tagList.addItem("Sany3o", "san3");
+	private void populateData() {
+		if(null != dto) {
+			this.transactionDate.setValue(dto.getTransactionDate());
+			this.transactionName.setText(dto.getTransactionName());
+			this.amountBox.setAmount(dto.getAmount());
+			this.notes.setText(dto.getNotes());
+			
+			for(String tag : dto.getSelectedTags()) {
+				for(int i = 0; i < tagList.getItemCount(); i++) {
+					if(tag.equals(tagList.getValue(i))) {
+						tagList.setItemSelected(i, true);
+					}
+				}
+			}
 		
-		tagList.setItemSelected(0, true);
+			pdp.updateData(dto.getNewAmountDistribution());
+			
+			for(int i = 0; i < paymentSource.getItemCount(); i++) {
+				if((dto.getPaymentMode() + "").equals(paymentSource.getValue(i))) {
+					paymentSource.setSelectedIndex(i);
+					break;
+				}
+			}
+		} else {
+			transactionDate.setValue(new Date());
+			
+			for(int i = 0; i < tagList.getItemCount(); i++) {
+				if("Others".equals(tagList.getValue(i))) {
+					tagList.setItemSelected(i, true);
+					break;
+				}
+			}
+			
+			dto = new IPaidDTO();
+			
+			pdp.updateData(dto.getNewAmountDistribution());
+			AccountsDatabase.get().loadAccountsData(new AccountsLoadingDoneListener() {
+				@Override
+				public void accountsLoadingDone() {
+					Data d = new Data();
+					d.setAccount(AccountsDatabase.get().getMyself());
+					d.setAmount(amountBox.getAmount());
+					PaymentDistributionDatabase.get().addData(d);
+				}
+			});
+		}
+	}
+
+	private void populateTagList() {
+		for(String tag : OneTimeDataManager.getOTD().getTags()) {
+			tagList.addItem(tag);
+		}
 	}
 
 	private void populatePaymentMode() {
-		paymentSource.addItem("Main Balance", "other");
-		paymentSource.addItem("Credit Card", "entr");
-		paymentSource.addItem("Sodexo", "clothing");
+		for(AccountDTO a : OneTimeDataManager.getOTD().getUserSpecificPayableAccounts()) {
+			paymentSource.addItem(a.getAccountName(), a.getAccountId() + "");
+		}
+	}
+	
+	public double getAmount() {
+		return amountBox.getAmount();
 	}
 
 }

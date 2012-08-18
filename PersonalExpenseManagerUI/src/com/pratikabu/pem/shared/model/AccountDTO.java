@@ -14,7 +14,9 @@ public class AccountDTO implements Serializable {
 	private long accountId;
 	
 	private String accountName;
-
+	
+	private String accountType;
+	
 	public long getAccountId() {
 		return accountId;
 	}
@@ -29,5 +31,21 @@ public class AccountDTO implements Serializable {
 
 	public void setAccountName(String accountName) {
 		this.accountName = accountName;
+	}
+
+	public String getAccountType() {
+		return accountType;
+	}
+
+	public void setAccountType(String accountType) {
+		this.accountType = accountType;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(null == obj) {
+			return false;
+		}
+		return accountId == ((AccountDTO) obj).accountId;
 	}
 }

@@ -73,7 +73,7 @@ public class PaymentDistributionDatabase {
 	 * @param contact
 	 *            the contact to add.
 	 */
-	public void addContact(Data contact) {
+	public void addData(Data contact) {
 		List<Data> contacts = dataProvider.getList();
 		// Remove the contact first so we don't add a duplicate.
 		contacts.remove(contact);
@@ -88,6 +88,12 @@ public class PaymentDistributionDatabase {
 	 *            a {@Link HasData}.
 	 */
 	public void addDataDisplay(HasData<Data> display) {
+		// remove previous data display
+		if(!dataProvider.getDataDisplays().isEmpty()) {
+			dataProvider.removeDataDisplay(dataProvider.getDataDisplays().iterator().next());
+		}
+		
+		
 		dataProvider.addDataDisplay(display);
 	}
 
@@ -131,7 +137,7 @@ public class PaymentDistributionDatabase {
 		return tgData;
 	}
 	
-	public class Data {
+	public static class Data {
 		private boolean selected;
 		private AccountDTO account;
 		private Double amount;
@@ -161,10 +167,21 @@ public class PaymentDistributionDatabase {
 		}
 
 		@Override
-		public String toString() {
-			return "Data [selected=" + selected + ", account=" + account
-					+ ", amount=" + amount + "]";
+		public boolean equals(Object obj) {
+			if(null == obj) {
+				return false;
+			}
+			
+			if(this == obj) {
+				return true;
+			}
+			
+			return account.equals(((Data) obj).getAccount());
 		}
+	}
+	
+	public void clearData() {
+		dataProvider.getList().clear();
 	}
 
 }

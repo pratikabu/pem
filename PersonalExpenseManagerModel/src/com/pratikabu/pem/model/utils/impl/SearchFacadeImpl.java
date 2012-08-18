@@ -13,6 +13,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import com.pratikabu.pem.model.Account;
 import com.pratikabu.pem.model.PEMUser;
 import com.pratikabu.pem.model.TransactionGroup;
 import com.pratikabu.pem.model.TransactionTable;
@@ -27,14 +28,22 @@ import com.pratikabu.pem.model.utils.SearchFacade;
 public class SearchFacadeImpl implements SearchFacade {
 	private Logger logger = Logger.getLogger(SearchFacadeImpl.class);
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public <T> T readModelWithId(Class<T> c, Serializable primaryKey, boolean loadLazzyObjects) {
+	public <T> T readModelWithId(Class<T> c, Serializable primaryKey, boolean loadLazyObjects) {
 		Session session = HibernateConfiguration.getFactory().getCurrentSession();
 		session.beginTransaction();
 		T t = (T)session.get(c, primaryKey);
 		
-		if(loadLazzyObjects) {
+		loadLazyObjects(c, loadLazyObjects, t);
+		
+		session.getTransaction().commit();
+		
+		return t;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private <T> void loadLazyObjects(Class<T> c, boolean loadLazzyObjects, T t) {
+		if(loadLazzyObjects && null != t) {
 			for(Method m : c.getMethods()) {
 				if(m.getReturnType().getSimpleName().equals(List.class.getSimpleName())) {
 					try {
@@ -46,10 +55,6 @@ public class SearchFacadeImpl implements SearchFacade {
 				}
 			}
 		}
-		
-		session.getTransaction().commit();
-		
-		return t;
 	}
 	
 	@Override
@@ -62,7 +67,7 @@ public class SearchFacadeImpl implements SearchFacade {
 		session.beginTransaction();//to let know hibernate that the object below exists we have begin the transaction
 		try {
 			for(T t : ts) {
-				session.save(t);// it does not saves it here
+				session.saveOrUpdate(t);// it does not saves it here
 			}
 			session.getTransaction().commit();//it saves the object here
 			
@@ -159,5 +164,59 @@ public class SearchFacadeImpl implements SearchFacade {
 			query.setFetchSize(offset);
 			query.setFirstResult(startPosition);
 		}
+	}
+
+	@Override
+	public <T> List<T> readAllObjects(Class<T> c, boolean loadLazyObjects) {
+		Session s = HibernateConfiguration.getFactory().getCurrentSession();
+		s.beginTransaction();
+		Query query = s.createQuery("FROM " + c.getSimpleName());
+		List<T> list = query.list();
+		
+		if(loadLazyObjects && null != list) {
+			for(T t : list) {
+				loadLazyObjects(c, loadLazyObjects, t);
+			}
+		}
+		
+		s.getTransaction().commit();
+		
+		return list;
+	}
+
+	@Override
+	public List<Account> getAccountsForUser(Serializable pemUserPK,
+			int startPosition, int offset, boolean loadLazyData) {
+		List<Account> accounts = new ArrayList<Account>();
+		
+		if(null == pemUserPK) {
+			return null;
+		}
+		
+		long userId = (Long) pemUserPK;
+		
+		Session s = HibernateConfiguration.getFactory().getCurrentSession();
+		s.beginTransaction();
+		Query query = null;
+		
+		final String orderBy = " ORDER BY creationDate DESC";
+		
+		// show all the transactions for current user
+		query = s.createQuery("FROM Account WHERE uid=:userId)" + orderBy);
+		query.setLong("userId", userId);
+		
+		applyPagination(startPosition, offset, query);
+		
+		accounts = query.list();
+		
+		if(loadLazyData) {
+			for(Account t : accounts) {
+				loadLazyObjects(Account.class, loadLazyData, t);
+			}
+		}
+		
+		s.getTransaction().commit();
+		
+		return accounts;
 	}
 }

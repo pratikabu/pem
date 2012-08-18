@@ -19,11 +19,11 @@ package com.pratikabu.pem.client.dash.components;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
+import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 
@@ -74,7 +74,7 @@ public class TransactionDatabase {
 	 * @param contact
 	 *            the contact to add.
 	 */
-	public void addContact(TransactionDTO contact) {
+	public void addTransaction(TransactionDTO contact) {
 		List<TransactionDTO> contacts = dataProvider.getList();
 		// Remove the contact first so we don't add a duplicate.
 		contacts.remove(contact);
@@ -103,7 +103,7 @@ public class TransactionDatabase {
 			
 			@Override
 			public void onFailure(Throwable caught) {
-				Window.alert("Error fetching transactions");
+				Utility.alert("Error fetching transactions");
 			}
 		});
 	}

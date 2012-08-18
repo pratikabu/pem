@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 
 /**
  * @author pratsoni
@@ -23,10 +24,16 @@ public class IPaidDTO implements Serializable {
 	private ArrayList<String> selectedTags;
 	
 	private long paymentMode;
+	private String paymentModeString;
 	
 	private double amount;
 	
-	private LinkedHashMap<AccountDTO, Double> amountDistribution;
+	private long groupId;
+	private String groupName;
+	
+	private LinkedHashMap<AccountDTO, Double> savedAmountDistribution, newAmountDistribution;
+	
+	private LinkedHashMap<AccountDTO, Double> amountDistributionUpdated;
 
 	public long getTransactionId() {
 		return transactionId;
@@ -84,12 +91,65 @@ public class IPaidDTO implements Serializable {
 		this.amount = amount;
 	}
 
-	public LinkedHashMap<AccountDTO, Double> getAmountDistribution() {
-		return amountDistribution;
+	public LinkedHashMap<AccountDTO, Double> getSavedAmountDistribution() {
+		return savedAmountDistribution;
 	}
 
-	public void setAmountDistribution(
+	public void setSavedAmountDistribution(
 			LinkedHashMap<AccountDTO, Double> amountDistribution) {
-		this.amountDistribution = amountDistribution;
+		this.savedAmountDistribution = amountDistribution;
+	}
+
+	public long getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(long groupId) {
+		this.groupId = groupId;
+	}
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
+
+	public String getPaymentModeString() {
+		return paymentModeString;
+	}
+
+	public void setPaymentModeString(String paymentModeString) {
+		this.paymentModeString = paymentModeString;
+	}
+
+	public LinkedHashMap<AccountDTO, Double> getAmountDistributionUpdated() {
+		return amountDistributionUpdated;
+	}
+
+	public void setAmountDistributionUpdated(
+			LinkedHashMap<AccountDTO, Double> amountDistributionUpdated) {
+		this.amountDistributionUpdated = amountDistributionUpdated;
+	}
+
+	public LinkedHashMap<AccountDTO, Double> getNewAmountDistribution() {
+		if(null == newAmountDistribution) {
+			copySavedToNewDistribution();
+		}
+		return newAmountDistribution;
+	}
+	
+	public void copySavedToNewDistribution() {
+		newAmountDistribution = new LinkedHashMap<AccountDTO, Double>();
+		
+		if(null == savedAmountDistribution) {
+			return;
+		}
+		
+		// copy saved data to new structure
+		for(Entry<AccountDTO, Double> entry : savedAmountDistribution.entrySet()) {
+			newAmountDistribution.put(entry.getKey(), new Double(entry.getValue()));
+		}
 	}
 }

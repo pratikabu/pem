@@ -6,6 +6,7 @@ package com.pratikabu.pem.model.utils;
 import java.io.Serializable;
 import java.util.List;
 
+import com.pratikabu.pem.model.Account;
 import com.pratikabu.pem.model.TransactionTable;
 
 /**
@@ -14,7 +15,7 @@ import com.pratikabu.pem.model.TransactionTable;
  */
 public interface SearchFacade {
 	
-	<T> T readModelWithId(Class<T> c, Serializable primaryKey, boolean loadLazzyObjects);
+	<T> T readModelWithId(Class<T> c, Serializable primaryKey, boolean loadLazyObjects);
 
 	/**
 	 * This method will save the model in the database.
@@ -44,4 +45,22 @@ public interface SearchFacade {
 	 */
 	List<TransactionTable> getTransactionsForUser(Serializable pemUserPK, Serializable transactionGroupPK,
 			int startPosition, int offset, boolean loadLazyData);
+	
+	/**
+	 * It gives you freedom to fetch the list of particular type without any constraints.
+	 * @param c
+	 * @param loadLazzyObjects
+	 * @return
+	 */
+	<T> List<T> readAllObjects(Class<T> c, boolean loadLazyObjects);
+	
+	/**
+	 * This method fetches user for the supplied user. It will fetch all kind of users.
+	 * @param pemUserPK
+	 * @param startPosition
+	 * @param offset
+	 * @param loadLazyData
+	 * @return
+	 */
+	List<Account> getAccountsForUser(Serializable pemUserPK, int startPosition, int offset, boolean loadLazyData);
 }
