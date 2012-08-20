@@ -29,4 +29,6 @@ public interface PEMServiceAsync {
 
 	void getAllAccounts(AsyncCallback<ArrayList<AccountDTO>> callback);
 
+	void saveIPaidTransaction(IPaidDTO dto, AsyncCallback<Boolean> callback);
+
 }

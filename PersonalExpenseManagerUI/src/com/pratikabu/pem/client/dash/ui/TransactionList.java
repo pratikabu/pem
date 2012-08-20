@@ -16,6 +16,7 @@ import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.OneTimeDataManager;
 import com.pratikabu.pem.client.dash.PaneManager;
 import com.pratikabu.pem.client.dash.components.TransactionDatabase;
+import com.pratikabu.pem.shared.model.IPaidDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 
 /**
@@ -25,6 +26,7 @@ import com.pratikabu.pem.shared.model.TransactionDTO;
 public class TransactionList extends VerticalPanel {
 	private CellList<TransactionDTO> tgList;
 	
+	private long transactionGroupId = 65536;
 	
 	public TransactionList() {
 		tgList = new CellList<TransactionDTO>(new TransactionCell());
@@ -105,5 +107,25 @@ public class TransactionList extends VerticalPanel {
 			sb.appendHtmlConstant("</td></tr></table>");
 		}
 
+	}
+
+	public void addNewTransaction(TransactionDTO dto) {
+		if(dto instanceof IPaidDTO) {
+			
+		}
+	}
+
+	public void updateTransaction(TransactionDTO dto) {
+		if(dto instanceof IPaidDTO) {
+			
+		}
+	}
+
+	public long getTransactionGroupId() {
+		return transactionGroupId;
+	}
+
+	public void setTransactionGroupId(long transactionGroupId) {
+		this.transactionGroupId = transactionGroupId;
 	}
 }

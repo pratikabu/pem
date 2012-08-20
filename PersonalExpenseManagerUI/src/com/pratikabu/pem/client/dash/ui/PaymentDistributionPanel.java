@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Style.Unit;
@@ -18,14 +17,19 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SelectionChangeEvent.Handler;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.OneTimeDataManager;
 import com.pratikabu.pem.client.dash.PaneManager;
 import com.pratikabu.pem.client.dash.components.AccountsDatabase;
+import com.pratikabu.pem.client.dash.components.AmountTextBox;
 import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase;
+import com.pratikabu.pem.client.dash.components.AmountTextBox.AmountChangeListener;
 import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase.Data;
 import com.pratikabu.pem.client.dash.ui.AccountChooserDialog.AccountSelectionListener;
 import com.pratikabu.pem.shared.model.AccountDTO;
@@ -40,6 +44,9 @@ public class PaymentDistributionPanel extends VerticalPanel {
 	private Button removeSelected, addNew;
 	
 	private int sourceType;
+	private Data selectedData;
+	
+	private AmountTextBox amountBox;
 
 	public PaymentDistributionPanel(int sourceType) {
 		this.sourceType = sourceType;
@@ -65,6 +72,9 @@ public class PaymentDistributionPanel extends VerticalPanel {
 				
 				for(Data d : toBeRemoved) {
 					PaymentDistributionDatabase.get().getDataProvider().getList().remove(d);
+					if(selectedData == d) {
+						selectedData = null;
+					}
 				}
 				
 				distributeEqualAmount();
@@ -92,6 +102,20 @@ public class PaymentDistributionPanel extends VerticalPanel {
 						distributeEqualAmount();
 					}
 				});
+			}
+		});
+		
+		amountBox = new AmountTextBox(false);
+		amountBox.setWidth("60px");
+		Utility.updateNameAndId(amountBox, "updateAmount");
+		amountBox.getElement().getStyle().setFontSize(10, Unit.PX);
+		amountBox.setAmountChangeListener(new AmountChangeListener() {
+			@Override
+			public void amountChanged(Double newValue) {
+				if(null != selectedData && null != newValue) {
+					selectedData.setAmount(newValue);
+					PaymentDistributionDatabase.get().refreshDisplays();
+				}
 			}
 		});
 	}
@@ -126,31 +150,45 @@ public class PaymentDistributionPanel extends VerticalPanel {
 		};
 		dg.addColumn(accountColumn, "Account");
 		dg.setColumnWidth(accountColumn, "100px");
-
-		Column<Data, String> amountColumn = new Column<Data, String>(new EditTextCell()) {
+		
+		Column<Data, String> amountColumn = new Column<Data, String>(new TextCell()) {
 			@Override
 			public String getValue(Data object) {
 				return Utility.get2DecimalAmount(object.getAmount());
 			}
 		};
 		amountColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		amountColumn.setFieldUpdater(new FieldUpdater<Data, String>() {
-			@Override
-			public void update(int index, Data object, String value) {
-				System.out.println("Old Data Object: " + object);
-				System.out.println("I'm modified to the new value: " + value);
-			}
-		});
 		dg.addColumn(amountColumn, "Amount (" + OneTimeDataManager.getOTD().getCurrecnySymbol() + ")");
 		dg.setColumnWidth(amountColumn, "60px");
+		
+		final SingleSelectionModel<Data> ssm = new SingleSelectionModel<PaymentDistributionDatabase.Data>(
+				PaymentDistributionDatabase.KEY_PROVIDER);
+		dg.setSelectionModel(ssm);
+		ssm.addSelectionChangeHandler(new Handler() {
+			@Override
+			public void onSelectionChange(SelectionChangeEvent event) {
+				selectedData = ssm.getSelectedObject();
+				updateAmountBoxData();
+			}
+		});
 	}
 
 	private void placeObjects() {
 		this.add(dg);
 		
-		HorizontalPanel hp = (HorizontalPanel)Utility.addHorizontally(5, addNew, removeSelected);
-		hp.setHorizontalAlignment(ALIGN_RIGHT);
-		this.add(hp);
+		
+		///////////NORTH
+		DockPanel dp = new DockPanel();
+		dp.setStyleName("readerPanelStrip");
+		dp.setWidth("100%");
+		dp.setVerticalAlignment(ALIGN_MIDDLE);
+		
+		dp.setHorizontalAlignment(ALIGN_LEFT);
+		dp.add(Utility.addHorizontally(5, addNew, removeSelected), DockPanel.WEST);
+		
+		dp.setHorizontalAlignment(ALIGN_RIGHT);
+		dp.add(amountBox, DockPanel.EAST);
+		this.add(dp);
 	}
 
 	public void updateData(LinkedHashMap<AccountDTO, Double> paymentDistributionList) {
@@ -184,5 +222,15 @@ public class PaymentDistributionPanel extends VerticalPanel {
 		}
 		
 		PaymentDistributionDatabase.get().refreshDisplays();
+		updateAmountBoxData();
+	}
+
+	private void updateAmountBoxData() {
+		if(null == selectedData) {
+			amountBox.setAmount(0d);
+			return;
+		}
+		
+		amountBox.setAmount(selectedData.getAmount());
 	}
 }

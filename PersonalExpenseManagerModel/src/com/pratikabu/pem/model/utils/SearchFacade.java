@@ -22,14 +22,22 @@ public interface SearchFacade {
 	 * @param t
 	 * @return
 	 */
-	<T> boolean saveModel(T... t);
+	boolean saveModel(Object... toBeSaved);
 	
 	/**
 	 * This method will remove the 
 	 * @param t
 	 * @return
 	 */
-	<T> boolean deleteModel(T t);
+	boolean deleteModel(Object... toBeDeleted);
+	
+	/**
+	 * This method will save and delete objects passed in the method.
+	 * @param toBeSaved Objects to be saved.
+	 * @param toBeDeleted Objects to be deleted.
+	 * @return
+	 */
+	boolean saveDeleteModels(List<Object> toBeSaved, List<Object> toBeDeleted);
 	
 	boolean isValidUser(String email, String password);
 	
@@ -63,4 +71,6 @@ public interface SearchFacade {
 	 * @return
 	 */
 	List<Account> getAccountsForUser(Serializable pemUserPK, int startPosition, int offset, boolean loadLazyData);
+
+	List<Account> getAccountsForUserOfType(Serializable pemUserPK, String... accTypes);
 }

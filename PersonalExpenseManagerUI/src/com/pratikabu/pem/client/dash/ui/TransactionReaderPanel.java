@@ -70,8 +70,7 @@ public class TransactionReaderPanel extends HTML implements DetailPaneable {
 	}
 
 	public static void editTransaction() {
-//		PaneManager.editDTOObject(iPaidDTO);
-		PaneManager.createNewForm(TransactionDTO.ET_OUTWARD_TG);
+		PaneManager.editDTOObject(iPaidDTO);
 	}
 
 	public static native void exportStaticMethod() /*-{
@@ -85,13 +84,13 @@ public class TransactionReaderPanel extends HTML implements DetailPaneable {
 		
 		String content = "<table cellspacing='0px' width='100%' style='background-color: #F8F8F8; border-bottom: 1px" +
 				" SOLID #CBCBCB;'><tr> <td width='50%'><table cellspacing='0px' class='readerPTag'><tr><td align='left'" +
-				" class='readerHeader'>"+ Utility.getDateFormatted(d.getTransactionDate()) + "</td></tr> <tr>" +
-				"<td align='left' class='readerHeader'>" + d.getTransactionName() +
+				" class='readerHeader'>"+ Utility.getDateFormatted(d.getDate()) + "</td></tr> <tr>" +
+				"<td align='left' class='readerHeader'>" + d.getName() +
 				", in " + d.getGroupName() + "</td></tr> </table></td> <td width='50%' align='right' style='vertical-align: middle;'>" +
 				"<table cellspacing='0px' class='readerPTag'> <tr><td align='right'><input type='button' id='readerEdit' value='Edit'" +
 				" class='actionButton' style='font-size: 12px; margin-right: 5px;' onclick='editTransaction()' /></td></tr> </table></td>" +
 				" </tr></table><p class='readerPTag'> iPaid a total amount of <strong>" +
-				Utility.getPrintableAmountWithSign(OneTimeDataManager.getOTD().getCurrecnySymbol(), d.getAmount()) +
+				Utility.getPrintableAmountWithSign(OneTimeDataManager.getOTD().getCurrecnySymbol(), d.getTotalAmount()) +
 				"</strong> using <strong>" + d.getPaymentModeString() +
 				"</strong>.<br/> I spent it on: ";
 		
@@ -108,7 +107,7 @@ public class TransactionReaderPanel extends HTML implements DetailPaneable {
 		content += "<br/><br/>" +
 				"  <span style='text-decoration: underline;'>Who all were there:</span></p><table cellspacing='0px' class='readerPTag'>";
 				
-		for(Entry<AccountDTO, Double> entry : d.getSavedAmountDistribution().entrySet()) {
+		for(Entry<AccountDTO, Double> entry : d.getAmountDistribution().entrySet()) {
 			content += "<tr><td width='150px' align='left' class='readerPTag'>" + entry.getKey().getAccountName() + "</td>" +
 					"<td align='right' class='readerPTag'> " + Utility.getPrintableAmountWithSign(OneTimeDataManager.getOTD().getCurrecnySymbol(),
 							entry.getValue()) + "</td></tr>";

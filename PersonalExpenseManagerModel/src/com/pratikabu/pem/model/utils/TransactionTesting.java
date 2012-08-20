@@ -3,12 +3,17 @@ package com.pratikabu.pem.model.utils;
 import java.util.Date;
 import java.util.List;
 
+import com.pratikabu.pem.model.Account;
 import com.pratikabu.pem.model.PEMUser;
 import com.pratikabu.pem.model.TransactionGroup;
 import com.pratikabu.pem.model.TransactionTable;
 
 public class TransactionTesting {
 	public static void main(String[] args) {
+		for(Account a : SearchHelper.getFacade().getAccountsForUserOfType(1L, "main", "credit")) {
+			System.out.println(a.getAccName());
+		}
+		
 //		readData(2, null);//65537L);
 //		createTestData(2);
 		

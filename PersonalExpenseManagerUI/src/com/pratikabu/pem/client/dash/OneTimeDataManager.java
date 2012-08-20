@@ -4,10 +4,8 @@
 package com.pratikabu.pem.client.dash;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
-import com.pratikabu.pem.client.dash.ui.TransactionList;
 import com.pratikabu.pem.shared.OneTimeData;
 
 /**
@@ -23,7 +21,7 @@ public class OneTimeDataManager {
 			@Override
 			public void onSuccess(OneTimeData result) {
 				otd = result;
-				RootPanel.get("txnListContainer").add(new TransactionList());
+				PaneManager.setInTListPane(PaneManager.gettList());
 			}
 			
 			@Override

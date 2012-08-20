@@ -1,10 +1,10 @@
 package com.pratikabu.pem.client.dash.ui;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -14,7 +14,6 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
@@ -29,6 +28,7 @@ import com.pratikabu.pem.client.dash.PaneManager;
 import com.pratikabu.pem.client.dash.components.AccountsDatabase;
 import com.pratikabu.pem.client.dash.components.AccountsDatabase.AccountsLoadingDoneListener;
 import com.pratikabu.pem.client.dash.components.AmountTextBox;
+import com.pratikabu.pem.client.dash.components.AmountTextBox.AmountChangeListener;
 import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase;
 import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase.Data;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
@@ -81,9 +81,9 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		Utility.updateNameAndId(amountBox, "amount");
 		amountBox.setWidth(width);
 		amountBox.setTabIndex(tabIndex++);
-		amountBox.addBlurHandler(new BlurHandler() {
+		amountBox.setAmountChangeListener(new AmountChangeListener() {
 			@Override
-			public void onBlur(BlurEvent event) {
+			public void amountChanged(Double newValue) {
 				pdp.distributeEqualAmount();
 			}
 		});
@@ -113,7 +113,29 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		save.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				System.out.println(transactionDate.getValue());
+				completeTransactionData();
+				ServiceHelper.getPemservice().saveIPaidTransaction(dto, new AsyncCallback<Boolean>() {
+					@Override
+					public void onSuccess(Boolean result) {
+						if(result) {
+							if(null == dto.getAmountDistribution()) {
+								PaneManager.gettList().addNewTransaction(dto);
+							} else {
+								PaneManager.gettList().updateTransaction(dto);
+							}
+							Utility.alert("saved");
+						} else {
+							Utility.alert("Error while saving data. Please try again.\n" +
+									"If problem persist then kindly reload.");
+						}
+					}
+					
+					@Override
+					public void onFailure(Throwable caught) {
+						Utility.alert("Error while saving data. Please try again.\n" +
+								"If problem persist then kindly reload.");
+					}
+				});
 			}
 		});
 		
@@ -134,17 +156,12 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		dp.setWidth("100%");
 		dp.setVerticalAlignment(ALIGN_MIDDLE);
 		
-		HorizontalPanel hp1 = new HorizontalPanel();
-		hp1.setSpacing(5);
-		hp1.add(save);
-		hp1.add(cancel);
-		
 		dp.setHorizontalAlignment(ALIGN_LEFT);
 		Label lb = Utility.getLabel("iPaid Form", Constants.CSS_FORM_HEADING);
 		lb.getElement().getStyle().setPaddingLeft(5, Unit.PX);
 		dp.add(lb, DockPanel.WEST);
 		dp.setHorizontalAlignment(ALIGN_RIGHT);
-		dp.add(hp1, DockPanel.EAST);
+		dp.add(Utility.addHorizontally(5, save, cancel), DockPanel.EAST);
 		this.add(dp);
 		
 		/////////////////////////////////////////////// CENTER
@@ -229,9 +246,9 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 
 	private void populateData() {
 		if(null != dto) {
-			this.transactionDate.setValue(dto.getTransactionDate());
-			this.transactionName.setText(dto.getTransactionName());
-			this.amountBox.setAmount(dto.getAmount());
+			this.transactionDate.setValue(dto.getDate());
+			this.transactionName.setText(dto.getName());
+			this.amountBox.setAmount(dto.getTotalAmount());
 			this.notes.setText(dto.getNotes());
 			
 			for(String tag : dto.getSelectedTags()) {
@@ -242,7 +259,7 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 				}
 			}
 		
-			pdp.updateData(dto.getNewAmountDistribution());
+			pdp.updateData(dto.getAmountDistribution());
 			
 			for(int i = 0; i < paymentSource.getItemCount(); i++) {
 				if((dto.getPaymentMode() + "").equals(paymentSource.getValue(i))) {
@@ -262,7 +279,7 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 			
 			dto = new IPaidDTO();
 			
-			pdp.updateData(dto.getNewAmountDistribution());
+			pdp.updateData(dto.getAmountDistribution());
 			AccountsDatabase.get().loadAccountsData(new AccountsLoadingDoneListener() {
 				@Override
 				public void accountsLoadingDone() {
@@ -289,6 +306,36 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 	
 	public double getAmount() {
 		return amountBox.getAmount();
+	}
+
+	private void completeTransactionData() {
+		dto.setName(transactionName.getText());
+		dto.setNotes(notes.getText());
+		dto.setDate(transactionDate.getValue());
+		// save payment mode
+		dto.setPaymentMode(Long.parseLong(paymentSource.getValue(paymentSource.getSelectedIndex())));
+		
+		// save tags
+		ArrayList<String> tags = new ArrayList<String>();
+		for(int i = 0; i < tagList.getItemCount(); i++) {
+			if(tagList.isItemSelected(i)) {
+				tags.add(tagList.getValue(i));
+			}
+		}
+		dto.setSelectedTags(tags);
+		
+		if(0 >= dto.getTransactionId()) {
+			dto.setGroupId(PaneManager.gettList().getTransactionGroupId());
+		}
+		
+		// copy distribution
+		LinkedHashMap<AccountDTO, Double> amountDistribution = new LinkedHashMap<AccountDTO, Double>();
+		
+		for(Data d : PaymentDistributionDatabase.get().getDataProvider().getList()) {
+			amountDistribution.put(d.getAccount(), d.getAmount());
+		}
+		
+		dto.setAmountDistribution(amountDistribution);
 	}
 
 }

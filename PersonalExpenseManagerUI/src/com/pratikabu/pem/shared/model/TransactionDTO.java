@@ -19,6 +19,11 @@ public class TransactionDTO implements Serializable {
 	private int entryType = ET_INWARD_TG;
 	private double amount;
 	private Date date;
+	
+	private String notes;
+	
+	private long groupId;
+	private String groupName;
 
 	public String getName() {
 		return name;
@@ -58,5 +63,29 @@ public class TransactionDTO implements Serializable {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+
+	public String getNotes() {
+		return notes;
+	}
+
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+
+	public long getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(long groupId) {
+		this.groupId = groupId;
+	}
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
 }

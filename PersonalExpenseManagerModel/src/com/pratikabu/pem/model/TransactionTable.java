@@ -31,7 +31,7 @@ public class TransactionTable {
 	private String tgName;
 	private String notes;
 	
-	/** This should be of type outward = 2 or inward = 1 */
+	/** This should be of type outward = 1 or inward = 2 */
 	private int entryType;
 	
 	@ManyToOne

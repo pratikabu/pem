@@ -5,13 +5,13 @@ package com.pratikabu.pem.model.utils.impl;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 
 import com.pratikabu.pem.model.Account;
 import com.pratikabu.pem.model.PEMUser;
@@ -58,38 +58,61 @@ public class SearchFacadeImpl implements SearchFacade {
 	}
 	
 	@Override
-	public <T> boolean saveModel(T... ts) {
-		if(null == ts) {
+	public boolean saveModel(Object... toBeSaved) {
+		if(null == toBeSaved) {
 			return false;
 		}
 		
 		Session session = HibernateConfiguration.getFactory().getCurrentSession();
 		session.beginTransaction();//to let know hibernate that the object below exists we have begin the transaction
 		try {
-			for(T t : ts) {
-				session.saveOrUpdate(t);// it does not saves it here
+			for(Object obj : toBeSaved) {
+				session.saveOrUpdate(obj);// it does not saves it here
 			}
 			session.getTransaction().commit();//it saves the object here
 			
 			return true;
 		} catch(HibernateException he) {
-			logger.error("Exception while saving: " + ts, he);
+			logger.error("Exception while saving: " + toBeSaved, he);
 			session.getTransaction().rollback();
 			return false;
 		}
 	}
 	
 	@Override
-	public <T> boolean deleteModel(T t) {
+	public boolean deleteModel(Object... toBeDeleted) {
 		Session session = HibernateConfiguration.getFactory().getCurrentSession();
 		session.beginTransaction();//to let know hibernate that the object below exists we have begin the transaction
 		try {
-			session.delete(t);//it does not delete it here
+			for(Object obj : toBeDeleted) {
+				session.delete(obj);//it does not delete it here
+			}
 			session.getTransaction().commit();//it deletes the object here
 			
 			return true;
 		} catch(HibernateException he) {
-			logger.error("Exception while deleting: " + t, he);
+			logger.error("Exception while deleting: " + toBeDeleted, he);
+			session.getTransaction().rollback();
+			return false;
+		}
+	}
+
+	@Override
+	public boolean saveDeleteModels(List<Object> toBeSaved, List<Object> toBeDeleted) {
+		Session session = HibernateConfiguration.getFactory().getCurrentSession();
+		session.beginTransaction();//to let know hibernate that the object below exists we have begin the transaction
+		try {
+			for(Object t : toBeSaved) {
+				session.saveOrUpdate(t);//it does not save it here
+			}
+			for(Object t : toBeDeleted) {
+				session.delete(t);//it does not delete it here
+			}
+			session.getTransaction().commit();//it deletes the object here
+			
+			return true;
+		} catch(HibernateException he) {
+			logger.error("Exception while saving and deleting.", he);
 			session.getTransaction().rollback();
 			return false;
 		}
@@ -110,7 +133,7 @@ public class SearchFacadeImpl implements SearchFacade {
 	@Override
 	public List<TransactionTable> getTransactionsForUser(Serializable pemUserPK, Serializable transactionGroupPK,
 			int startPosition, int offset, boolean loadLazyData) {
-		List<TransactionTable> transactions = new ArrayList<TransactionTable>();
+		List<TransactionTable> transactions = null;
 		
 		if(null == pemUserPK) {
 			return null;
@@ -187,7 +210,7 @@ public class SearchFacadeImpl implements SearchFacade {
 	@Override
 	public List<Account> getAccountsForUser(Serializable pemUserPK,
 			int startPosition, int offset, boolean loadLazyData) {
-		List<Account> accounts = new ArrayList<Account>();
+		List<Account> accounts = null;
 		
 		if(null == pemUserPK) {
 			return null;
@@ -202,8 +225,7 @@ public class SearchFacadeImpl implements SearchFacade {
 		final String orderBy = " ORDER BY creationDate DESC";
 		
 		// show all the transactions for current user
-		query = s.createQuery("FROM Account WHERE uid=:userId)" + orderBy);
-		query.setLong("userId", userId);
+		query = s.createQuery("FROM Account WHERE uid=:userId)" + orderBy).setLong("userId", userId);
 		
 		applyPagination(startPosition, offset, query);
 		
@@ -214,6 +236,29 @@ public class SearchFacadeImpl implements SearchFacade {
 				loadLazyObjects(Account.class, loadLazyData, t);
 			}
 		}
+		
+		s.getTransaction().commit();
+		
+		return accounts;
+	}
+
+	@Override
+	public List<Account> getAccountsForUserOfType(Serializable pemUserPK, String... accTypes) {
+		List<Account> accounts = null;
+		
+		if(null == pemUserPK) {
+			return null;
+		}
+		
+		long userId = (Long) pemUserPK;
+		
+		Session s = HibernateConfiguration.getFactory().getCurrentSession();
+		s.beginTransaction();
+		
+		accounts = s.createCriteria(Account.class).
+				add(Restrictions.eq("user.uid", userId)).
+				add(Restrictions.in("accountType.atCode", accTypes)).
+				list();
 		
 		s.getTransaction().commit();
 		

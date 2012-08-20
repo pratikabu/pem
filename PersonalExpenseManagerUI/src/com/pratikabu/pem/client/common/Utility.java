@@ -185,6 +185,10 @@ public class Utility {
 	}
 	
 	public static String getDateFormatted(Date date) {
+		if(null == date) {
+			return "null";
+		}
+		
 		DateTimeFormat formatter = DateTimeFormat.getFormat("dd MMM, yyyy");
 		return formatter.format(date);
 	}

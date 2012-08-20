@@ -18,12 +18,10 @@ package com.pratikabu.pem.client.dash.components;
 
 import java.util.List;
 
-import com.google.gwt.user.client.Random;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.pratikabu.pem.shared.model.AccountDTO;
-import com.sun.corba.se.pept.transport.ContactInfo;
 
 /**
  * The data source for contact information used in the sample.
@@ -63,8 +61,6 @@ public class PaymentDistributionDatabase {
 	 * Construct a new contact database.
 	 */
 	private PaymentDistributionDatabase() {
-		// Generate initial data.
-		generateContacts(5);
 	}
 
 	/**
@@ -97,20 +93,6 @@ public class PaymentDistributionDatabase {
 		dataProvider.addDataDisplay(display);
 	}
 
-	/**
-	 * Generate the specified number of contacts and add them to the data
-	 * provider.
-	 * 
-	 * @param count
-	 *            the number of contacts to generate.
-	 */
-	public void generateContacts(int count) {
-		List<Data> tgCellsData = dataProvider.getList();
-		for (int i = 0; i < count; i++) {
-			tgCellsData.add(createTgCellData(i));
-		}
-	}
-
 	public ListDataProvider<Data> getDataProvider() {
 		return dataProvider;
 	}
@@ -120,21 +102,6 @@ public class PaymentDistributionDatabase {
 	 */
 	public void refreshDisplays() {
 		dataProvider.refresh();
-	}
-
-	/**
-	 * Create a new random {@link ContactInfo}.
-	 * 
-	 * @return the new {@link ContactInfo}.
-	 */
-	private Data createTgCellData(int id) {
-		Data tgData = new Data();
-		AccountDTO acc = new AccountDTO();
-		acc.setAccountId(id);
-		acc.setAccountName("Acc Name " + id);
-		tgData.setAccount(acc);
-		tgData.setAmount(Random.nextInt(30000) + Random.nextDouble());
-		return tgData;
 	}
 	
 	public static class Data {

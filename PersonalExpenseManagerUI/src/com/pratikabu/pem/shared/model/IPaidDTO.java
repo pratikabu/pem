@@ -3,9 +3,7 @@
  */
 package com.pratikabu.pem.shared.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
@@ -14,58 +12,13 @@ import java.util.Map.Entry;
  *
  */
 @SuppressWarnings("serial")
-public class IPaidDTO implements Serializable {
-	private long transactionId;
-	
-	private Date transactionDate;
-	
-	private String transactionName, notes;
-	
+public class IPaidDTO extends TransactionDTO {
 	private ArrayList<String> selectedTags;
 	
 	private long paymentMode;
 	private String paymentModeString;
 	
-	private double amount;
-	
-	private long groupId;
-	private String groupName;
-	
-	private LinkedHashMap<AccountDTO, Double> savedAmountDistribution, newAmountDistribution;
-	
-	private LinkedHashMap<AccountDTO, Double> amountDistributionUpdated;
-
-	public long getTransactionId() {
-		return transactionId;
-	}
-
-	public void setTransactionId(long transactionId) {
-		this.transactionId = transactionId;
-	}
-
-	public Date getTransactionDate() {
-		return transactionDate;
-	}
-
-	public void setTransactionDate(Date transactionDate) {
-		this.transactionDate = transactionDate;
-	}
-
-	public String getTransactionName() {
-		return transactionName;
-	}
-
-	public void setTransactionName(String transactionName) {
-		this.transactionName = transactionName;
-	}
-
-	public String getNotes() {
-		return notes;
-	}
-
-	public void setNotes(String notes) {
-		this.notes = notes;
-	}
+	private LinkedHashMap<AccountDTO, Double> amountDistribution;
 
 	public ArrayList<String> getSelectedTags() {
 		return selectedTags;
@@ -83,37 +36,13 @@ public class IPaidDTO implements Serializable {
 		this.paymentMode = paymentMode;
 	}
 
-	public double getAmount() {
-		return amount;
+	public LinkedHashMap<AccountDTO, Double> getAmountDistribution() {
+		return amountDistribution;
 	}
 
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
-
-	public LinkedHashMap<AccountDTO, Double> getSavedAmountDistribution() {
-		return savedAmountDistribution;
-	}
-
-	public void setSavedAmountDistribution(
+	public void setAmountDistribution(
 			LinkedHashMap<AccountDTO, Double> amountDistribution) {
-		this.savedAmountDistribution = amountDistribution;
-	}
-
-	public long getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(long groupId) {
-		this.groupId = groupId;
-	}
-
-	public String getGroupName() {
-		return groupName;
-	}
-
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
+		this.amountDistribution = amountDistribution;
 	}
 
 	public String getPaymentModeString() {
@@ -124,32 +53,13 @@ public class IPaidDTO implements Serializable {
 		this.paymentModeString = paymentModeString;
 	}
 
-	public LinkedHashMap<AccountDTO, Double> getAmountDistributionUpdated() {
-		return amountDistributionUpdated;
-	}
-
-	public void setAmountDistributionUpdated(
-			LinkedHashMap<AccountDTO, Double> amountDistributionUpdated) {
-		this.amountDistributionUpdated = amountDistributionUpdated;
-	}
-
-	public LinkedHashMap<AccountDTO, Double> getNewAmountDistribution() {
-		if(null == newAmountDistribution) {
-			copySavedToNewDistribution();
+	public double getTotalAmount() {
+		double ta = 0d;
+		if(null != amountDistribution) {
+			for(Entry<AccountDTO, Double> entry : amountDistribution.entrySet()) {
+				ta += entry.getValue();
+			}
 		}
-		return newAmountDistribution;
-	}
-	
-	public void copySavedToNewDistribution() {
-		newAmountDistribution = new LinkedHashMap<AccountDTO, Double>();
-		
-		if(null == savedAmountDistribution) {
-			return;
-		}
-		
-		// copy saved data to new structure
-		for(Entry<AccountDTO, Double> entry : savedAmountDistribution.entrySet()) {
-			newAmountDistribution.put(entry.getKey(), new Double(entry.getValue()));
-		}
+		return ta;
 	}
 }

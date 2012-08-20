@@ -30,4 +30,6 @@ public interface PEMService extends RemoteService {
 	OneTimeData fetchOneTimeData();
 	
 	ArrayList<AccountDTO> getAllAccounts();
+	
+	Boolean saveIPaidTransaction(IPaidDTO dto);
 }

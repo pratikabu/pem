@@ -3,12 +3,15 @@ package com.pratikabu.pem.server;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.pratikabu.pem.client.dash.components.AccountsDatabase;
 import com.pratikabu.pem.client.dash.service.PEMService;
 import com.pratikabu.pem.model.Account;
 import com.pratikabu.pem.model.Tag;
 import com.pratikabu.pem.model.TransactionEntry;
+import com.pratikabu.pem.model.TransactionGroup;
 import com.pratikabu.pem.model.TransactionTable;
 import com.pratikabu.pem.model.utils.SearchHelper;
 import com.pratikabu.pem.shared.OneTimeData;
@@ -67,8 +70,8 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		IPaidDTO d = new IPaidDTO();
 		d.setTransactionId(transactionId);
 		d.setNotes(tt.getNotes());
-		d.setTransactionDate(tt.getCreationDate());
-		d.setTransactionName(tt.getTgName());
+		d.setDate(tt.getCreationDate());
+		d.setName(tt.getTgName());
 		
 		ArrayList<String> tags = new ArrayList<String>();
 		for(Tag t : tt.getTags()) {
@@ -82,7 +85,6 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 			d.setPaymentModeString(acc.getAccName());
 		}
 		
-		double totalAmount = 0;
 		LinkedHashMap<AccountDTO, Double> amountDistribution = new LinkedHashMap<AccountDTO, Double>();
 		for(TransactionEntry entry : tt.getTransactionEntries()) {
 			AccountDTO acc = new AccountDTO();
@@ -90,12 +92,8 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 			acc.setAccountName(entry.getInwardAccount().getAccName());
 			
 			amountDistribution.put(acc, entry.getAmount());
-			
-			totalAmount += entry.getAmount();
 		}
-		d.setSavedAmountDistribution(amountDistribution);
-		
-		d.setAmount(totalAmount);
+		d.setAmountDistribution(amountDistribution);
 		
 		d.setGroupId(tt.getTrip().getTripId());
 		d.setGroupName(tt.getTrip().getTripName());
@@ -116,21 +114,15 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		otd.setTags(tags);
 		
 		ArrayList<AccountDTO> accs = new ArrayList<AccountDTO>();
-		AccountDTO a = new AccountDTO();
-		a.setAccountId(1);
-		a.setAccountName("Main Balance");
-		accs.add(a);
-		
-		a = new AccountDTO();
-		a.setAccountId(2);
-		a.setAccountName("Credit Card");
-		accs.add(a);
-		
-		a = new AccountDTO();
-		a.setAccountId(3);
-		a.setAccountName("Sodexo");
-		accs.add(a);
-		
+		for(Account a : SearchHelper.getFacade().getAccountsForUserOfType(1L,
+				AccountsDatabase.AT_MAIN, AccountsDatabase.AT_CREDIT, AccountsDatabase.AT_OTHER)) {
+			AccountDTO acc = new AccountDTO();
+			acc.setAccountId(a.getAccountId());
+			acc.setAccountName(a.getAccName());
+			acc.setAccountType(a.getAccountType().getAtCode());
+			
+			accs.add(acc);
+		}
 		otd.setUserSpecificPayableAccounts(accs);
 		
 		return otd;
@@ -150,6 +142,57 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		}
 		
 		return accounts;
+	}
+
+	@Override
+	public Boolean saveIPaidTransaction(IPaidDTO dto) {
+		List<Object> toBeSaved = new ArrayList<Object>();
+		List<Object> toBeDeleted = new ArrayList<Object>();
+		
+		LinkedHashMap<Account, Double> oldAmountDistribution = new LinkedHashMap<Account, Double>();
+		
+		TransactionTable tt = null;
+		if(dto.getTransactionId() > 0) { // old transaction
+			tt = SearchHelper.getFacade().readModelWithId(TransactionTable.class, dto.getTransactionId(), true);
+			
+			for(TransactionEntry te : tt.getTransactionEntries()) {
+				oldAmountDistribution.put(te.getInwardAccount(), te.getAmount());
+				toBeDeleted.add(te);
+			}
+		} else { // new transaction
+			tt = new TransactionTable();
+			tt.setTrip(SearchHelper.getFacade().readModelWithId(TransactionGroup.class, dto.getGroupId(), false));
+		}
+		
+		tt.setTgName(dto.getName());
+		tt.setEntryType(TransactionDTO.ET_OUTWARD_TG);
+		tt.setCreationDate(dto.getDate());
+		tt.setNotes(dto.getNotes());
+		
+		ArrayList<Tag> tags = new ArrayList<Tag>();
+		for(String tag : dto.getSelectedTags()) {
+			Tag t = new Tag();
+			t.setTagName(tag);
+			tags.add(t);
+		}
+		tt.setTags(tags);
+		
+		toBeSaved.add(tt);
+		
+		Account outwardAccount = SearchHelper.getFacade().readModelWithId(Account.class, dto.getPaymentMode(), false);
+		
+		// add the transaction entries
+		for(Entry<AccountDTO, Double> entry : dto.getAmountDistribution().entrySet()) {
+			TransactionEntry te = new TransactionEntry();
+			te.setAmount(entry.getValue());
+			te.setTransactionGroup(tt);
+			te.setOutwardAccount(outwardAccount);
+			te.setInwardAccount(SearchHelper.getFacade().readModelWithId(Account.class, entry.getKey().getAccountId(), false));
+			
+			toBeSaved.add(te);
+		}
+		
+		return SearchHelper.getFacade().saveDeleteModels(toBeSaved, toBeDeleted);
 	}
 	
 }

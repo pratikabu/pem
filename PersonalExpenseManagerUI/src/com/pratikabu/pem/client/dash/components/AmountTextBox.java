@@ -3,8 +3,8 @@
  */
 package com.pratikabu.pem.client.dash.components;
 
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.TextBox;
 import com.pratikabu.pem.client.common.Constants;
 import com.pratikabu.pem.client.common.Utility;
@@ -18,17 +18,21 @@ public class AmountTextBox extends TextBox {
 	
 	private boolean negativeAllowed = true;
 	
+	private AmountChangeListener amountChangeListener;
+	
 	public AmountTextBox(boolean negativeAllowed) {
 		this.negativeAllowed = negativeAllowed;
 		
 		this.setStyleName(Constants.CSS_NORMAL_TEXT);
 		backgroundColor = this.getElement().getStyle().getBackgroundColor();
-		this.addBlurHandler(new BlurHandler() {
+		this.addChangeHandler(new ChangeHandler() {
 			@Override
-			public void onBlur(BlurEvent event) {
+			public void onChange(ChangeEvent event) {
 				setAmount(getAmount());
+				invokeAmountChanged();
 			}
 		});
+		
 		this.setAmount(0.0);
 	}
 	
@@ -64,5 +68,24 @@ public class AmountTextBox extends TextBox {
 		} catch(Exception e) {
 			return null;
 		}
+	}
+
+	private void invokeAmountChanged() {
+		if(null == amountChangeListener) {
+			return;
+		}
+		
+		Double amt = getAmount();
+		if(null != amt) {
+			amountChangeListener.amountChanged(amt);
+		}
+	}
+	
+	public void setAmountChangeListener(AmountChangeListener amountChangeListener) {
+		this.amountChangeListener = amountChangeListener;
+	}
+
+	public static interface AmountChangeListener {
+		void amountChanged(Double newValue);
 	}
 }
