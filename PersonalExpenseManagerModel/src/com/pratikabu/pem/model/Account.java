@@ -101,4 +101,13 @@ public class Account {
 	public void setUser(PEMUser user) {
 		this.user = user;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(null == obj || !(obj instanceof Account)) {
+			return false;
+		}
+		
+		return accountId == ((Account) obj).accountId;
+	}
 }

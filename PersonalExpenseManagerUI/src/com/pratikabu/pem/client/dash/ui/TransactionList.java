@@ -109,13 +109,7 @@ public class TransactionList extends VerticalPanel {
 
 	}
 
-	public void addNewTransaction(TransactionDTO dto) {
-		if(dto instanceof IPaidDTO) {
-			
-		}
-	}
-
-	public void updateTransaction(TransactionDTO dto) {
+	public void addUpdateTransaction(TransactionDTO dto) {
 		if(dto instanceof IPaidDTO) {
 			
 		}

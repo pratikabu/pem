@@ -102,13 +102,13 @@ public class SearchFacadeImpl implements SearchFacade {
 		Session session = HibernateConfiguration.getFactory().getCurrentSession();
 		session.beginTransaction();//to let know hibernate that the object below exists we have begin the transaction
 		try {
-			for(Object t : toBeSaved) {
-				session.saveOrUpdate(t);//it does not save it here
-			}
 			for(Object t : toBeDeleted) {
 				session.delete(t);//it does not delete it here
 			}
-			session.getTransaction().commit();//it deletes the object here
+			for(Object t : toBeSaved) {
+				session.saveOrUpdate(t);//it does not save it here
+			}
+			session.getTransaction().commit();//it saves the object here
 			
 			return true;
 		} catch(HibernateException he) {

@@ -92,6 +92,9 @@ public class PaneManager {
 	
 	public static void setInId(Widget wid, String id) {
 		RootPanel.get(id).clear();
-		RootPanel.get(id).add(wid);
+		
+		if(null != wid) {
+			RootPanel.get(id).add(wid);
+		}
 	}
 }

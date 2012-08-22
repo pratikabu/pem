@@ -1,9 +1,12 @@
 package com.pratikabu.pem.server;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
+
+import javax.servlet.http.HttpSession;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.pratikabu.pem.client.dash.components.AccountsDatabase;
@@ -28,7 +31,8 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	@Override
 	public ArrayList<TransactionDTO> getAllTransactionsForGroupId(Long groupId) {
 		ArrayList<TransactionDTO> tdto = null;
-		List<TransactionTable> tTables = SearchHelper.getFacade().getTransactionsForUser(1L, groupId, -1, -1, true);
+		List<TransactionTable> tTables = SearchHelper.getFacade().getTransactionsForUser(getCurrentUser(this.getThreadLocalRequest().getSession()),
+				groupId, -1, -1, true);
 		
 		if(null != tTables) {
 			tdto = new ArrayList<TransactionDTO>();
@@ -62,8 +66,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		
 		
 		// check for userId is same or not
-		long currentUserId = 1;
-		if(currentUserId != tt.getTrip().getUser().getUid()) {
+		if(getCurrentUser(this.getThreadLocalRequest().getSession()) != tt.getTrip().getUser().getUid()) {
 			return null; // request for a transaction of a different user
 		}
 		
@@ -114,7 +117,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		otd.setTags(tags);
 		
 		ArrayList<AccountDTO> accs = new ArrayList<AccountDTO>();
-		for(Account a : SearchHelper.getFacade().getAccountsForUserOfType(1L,
+		for(Account a : SearchHelper.getFacade().getAccountsForUserOfType(getCurrentUser(this.getThreadLocalRequest().getSession()),
 				AccountsDatabase.AT_MAIN, AccountsDatabase.AT_CREDIT, AccountsDatabase.AT_OTHER)) {
 			AccountDTO acc = new AccountDTO();
 			acc.setAccountId(a.getAccountId());
@@ -132,7 +135,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	public ArrayList<AccountDTO> getAllAccounts() {
 		ArrayList<AccountDTO> accounts = new ArrayList<AccountDTO>();
 		
-		for(Account a : SearchHelper.getFacade().getAccountsForUser(1L, 0, 0, false)) {
+		for(Account a : SearchHelper.getFacade().getAccountsForUser(getCurrentUser(this.getThreadLocalRequest().getSession()), 0, 0, false)) {
 			AccountDTO ad = new AccountDTO();
 			ad.setAccountId(a.getAccountId());
 			ad.setAccountName(a.getAccName());
@@ -155,9 +158,22 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		if(dto.getTransactionId() > 0) { // old transaction
 			tt = SearchHelper.getFacade().readModelWithId(TransactionTable.class, dto.getTransactionId(), true);
 			
+			Account outwardAcc = null;
+			double totalAmount = 0d;
 			for(TransactionEntry te : tt.getTransactionEntries()) {
 				oldAmountDistribution.put(te.getInwardAccount(), te.getAmount());
 				toBeDeleted.add(te);
+				
+				toBeSaved.add(updateCurrentBalance(te.getInwardAccount(), te.getAmount(), "sub"));
+				
+				totalAmount += te.getAmount();
+				outwardAcc = te.getOutwardAccount();
+			}
+			toBeSaved.add(updateCurrentBalance(outwardAcc, totalAmount, "add"));
+			
+			// now remove all the te's from the tt collection
+			for(Object te : toBeDeleted) {
+				tt.getTransactionEntries().remove(te);
 			}
 		} else { // new transaction
 			tt = new TransactionTable();
@@ -179,20 +195,65 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		
 		toBeSaved.add(tt);
 		
-		Account outwardAccount = SearchHelper.getFacade().readModelWithId(Account.class, dto.getPaymentMode(), false);
+		Account outwardAccount = new Account();
+		outwardAccount.setAccountId(dto.getPaymentMode());
+		int index;
+		if((index = toBeSaved.indexOf(outwardAccount)) != -1) {
+			outwardAccount = (Account)toBeSaved.get(index);
+		} else {
+			outwardAccount = SearchHelper.getFacade().readModelWithId(Account.class, dto.getPaymentMode(), false);
+		}
 		
+		double totalAmount = 0d;
 		// add the transaction entries
 		for(Entry<AccountDTO, Double> entry : dto.getAmountDistribution().entrySet()) {
 			TransactionEntry te = new TransactionEntry();
 			te.setAmount(entry.getValue());
 			te.setTransactionGroup(tt);
 			te.setOutwardAccount(outwardAccount);
-			te.setInwardAccount(SearchHelper.getFacade().readModelWithId(Account.class, entry.getKey().getAccountId(), false));
+			
+			Account inwardAccount = new Account();
+			inwardAccount.setAccountId(entry.getKey().getAccountId());
+			
+			if((index = toBeSaved.indexOf(inwardAccount)) != -1) {
+				inwardAccount = (Account)toBeSaved.get(index);
+			} else {
+				inwardAccount = SearchHelper.getFacade().readModelWithId(Account.class, entry.getKey().getAccountId(), false);
+			}
+			
+			te.setInwardAccount(inwardAccount);
 			
 			toBeSaved.add(te);
+			
+			toBeSaved.add(updateCurrentBalance(te.getInwardAccount(), te.getAmount(), "add"));
+			
+			totalAmount += te.getAmount();
 		}
+		toBeSaved.add(updateCurrentBalance(outwardAccount, totalAmount, "sub"));
 		
 		return SearchHelper.getFacade().saveDeleteModels(toBeSaved, toBeDeleted);
+	}
+
+	private Account updateCurrentBalance(Account a, double amount, String operation) {
+		if("add".equals(operation)) {
+			a.setCurrentBalance(a.getCurrentBalance() + amount);
+		} else {
+			a.setCurrentBalance(a.getCurrentBalance() - amount);
+		}
+		return a;
+	}
+	
+	public static void main(String[] args) {
+		int i = (int) new Date().getTime();
+		 System.out.println("Integer : " + i);
+		 System.out.println("Long : "+ new Date().getTime());
+		 System.out.println("Long date : " + new Date(new Date().getTime()));
+		 System.out.println("Int Date : " + new Date(i));
+	}
+	
+	public static long getCurrentUser(HttpSession session) {
+		Long userId = (Long) session.getAttribute("userId");
+		return userId == null ? 1L : userId;
 	}
 	
 }

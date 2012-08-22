@@ -3,6 +3,7 @@ package com.pratikabu.pem.client.dash.ui;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -17,7 +18,6 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
@@ -29,6 +29,7 @@ import com.pratikabu.pem.client.dash.components.AccountsDatabase;
 import com.pratikabu.pem.client.dash.components.AccountsDatabase.AccountsLoadingDoneListener;
 import com.pratikabu.pem.client.dash.components.AmountTextBox;
 import com.pratikabu.pem.client.dash.components.AmountTextBox.AmountChangeListener;
+import com.pratikabu.pem.client.dash.components.LengthConstraintTextBox;
 import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase;
 import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase.Data;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
@@ -40,7 +41,7 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 	
 	private FlexTable ft;
 	
-	private TextBox transactionName;
+	private LengthConstraintTextBox transactionName;
 	private AmountTextBox amountBox;
 	private ListBox paymentSource;
 	private DateBox transactionDate;
@@ -72,7 +73,7 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		transactionDate.setWidth(width);
 		transactionDate.setTabIndex(tabIndex++);
 		
-		transactionName = Utility.getTextBox(null);
+		transactionName = new LengthConstraintTextBox(Constants.MAX_TRANSACTION_NAME_CHARACTERS);
 		Utility.updateNameAndId(transactionName, "transactionName");
 		transactionName.setWidth(width);
 		transactionName.setTabIndex(tabIndex++);
@@ -113,16 +114,15 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		save.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
+				if(!isValidatedFormData()) {
+					return;
+				}
 				completeTransactionData();
 				ServiceHelper.getPemservice().saveIPaidTransaction(dto, new AsyncCallback<Boolean>() {
 					@Override
 					public void onSuccess(Boolean result) {
 						if(result) {
-							if(null == dto.getAmountDistribution()) {
-								PaneManager.gettList().addNewTransaction(dto);
-							} else {
-								PaneManager.gettList().updateTransaction(dto);
-							}
+							PaneManager.gettList().addUpdateTransaction(dto);
 							Utility.alert("saved");
 						} else {
 							Utility.alert("Error while saving data. Please try again.\n" +
@@ -144,9 +144,70 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		cancel.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				PaneManager.renderDTOObject(dto);
+				if(dto.getTransactionId() > 0) {
+					PaneManager.renderDTOObject(dto);
+				} else {
+					PaneManager.renderDTOObject(null);
+				}
 			}
 		});
+	}
+
+	private boolean isValidatedFormData() {
+		MessageDialog md = MessageDialog.get();
+		md.setText("Errors while saving");
+		boolean valid = true;
+		
+		if(null == transactionDate.getValue()) {
+			md.println("- Select any date.");
+			valid = false;
+		}
+		
+		if(!transactionName.isValid()) {
+			valid = false;
+			md.println(transactionName.getErrorMessage());
+		}
+		
+		if(transactionName.getText().isEmpty()) {
+			valid = false;
+			md.println("- Transaction name cannot be empty.");
+		}
+		
+		if(!amountBox.isValid()) {
+			valid = false;
+			md.print("- ");
+			md.println(amountBox.getErrorMessage());
+		}
+		
+		List<Data> dataList = PaymentDistributionDatabase.get().getDataProvider().getList();
+		
+		if(dataList.isEmpty()) {
+			valid = false;
+			md.println("- There should be atleast one transaction entry for the amount distribution.");
+		} else {
+			double totalAmount = 0d;
+			for(Data d : dataList) {
+				totalAmount += d.getAmount();
+			}
+			
+			if(totalAmount != amountBox.getAmount()) {
+				valid = false;
+				md.print("- The amount is not distributed equally. There is a difference of ");
+				md.println(Utility.getPrintableAmountWithSign(OneTimeDataManager.getOTD().getCurrecnySymbol(),
+						(amountBox.getAmount() - totalAmount)));
+			}
+		}
+		
+		if(amountBox.getAmount() == 0) {
+			valid = false;
+			md.println("- Amount should be more than 0.00");
+		}
+		
+		if(!valid) {
+			md.show();
+		}
+		
+		return valid;
 	}
 
 	private void placeObjects() {

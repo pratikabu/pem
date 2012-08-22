@@ -22,6 +22,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
+import com.pratikabu.pem.client.dash.ui.MessageDialog;
 
 /**
  * @author pratsoni
@@ -228,6 +229,6 @@ public class Utility {
 	}
 
 	public static void alert(String text) {
-		Window.alert(text);
+		MessageDialog.alert(text);
 	}
 }

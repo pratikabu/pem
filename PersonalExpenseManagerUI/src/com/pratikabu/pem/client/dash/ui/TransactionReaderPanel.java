@@ -69,8 +69,13 @@ public class TransactionReaderPanel extends HTML implements DetailPaneable {
 		}
 	}
 
+	static int p = 1;
 	public static void editTransaction() {
-		PaneManager.editDTOObject(iPaidDTO);
+		if(p++ % 2 == 0) {
+			PaneManager.editDTOObject(iPaidDTO);
+		} else {
+			PaneManager.createNewForm(TransactionDTO.ET_OUTWARD_TG);
+		}
 	}
 
 	public static native void exportStaticMethod() /*-{
