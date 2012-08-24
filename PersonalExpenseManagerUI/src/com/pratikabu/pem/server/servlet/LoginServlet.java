@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.pratikabu.pem.model.utils.SearchHelper;
+import com.pratikabu.pem.server.PEMSecurity;
 
 /**
  * Servlet implementation class ProcessAddressDetailsServlet
@@ -28,7 +29,9 @@ public class LoginServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html");
 		
-		if(SearchHelper.getFacade().isValidUser(request.getParameter("email"), request.getParameter("password"))) {
+		String encEmail = PEMSecurity.encrypt(request.getParameter("email"));
+		String encPass = PEMSecurity.hashData(request.getParameter("password"));
+		if(SearchHelper.getFacade().isValidUser(encEmail, encPass)) {
 			response.getWriter().print("proceed.jsp");
 		} else {
 			response.getWriter().print("INVALID");

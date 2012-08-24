@@ -48,3 +48,58 @@ html, body {
 	border-bottom: 1px SOLID #CBCBCB;
 	height: 45px;
 }
+
+.messageAlertBox {
+	border: 2px SOLID #67CF53;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	background-color: #FAFAFA;
+	padding: 5px 10px 5px;
+}
+
+/** The CSS for top menu */
+#cssmenu{ height:28px; display:block; padding:0; margin:0;  border:1px solid;} 
+#cssmenu > ul {list-style:inside none; padding:0; margin:0;} 
+#cssmenu > ul > li {list-style:inside none; padding:0; margin:0; float:left; display:block; position:relative;} 
+#cssmenu > ul > li > a{ outline:none; display:block; position:relative; padding:8px 20px; font:bold 12px/100% Arial, Helvetica, sans-serif; text-align:center; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.4); }
+#cssmenu > ul > li > a:after{ content:''; position:absolute; border-right:1px solid; top:-1px; bottom:-1px; right:-2px; z-index:99; } 
+#cssmenu ul li.has-sub:hover > a:after{top:0; bottom:0;} 
+#cssmenu > ul > li.has-sub > a:before{ content:''; position:absolute; top:12px; right:6px; border:5px solid transparent; border-top:5px solid #fff; } 
+#cssmenu > ul > li.has-sub:hover > a:before{top:12px;} 
+#cssmenu ul li.has-sub:hover > a{ background:#3f3f3f; border-color:#3f3f3f; padding-bottom:8px; padding-top:9px; top:-1px; z-index:999; } 
+#cssmenu ul li.has-sub:hover > ul, #cssmenu ul li.has-sub:hover > div{display:block;} 
+#cssmenu ul li.has-sub > a:hover{background:#3f3f3f; border-color:#3f3f3f;} 
+#cssmenu ul li > ul, #cssmenu ul li > div{ display:none; width:auto; position:absolute; top:28px; padding:10px 0; background:#3f3f3f; border-radius:0 0 5px 5px; z-index:999; } 
+#cssmenu ul li > ul{width:200px;} 
+#cssmenu ul li > ul li{display:block; list-style:inside none; padding:0; margin:0; position:relative;} 
+#cssmenu ul li > ul li a{ outline:none; display:block; position:relative; margin:0; padding:8px 20px; font:10pt Arial, Helvetica, sans-serif; color:#fff; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.5); } 
+
+
+#cssmenu, #cssmenu > ul > li > ul > li a:hover{ background:#e0541d; background:-moz-linear-gradient(top,  #e0541d 0%, #c23919 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#e0541d), color-stop(100%,#c23919)); background:-webkit-linear-gradient(top,  #e0541d 0%,#c23919 100%); background:-o-linear-gradient(top,  #e0541d 0%,#c23919 100%); background:-ms-linear-gradient(top,  #e0541d 0%,#c23919 100%); background:linear-gradient(top,  #e0541d 0%,#c23919 100%); filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#e0541d', endColorstr='#c23919',GradientType=0 ); } 
+#cssmenu{border-color:#912b14;} 
+#cssmenu > ul > li > a{border-right:1px solid #912b14; color:#fff;} 
+#cssmenu > ul > li > a:after{border-color:#ff723b;} 
+#cssmenu > ul > li > a:hover{background:#b03d18;}
+
+
+/** The CSS for top menu */
+#tgMenu{ height:18px; display:block; padding:0; margin:0;  border:1px solid; border-radius: 5px; } 
+#tgMenu > ul {list-style:inside none; padding:0; margin:0;} 
+#tgMenu > ul > li {list-style:inside none; padding:0; margin:0; float:left; display:block; position:relative;} 
+#tgMenu > ul > li > a{ outline:none; display:block; position:relative; padding: 4px; font:10px/100% Arial, Helvetica, sans-serif; text-align:center; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.4);}
+#tgMenu ul li.has-sub:hover > ul, #tgMenu ul li.has-sub:hover > div{display:block;}
+#tgMenu ul li > ul, #tgMenu ul li > div{ display:none; width:auto; position:absolute; top:18px; right: 0px; padding:5px 0; background:#F5F5F5; border-radius:5px; z-index:999; border: 1px SOLID #912b14;}
+#tgMenu ul li > ul{width:190px;} 
+#tgMenu ul li > ul li{display:block; list-style:inside none; padding:0; margin:0; position:relative;} 
+#tgMenu ul li > ul li a{ outline:none; display:block; position:relative; margin:0; padding:3px 10px; font:10pt Arial, Helvetica, sans-serif; color:#3f3f3f; text-decoration:none; text-shadow: none; }
+#tgMenu, #tgMenu > ul > li > ul > li a:hover{ background:#e0541d; color:#fff; text-shadow:1px 1px 0 rgba(0,0,0, 0.5);}
+#tgMenu{border-color:#912b14;} 
+#tgMenu > ul > li > a{color:#fff;}
+#tgMenu > ul > li > a:hover{background:#b03d18;}
+
+.tgOuterDiv {
+	position: absolute;
+	border-bottom: 1px SOLID #A5A5A5;
+	background-color: #F5F5F5;
+}

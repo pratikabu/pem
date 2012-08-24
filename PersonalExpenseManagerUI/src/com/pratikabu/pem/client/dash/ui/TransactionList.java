@@ -29,6 +29,14 @@ public class TransactionList extends VerticalPanel {
 	private long transactionGroupId = 65536;
 	
 	public TransactionList() {
+		initializeObjects();
+		placeObjects();
+	}
+	
+	private void initializeObjects() {
+		this.setWidth("100%");
+		this.setHeight("100%");
+		
 		tgList = new CellList<TransactionDTO>(new TransactionCell());
 
 		tgList.setPageSize(30);
@@ -38,9 +46,6 @@ public class TransactionList extends VerticalPanel {
 		
 		TransactionDatabase.get().addDataDisplay(tgList);
 		
-		ScrollPanel sp = new ScrollPanel(tgList);
-		sp.setHeight("100%");
-
 		// Add a selection model so we can select cells.
 		final SingleSelectionModel<TransactionDTO> selectionModel = new SingleSelectionModel<TransactionDTO>(
 				TransactionDatabase.KEY_PROVIDER);
@@ -48,16 +53,20 @@ public class TransactionList extends VerticalPanel {
 		selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
 			public void onSelectionChange(SelectionChangeEvent event) {
 				TransactionDTO dto = selectionModel.getSelectedObject();
+				if(null == dto) {
+					return;
+				}
 				PaneManager.renderTransactionDetails(dto.getTransactionId(), dto.getEntryType());
 			}
 		});
-		
-		this.setWidth("100%");
-		this.setHeight("100%");
-		
+	}
+
+	private void placeObjects() {
+		ScrollPanel sp = new ScrollPanel(tgList);
+		sp.setHeight("100%");
 		this.add(sp);
 	}
-	
+
 	public class TransactionCell extends AbstractCell<TransactionDTO> {
 
 		@Override
@@ -110,6 +119,7 @@ public class TransactionList extends VerticalPanel {
 	}
 
 	public void addUpdateTransaction(TransactionDTO dto) {
+		PaneManager.renderDTOObject(dto);
 		if(dto instanceof IPaidDTO) {
 			
 		}
@@ -121,5 +131,18 @@ public class TransactionList extends VerticalPanel {
 
 	public void setTransactionGroupId(long transactionGroupId) {
 		this.transactionGroupId = transactionGroupId;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void setSelection(TransactionDTO dto) {
+		SingleSelectionModel<TransactionDTO> selectionModel = (SingleSelectionModel<TransactionDTO>)
+				tgList.getSelectionModel();
+		if(null != selectionModel.getSelectedObject()) {
+			selectionModel.setSelected(selectionModel.getSelectedObject(), false);
+		}
+		
+		if(null != dto) {
+			selectionModel.setSelected(dto, true);
+		}
 	}
 }

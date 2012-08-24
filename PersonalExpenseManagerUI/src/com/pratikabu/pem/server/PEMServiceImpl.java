@@ -1,7 +1,6 @@
 package com.pratikabu.pem.server;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -241,14 +240,6 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 			a.setCurrentBalance(a.getCurrentBalance() - amount);
 		}
 		return a;
-	}
-	
-	public static void main(String[] args) {
-		int i = (int) new Date().getTime();
-		 System.out.println("Integer : " + i);
-		 System.out.println("Long : "+ new Date().getTime());
-		 System.out.println("Long date : " + new Date(new Date().getTime()));
-		 System.out.println("Int Date : " + new Date(i));
 	}
 	
 	public static long getCurrentUser(HttpSession session) {

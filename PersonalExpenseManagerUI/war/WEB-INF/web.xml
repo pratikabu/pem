@@ -33,9 +33,4 @@
 		<url-pattern>/loginServlet</url-pattern>
 	</servlet-mapping>
 
-	<!-- Default page to serve -->
-	<welcome-file-list>
-		<welcome-file>PersonalExpenseManager.html</welcome-file>
-	</welcome-file-list>
-
 </web-app>

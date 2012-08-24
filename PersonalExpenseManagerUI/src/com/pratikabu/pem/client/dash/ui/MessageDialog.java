@@ -43,6 +43,10 @@ public class MessageDialog extends DialogBox {
 		this.setGlassEnabled(true);
 		int[] coordinates = Utility.getCenterOfWindow(500, 300);
 		this.setPopupPosition(coordinates[1], coordinates[0]);
+		if(alertBox) {
+			this.setStylePrimaryName(Constants.CSS_MESSAGE_ALERT);
+			this.setAutoHideEnabled(true);
+		}
 		
 		htmlContent = new HTML();
 		htmlContent.setSize("100%", "100%");

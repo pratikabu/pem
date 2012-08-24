@@ -16,4 +16,5 @@ public class Constants {
 	public static final int KEY_ESCAPE = 27;
 	
 	public static final int MAX_TRANSACTION_NAME_CHARACTERS = 40;
+	public static final String CSS_MESSAGE_ALERT = "messageAlertBox";
 }

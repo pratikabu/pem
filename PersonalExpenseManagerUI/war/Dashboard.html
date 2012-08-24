@@ -3,12 +3,13 @@
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Pratik Soni- Eighty_Coffee</title>
 <link rel="stylesheet" href="d-stylesheet.css">
 <link rel="stylesheet" href="stylesheet.css">
 
-<script type="text/javascript" language="javascript" src="dashboard/dashboard.nocache.js"></script>
+<script type="text/javascript" language="javascript"
+	src="dashboard/dashboard.nocache.js"></script>
 </head>
 
 <body class="zeroMargin">
@@ -29,14 +30,86 @@
 		<div align="left" style="position: absolute; top: 0px; left: 0px;">
 			<a href="index.html" title="Pratik Soni">Pratik</a>
 		</div>
+		<div id='cssmenu'
+			style="position: absolute; top: 20px; left: 0px; right: 0px; bottom: 0px;">
+			<ul>
+				<li class='has-sub '><a href='#'><span>Transactions</span></a>
+					<ul>
+						<li><a href='#' onclick="openRequest('tnip')"><span>New
+									iPaid</span></a></li>
+						<li><a href='#' onclick="openRequest('tnig')"><span>New
+									iGot</span></a></li>
+						<li><a href='#' onclick="openRequest('tnis')"><span>New
+									iSaved</span></a></li>
+						<li><a href='#' onclick="openRequest('tnsal')"><span>New
+									Salary</span></a></li>
+					</ul></li>
+				<li class='has-sub '><a href='#'><span>Accounts</span></a>
+					<ul>
+						<li><a href='#' onclick="openRequest('ama')"><span>Manage
+									Accounts</span></a></li>
+						<li><a href='#' onclick="openRequest('anprsn')"><span>New
+									Person A/C</span></a></li>
+						<li><a href='#' onclick="openRequest('anpay')"><span>New
+									Payment A/C</span></a></li>
+						<li><a href='#' onclick="openRequest('ansav')"><span>New
+									Saving A/C</span></a></li>
+					</ul></li>
+				<li class='has-sub '><a href='#'><span>Tools</span></a>
+					<ul>
+						<li><a href='#' onclick="openRequest('toaccsetting')"><span>Account
+									Settings</span></a></li>
+						<li><a href='#' onclick="openRequest('toart')"><span>Add
+									Recursive Transaction</span></a></li>
+						<li><a href='#' onclick="openRequest('todtg')"><span>Default
+									Transaction Group</span></a></li>
+					</ul></li>
+				<li class='has-sub '><a href='#'><span>Reminders</span></a>
+					<ul>
+						<li><a href='#' onclick="openRequest('ryourself')"><span>Remind
+									Yourself</span></a></li>
+						<li><a href='#' onclick="openRequest('rprsn')"><span>Remind
+									Person</span></a></li>
+					</ul></li>
+			</ul>
+		</div>
 		<div align="right" style="position: absolute; top: 0px; right: 0px">
 			<a href="index.html" title="Eighty_Coffee">E_C</a>
 		</div>
 	</div>
 	<div id="mainContent" class="mainContent"
-		style="bottom: 50px; top: 51px; width: 100%;">
-		<div id="txnListContainer" class="mainContent"
-			style="bottom: 0px; top: 0px; left: 0px; width: 400px; border-right: 1px SOLID #CBCBCB;"></div>
+		style="bottom: 50px; top: 50px; width: 100%;">
+		<div id="westContainer" class="mainContent"
+			style="bottom: 0px; top: 0px; left: 0px; width: 400px; border-right: 1px SOLID #CBCBCB;">
+
+			<div id="tgHeaderContainer" class="tgOuterDiv"
+				style="top: 0px; left: 0px; width: 100%; height: 35px;">
+				<div align="left"
+					style="position: absolute; top: 0px; left: 0px; width: 85%; height: 35px;">
+					<span id="tgCurrentName" class="normalLabel"
+						style="padding-top: 10px; top: 0px; position: absolute; left: 0px; padding-left: 5px;">All
+						Transaction Groups (34)</span>
+				</div>
+				<div
+					style="position: absolute; top: 0px; right: 0px; width: 15%; height: 35px;">
+					<div id="tgMenu"
+						style="position: absolute; top: 7px; right: 5px; bottom: 0px;">
+						<ul>
+							<li class="has-sub"><a href='#'><span>▼</span></a>
+							<ul>
+									<li><a href='#' onclick="openRequest('tnip')"><span>New
+												Transaction Group...</span></a></li>
+									<li><a href='#' onclick="openRequest('tnig')"><span>Change
+												Transaction Group</span></a></li>
+								</ul></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div id="txnListContainer" class="mainContent"
+				style="bottom: 0px; top: 36px; left: 0px; width: 100%;">
+			</div>
+		</div>
 		<div id="txnExpandViewContainer" class="mainContent"
 			style="bottom: 0px; top: 0px; left: 401px; right: 0px"></div>
 	</div>

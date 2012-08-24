@@ -21,10 +21,6 @@ import com.pratikabu.pem.shared.model.TransactionDTO;
 public class TransactionReaderPanel extends HTML implements DetailPaneable {
 	private static IPaidDTO iPaidDTO;
 	
-	public TransactionReaderPanel() {
-		exportStaticMethod();
-	}
-	
 	@Override
 	public boolean isSafeToClose() {
 		return true;
@@ -62,25 +58,13 @@ public class TransactionReaderPanel extends HTML implements DetailPaneable {
 					
 					@Override
 					public void onFailure(Throwable caught) {
+						PaneManager.showEmptyArea();
 						Utility.alert("Error fetching transaction details.");
 					}
 				});
 			}
 		}
 	}
-
-	static int p = 1;
-	public static void editTransaction() {
-		if(p++ % 2 == 0) {
-			PaneManager.editDTOObject(iPaidDTO);
-		} else {
-			PaneManager.createNewForm(TransactionDTO.ET_OUTWARD_TG);
-		}
-	}
-
-	public static native void exportStaticMethod() /*-{
-		$wnd.editTransaction = $entry(@com.pratikabu.pem.client.dash.ui.TransactionReaderPanel::editTransaction());
-	}-*/;
 	
 	private static String getIPaidReaderHTML(IPaidDTO d) {
 		if(null == d) {
@@ -122,6 +106,10 @@ public class TransactionReaderPanel extends HTML implements DetailPaneable {
 				"Description:</span><br/>" + d.getNotes() + "</p>";
 				
 		return content;
+	}
+
+	public static IPaidDTO getiPaidDTO() {
+		return iPaidDTO;
 	}
 	
 }

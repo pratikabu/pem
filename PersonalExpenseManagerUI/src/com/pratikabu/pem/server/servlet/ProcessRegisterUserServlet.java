@@ -10,12 +10,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.pratikabu.pem.model.PEMUser;
 import com.pratikabu.pem.model.utils.SearchHelper;
+import com.pratikabu.pem.server.PEMSecurity;
 
 /**
  * Servlet implementation class ProcessAddressDetailsServlet
  */
+@SuppressWarnings("serial")
 public class ProcessRegisterUserServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -37,7 +38,9 @@ public class ProcessRegisterUserServlet extends HttpServlet {
 		user.setFirstName(request.getParameter("firstName"));
 		user.setLastName(request.getParameter("lastName"));
 		user.setEmail(request.getParameter("email"));
+		user.setEmail(PEMSecurity.encrypt(user.getEmail()));// encrypt email
 		user.setPassword(request.getParameter("password"));
+		user.setPassword(PEMSecurity.hashData(user.getPassword()));// hash the password
 		user.setGender(request.getParameter("gender").charAt(0));
 		user.setBirthday(cal.getTime());
 		user.setCity(request.getParameter("city"));

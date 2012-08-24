@@ -77,6 +77,7 @@ public class PaneManager {
 	}
 	
 	public static void createNewForm(int entryType) {
+		gettList().setSelection(null);
 		if(TransactionDTO.ET_OUTWARD_TG == entryType) {
 			getIpfp().renderRecord(null);
 		}

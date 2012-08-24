@@ -192,7 +192,7 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 			
 			if(totalAmount != amountBox.getAmount()) {
 				valid = false;
-				md.print("- The amount is not distributed equally. There is a difference of ");
+				md.print("- The amount is not distributed. There is a difference of ");
 				md.println(Utility.getPrintableAmountWithSign(OneTimeDataManager.getOTD().getCurrecnySymbol(),
 						(amountBox.getAmount() - totalAmount)));
 			}
@@ -330,11 +330,17 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 			}
 		} else {
 			transactionDate.setValue(new Date());
+			this.transactionName.setText("");
+			this.amountBox.setAmount(0d);
+			this.notes.setText("");
+			
+			paymentSource.setSelectedIndex(0);
 			
 			for(int i = 0; i < tagList.getItemCount(); i++) {
 				if("Others".equals(tagList.getValue(i))) {
 					tagList.setItemSelected(i, true);
-					break;
+				} else {
+					tagList.setItemSelected(i, false);
 				}
 			}
 			
