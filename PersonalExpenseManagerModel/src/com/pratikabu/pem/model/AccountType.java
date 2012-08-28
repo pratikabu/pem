@@ -13,6 +13,7 @@ public class AccountType {
 	private String atCode;
 	
 	private String meaning;
+	private String description;
 
 	public String getAtCode() {
 		return atCode;
@@ -28,5 +29,13 @@ public class AccountType {
 
 	public void setMeaning(String meaning) {
 		this.meaning = meaning;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

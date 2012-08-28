@@ -20,6 +20,7 @@ public abstract class BasicValidationBox extends TextBox {
 	public BasicValidationBox() {
 		this.setStyleName(Constants.CSS_NORMAL_TEXT);
 		backgroundColor = this.getElement().getStyle().getBackgroundColor();
+		makeItNormal();
 	}
 	
 	/**

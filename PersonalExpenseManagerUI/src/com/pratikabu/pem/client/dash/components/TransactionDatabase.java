@@ -62,13 +62,6 @@ public class TransactionDatabase {
 	private ListDataProvider<TransactionDTO> dataProvider = new ListDataProvider<TransactionDTO>();
 
 	/**
-	 * Construct a new contact database.
-	 */
-	private TransactionDatabase() {
-		refreshDisplays();
-	}
-
-	/**
 	 * Add a new contact.
 	 * 
 	 * @param contact
@@ -93,8 +86,8 @@ public class TransactionDatabase {
 	/**
 	 * Refresh all displays.
 	 */
-	public void refreshDisplays() {
-		ServiceHelper.getPemservice().getAllTransactionsForGroupId(null, new AsyncCallback<ArrayList<TransactionDTO>>() {
+	public void refreshDisplays(Long transactionGroup) {
+		ServiceHelper.getPemservice().getAllTransactionsForGroupId(transactionGroup, new AsyncCallback<ArrayList<TransactionDTO>>() {
 			@Override
 			public void onSuccess(ArrayList<TransactionDTO> result) {
 				dataProvider.setList(result);

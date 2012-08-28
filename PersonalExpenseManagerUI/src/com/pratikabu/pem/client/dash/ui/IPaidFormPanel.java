@@ -22,6 +22,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.pratikabu.pem.client.common.Constants;
+import com.pratikabu.pem.client.common.MessageDialog;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.OneTimeDataManager;
 import com.pratikabu.pem.client.dash.PaneManager;
@@ -29,6 +30,7 @@ import com.pratikabu.pem.client.dash.components.AccountsDatabase;
 import com.pratikabu.pem.client.dash.components.AccountsDatabase.AccountsLoadingDoneListener;
 import com.pratikabu.pem.client.dash.components.AmountTextBox;
 import com.pratikabu.pem.client.dash.components.AmountTextBox.AmountChangeListener;
+import com.pratikabu.pem.client.dash.components.CentralEventHandler;
 import com.pratikabu.pem.client.dash.components.LengthConstraintTextBox;
 import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase;
 import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase.Data;
@@ -117,12 +119,14 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 				if(!isValidatedFormData()) {
 					return;
 				}
+				
+				final int action =  CentralEventHandler.getActionForCreateUpdate(dto.getTransactionId());
 				completeTransactionData();
 				ServiceHelper.getPemservice().saveIPaidTransaction(dto, new AsyncCallback<Boolean>() {
 					@Override
 					public void onSuccess(Boolean result) {
 						if(result) {
-							PaneManager.gettList().addUpdateTransaction(dto);
+							CentralEventHandler.transactionUpdated(dto, action);
 							Utility.alert("saved");
 						} else {
 							Utility.alert("Error while saving data. Please try again.\n" +
@@ -337,7 +341,7 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 			paymentSource.setSelectedIndex(0);
 			
 			for(int i = 0; i < tagList.getItemCount(); i++) {
-				if("Others".equals(tagList.getValue(i))) {
+				if("Other".equals(tagList.getValue(i))) {
 					tagList.setItemSelected(i, true);
 				} else {
 					tagList.setItemSelected(i, false);

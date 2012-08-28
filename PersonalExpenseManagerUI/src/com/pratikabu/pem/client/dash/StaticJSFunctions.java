@@ -3,6 +3,9 @@
  */
 package com.pratikabu.pem.client.dash;
 
+import com.pratikabu.pem.client.dash.ui.AccountDialog;
+import com.pratikabu.pem.client.dash.ui.TransactionGroupChooserDialog;
+import com.pratikabu.pem.client.dash.ui.TransactionGroupDialog;
 import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 
@@ -41,12 +44,9 @@ public class StaticJSFunctions {
 		// Second menu for Accounts
 		else if("ama".equals(toBeOpened)) {
 			// open Manage Accounts
-		} else if("anprsn".equals(toBeOpened)) {
+		} else if("anacc".equals(toBeOpened)) {
 			// open New Person A/C
-		} else if("anpay".equals(toBeOpened)) {
-			// open New Payment A/C
-		} else if("ansav".equals(toBeOpened)) {
-			// open New Saving A/C
+			AccountDialog.show(null);
 		}
 		
 		// third menu for Tools
@@ -64,6 +64,15 @@ public class StaticJSFunctions {
 		} else if("rprsn".equals(toBeOpened)) {
 			// open Remind Person
 			
+		}
+		
+		// for the Transaction Group Menu
+		else if("tgntg".equals(toBeOpened)) {
+			TransactionGroupDialog.show(null);
+		} else if("tgchng".equals(toBeOpened)) {
+			TransactionGroupChooserDialog.chooseSingleAccount(null);
+		} else if("tgmanage".equals(toBeOpened)) {
+			TransactionGroupChooserDialog.chooseSingleAccount(null);
 		}
 	}
 }

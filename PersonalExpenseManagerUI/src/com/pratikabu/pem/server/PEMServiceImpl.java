@@ -8,9 +8,10 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpSession;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import com.pratikabu.pem.client.dash.components.AccountsDatabase;
+import com.pratikabu.pem.client.dash.components.AccountTypeDatabase;
 import com.pratikabu.pem.client.dash.service.PEMService;
 import com.pratikabu.pem.model.Account;
+import com.pratikabu.pem.model.AccountType;
 import com.pratikabu.pem.model.Tag;
 import com.pratikabu.pem.model.TransactionEntry;
 import com.pratikabu.pem.model.TransactionGroup;
@@ -18,8 +19,10 @@ import com.pratikabu.pem.model.TransactionTable;
 import com.pratikabu.pem.model.utils.SearchHelper;
 import com.pratikabu.pem.shared.OneTimeData;
 import com.pratikabu.pem.shared.model.AccountDTO;
+import com.pratikabu.pem.shared.model.AccountTypeDTO;
 import com.pratikabu.pem.shared.model.IPaidDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
+import com.pratikabu.pem.shared.model.TransactionGroupDTO;
 
 /**
  * The server side implementation of the RPC service.
@@ -105,10 +108,12 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 
 	@Override
 	public OneTimeData fetchOneTimeData() {
+		long uid = getCurrentUser(this.getThreadLocalRequest().getSession());
+		
 		OneTimeData otd = new OneTimeData();
 		otd.setCurrecnySymbol("Rs");
 		
-		List<Tag> mtags = SearchHelper.getFacade().readAllObjects(Tag.class, false);
+		List<Tag> mtags = SearchHelper.getFacade().readAllObjects(Tag.class, false, null);
 		ArrayList<String> tags = new ArrayList<String>();
 		for(Tag tag : mtags) {
 			tags.add(tag.getTagName());
@@ -116,8 +121,8 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		otd.setTags(tags);
 		
 		ArrayList<AccountDTO> accs = new ArrayList<AccountDTO>();
-		for(Account a : SearchHelper.getFacade().getAccountsForUserOfType(getCurrentUser(this.getThreadLocalRequest().getSession()),
-				AccountsDatabase.AT_MAIN, AccountsDatabase.AT_CREDIT, AccountsDatabase.AT_OTHER)) {
+		for(Account a : SearchHelper.getFacade().getAccountsForUserOfType(uid, AccountTypeDatabase.AT_MAIN,
+				AccountTypeDatabase.AT_CREDIT)) {
 			AccountDTO acc = new AccountDTO();
 			acc.setAccountId(a.getAccountId());
 			acc.setAccountName(a.getAccName());
@@ -126,6 +131,17 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 			accs.add(acc);
 		}
 		otd.setUserSpecificPayableAccounts(accs);
+		
+		ArrayList<TransactionGroupDTO> transactionGroups = new ArrayList<TransactionGroupDTO>();
+		for(TransactionGroup tg : SearchHelper.getFacade().readAllObjects(TransactionGroup.class, false, uid)) {
+			TransactionGroupDTO dto = new TransactionGroupDTO();
+			dto.setId(tg.getTripId());
+			dto.setTgName(tg.getTripName());
+			
+			transactionGroups.add(dto);
+		}
+		
+		otd.setTransactionGroups(transactionGroups);
 		
 		return otd;
 	}
@@ -244,7 +260,25 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	
 	public static long getCurrentUser(HttpSession session) {
 		Long userId = (Long) session.getAttribute("userId");
-		return userId == null ? 1L : userId;
+		return userId == null ? 360448L : userId;
+	}
+
+	@Override
+	public ArrayList<AccountTypeDTO> getAllAccountTypes() {
+		List<AccountType> accountTypes = SearchHelper.getFacade().readAllObjects(AccountType.class, false, null);
+		
+		ArrayList<AccountTypeDTO> dtos = new ArrayList<AccountTypeDTO>();
+		
+		for(AccountType at : accountTypes) {
+			AccountTypeDTO dto = new AccountTypeDTO();
+			dto.setAtCode(at.getAtCode());
+			dto.setMeaninig(at.getMeaning());
+			dto.setDescription(at.getDescription());
+			
+			dtos.add(dto);
+		}
+		
+		return dtos;
 	}
 	
 }

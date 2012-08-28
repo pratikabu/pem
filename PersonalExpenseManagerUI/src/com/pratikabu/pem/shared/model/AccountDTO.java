@@ -14,8 +14,10 @@ public class AccountDTO implements Serializable {
 	private long accountId;
 	
 	private String accountName;
-	
+	private double currentBalance;
 	private String accountType;
+	private Character gender;
+	private String email;
 	
 	public long getAccountId() {
 		return accountId;
@@ -47,5 +49,29 @@ public class AccountDTO implements Serializable {
 			return false;
 		}
 		return accountId == ((AccountDTO) obj).accountId;
+	}
+
+	public Character getGender() {
+		return gender;
+	}
+
+	public void setGender(Character gender) {
+		this.gender = gender;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public double getCurrentBalance() {
+		return currentBalance;
+	}
+
+	public void setCurrentBalance(double currentBalance) {
+		this.currentBalance = currentBalance;
 	}
 }

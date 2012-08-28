@@ -190,10 +190,22 @@ public class SearchFacadeImpl implements SearchFacade {
 	}
 
 	@Override
-	public <T> List<T> readAllObjects(Class<T> c, boolean loadLazyObjects) {
+	public <T> List<T> readAllObjects(Class<T> c, boolean loadLazyObjects, Serializable pemUserPK) {
 		Session s = HibernateConfiguration.getFactory().getCurrentSession();
 		s.beginTransaction();
-		Query query = s.createQuery("FROM " + c.getSimpleName());
+		Query query = null;
+		StringBuilder q = new StringBuilder("FROM " + c.getSimpleName());
+		
+		if(null != pemUserPK) {
+			q.append(" WHERE uid=:uid");
+		}
+		
+		query = s.createQuery(q.toString());
+		
+		if(null != pemUserPK) {
+			query.setLong("uid", (Long)pemUserPK);
+		}
+		
 		List<T> list = query.list();
 		
 		if(loadLazyObjects && null != list) {

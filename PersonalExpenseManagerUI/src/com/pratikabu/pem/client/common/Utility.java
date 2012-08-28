@@ -22,7 +22,6 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
-import com.pratikabu.pem.client.dash.ui.MessageDialog;
 
 /**
  * @author pratsoni
@@ -230,5 +229,14 @@ public class Utility {
 
 	public static void alert(String text) {
 		MessageDialog.alert(text);
+	}
+
+	/**
+	 * This method will populate genders in the passed list.
+	 * @param genderList
+	 */
+	public static void populateGender(ListBox genderList) {
+		genderList.addItem("Male", "m");
+		genderList.addItem("Female", "f");
 	}
 }

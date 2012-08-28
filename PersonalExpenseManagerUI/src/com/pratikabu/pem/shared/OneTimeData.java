@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import com.pratikabu.pem.shared.model.AccountDTO;
+import com.pratikabu.pem.shared.model.TransactionGroupDTO;
 
 /**
  * @author pratsoni
@@ -19,6 +20,8 @@ public class OneTimeData implements Serializable {
 	private ArrayList<String> tags;
 	
 	private ArrayList<AccountDTO> userSpecificPayableAccounts;
+	
+	private ArrayList<TransactionGroupDTO> transactionGroups;
 
 	public String getCurrecnySymbol() {
 		return currecnySymbol;
@@ -43,5 +46,14 @@ public class OneTimeData implements Serializable {
 	public void setUserSpecificPayableAccounts(
 			ArrayList<AccountDTO> userSpecificPayableAccounts) {
 		this.userSpecificPayableAccounts = userSpecificPayableAccounts;
+	}
+
+	public ArrayList<TransactionGroupDTO> getTransactionGroups() {
+		return transactionGroups;
+	}
+
+	public void setTransactionGroups(
+			ArrayList<TransactionGroupDTO> transactionGroups) {
+		this.transactionGroups = transactionGroups;
 	}
 }

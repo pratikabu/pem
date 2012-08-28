@@ -57,10 +57,11 @@ public interface SearchFacade {
 	/**
 	 * It gives you freedom to fetch the list of particular type without any constraints.
 	 * @param c
-	 * @param loadLazzyObjects
+	 * @param loadLazyObjects
+	 * @param pemUserPK
 	 * @return
 	 */
-	<T> List<T> readAllObjects(Class<T> c, boolean loadLazyObjects);
+	<T> List<T> readAllObjects(Class<T> c, boolean loadLazyObjects, Serializable pemUserPK);
 	
 	/**
 	 * This method fetches user for the supplied user. It will fetch all kind of users.

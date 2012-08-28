@@ -26,10 +26,10 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.OneTimeDataManager;
 import com.pratikabu.pem.client.dash.PaneManager;
-import com.pratikabu.pem.client.dash.components.AccountsDatabase;
+import com.pratikabu.pem.client.dash.components.AccountTypeDatabase;
 import com.pratikabu.pem.client.dash.components.AmountTextBox;
-import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase;
 import com.pratikabu.pem.client.dash.components.AmountTextBox.AmountChangeListener;
+import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase;
 import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase.Data;
 import com.pratikabu.pem.client.dash.ui.AccountChooserDialog.AccountSelectionListener;
 import com.pratikabu.pem.shared.model.AccountDTO;
@@ -86,7 +86,7 @@ public class PaymentDistributionPanel extends VerticalPanel {
 		addNew.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				AccountChooserDialog.chooseSingleAccount(AccountsDatabase.AT_PERSON, new AccountSelectionListener() {
+				AccountChooserDialog.chooseSingleAccount(AccountTypeDatabase.AT_PERSON, new AccountSelectionListener() {
 					@Override
 					public void accountSelected(AccountDTO account) {
 						List<Data> dataList = PaymentDistributionDatabase.get().getDataProvider().getList();

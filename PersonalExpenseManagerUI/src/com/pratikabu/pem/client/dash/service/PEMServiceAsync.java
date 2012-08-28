@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.pratikabu.pem.shared.OneTimeData;
 import com.pratikabu.pem.shared.model.AccountDTO;
+import com.pratikabu.pem.shared.model.AccountTypeDTO;
 import com.pratikabu.pem.shared.model.IPaidDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 
@@ -30,5 +31,7 @@ public interface PEMServiceAsync {
 	void getAllAccounts(AsyncCallback<ArrayList<AccountDTO>> callback);
 
 	void saveIPaidTransaction(IPaidDTO dto, AsyncCallback<Boolean> callback);
+
+	void getAllAccountTypes(AsyncCallback<ArrayList<AccountTypeDTO>> callback);
 
 }

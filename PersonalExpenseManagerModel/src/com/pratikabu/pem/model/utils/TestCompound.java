@@ -7,6 +7,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
+import com.pratikabu.pem.model.AccountType;
+import com.pratikabu.pem.model.Tag;
+
 /**
  * @author Pratik
  * Created on : 24-Apr-2011, 12:49:44 AM
@@ -41,6 +44,56 @@ public class TestCompound {
 	}
 	
 	public static void updateData() {
+		Tag tag = null;
+		
+		tag = new Tag();
+		tag.setTagName("Other");
+		SearchHelper.getFacade().saveModel(tag);
+		
+		tag = new Tag();
+		tag.setTagName("Entertainment");
+		SearchHelper.getFacade().saveModel(tag);
+		
+		tag = new Tag();
+		tag.setTagName("Shopping");
+		SearchHelper.getFacade().saveModel(tag);
+		
+		tag = new Tag();
+		tag.setTagName("Travelling");
+		SearchHelper.getFacade().saveModel(tag);
+		
+		//////////////Account Type
+		AccountType at = null;
+		
+		at = new AccountType();
+		at.setAtCode("main");
+		at.setMeaning("Main Balance");
+		at.setDescription("Main Balance");
+		SearchHelper.getFacade().saveModel(at);
+		
+		at = new AccountType();
+		at.setAtCode("credit");
+		at.setMeaning("Credit Card");
+		at.setDescription("Credit Card");
+		SearchHelper.getFacade().saveModel(at);
+		
+		at = new AccountType();
+		at.setAtCode("saving");
+		at.setMeaning("Savings");
+		at.setDescription("Savings");
+		SearchHelper.getFacade().saveModel(at);
+		
+		at = new AccountType();
+		at.setAtCode("person");
+		at.setMeaning("Person");
+		at.setDescription("Person");
+		SearchHelper.getFacade().saveModel(at);
+		
+		at = new AccountType();
+		at.setAtCode("other");
+		at.setMeaning("Others");
+		at.setDescription("Others");
+		SearchHelper.getFacade().saveModel(at);
 	}
 
 }

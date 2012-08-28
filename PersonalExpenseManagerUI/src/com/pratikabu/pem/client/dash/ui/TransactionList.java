@@ -15,7 +15,10 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.OneTimeDataManager;
 import com.pratikabu.pem.client.dash.PaneManager;
+import com.pratikabu.pem.client.dash.components.CentralEventHandler;
+import com.pratikabu.pem.client.dash.components.CentralEventHandler.TransactionUpdateListener;
 import com.pratikabu.pem.client.dash.components.TransactionDatabase;
+import com.pratikabu.pem.client.dash.components.TransactionGroupDatabase;
 import com.pratikabu.pem.shared.model.IPaidDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 
@@ -26,7 +29,7 @@ import com.pratikabu.pem.shared.model.TransactionDTO;
 public class TransactionList extends VerticalPanel {
 	private CellList<TransactionDTO> tgList;
 	
-	private long transactionGroupId = 65536;
+	private Long transactionGroupId;
 	
 	public TransactionList() {
 		initializeObjects();
@@ -59,6 +62,18 @@ public class TransactionList extends VerticalPanel {
 				PaneManager.renderTransactionDetails(dto.getTransactionId(), dto.getEntryType());
 			}
 		});
+		
+		CentralEventHandler.addListener(new TransactionUpdateListener() {
+			@Override
+			public void transactionUpdatedEvent(TransactionDTO dto, int action) {
+				PaneManager.renderDTOObject(dto);
+				if(dto instanceof IPaidDTO) {
+					
+				} else {
+					
+				}
+			}
+		} );
 	}
 
 	private void placeObjects() {
@@ -107,7 +122,7 @@ public class TransactionList extends VerticalPanel {
 			sb.appendHtmlConstant("<td align='center' class='tgCellTDStyle' width='30%'>");
 			sb.appendHtmlConstant("<table align='center' cellspacing='0px' width='100%'><tr><td align='right'>");
 //			if(TransactionDTO.ET_TRIP != value.getEntryType()) {
-				sb.appendHtmlConstant("<span class='normalLabel'>" + currencySymbol + " <span style='font-weight: bold;" +
+				sb.appendHtmlConstant("<span class='normalLabel' style='font-size: 12px;'>" + currencySymbol + " <span style='font-weight: bold;" +
 						" padding-right: 5px;'>" + amountStr + "</span></span>");
 				sb.appendHtmlConstant("</td></tr><tr><td align='right'>");
 //			}
@@ -118,19 +133,21 @@ public class TransactionList extends VerticalPanel {
 
 	}
 
-	public void addUpdateTransaction(TransactionDTO dto) {
-		PaneManager.renderDTOObject(dto);
-		if(dto instanceof IPaidDTO) {
-			
-		}
-	}
-
-	public long getTransactionGroupId() {
+	public Long getTransactionGroupId() {
 		return transactionGroupId;
 	}
 
-	public void setTransactionGroupId(long transactionGroupId) {
+	public void setTransactionGroupId(Long transactionGroupId) {
 		this.transactionGroupId = transactionGroupId;
+	}
+	
+	public void showDataForTransactionGroup(Long transactionGroupId) {
+		this.transactionGroupId = transactionGroupId;
+		TransactionDatabase.get().refreshDisplays(transactionGroupId);
+		
+		if(null == transactionGroupId) {
+			this.transactionGroupId = TransactionGroupDatabase.get().getDefault().getId();
+		}
 	}
 	
 	@SuppressWarnings("unchecked")

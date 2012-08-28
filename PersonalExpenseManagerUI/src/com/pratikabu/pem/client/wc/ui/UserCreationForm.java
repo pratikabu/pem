@@ -84,7 +84,7 @@ public class UserCreationForm extends FormPanel {
 		
 		genderBox = Utility.getListBox(false);
 		Utility.updateNameAndId(genderBox, "regGender", "gender");
-		populateGender();
+		Utility.populateGender(genderBox);
 		
 		bdMonth = Utility.getListBox(false);
 		Utility.updateNameAndId(bdMonth, "regBDMonth", "bdMonth");
@@ -187,11 +187,6 @@ public class UserCreationForm extends FormPanel {
 		if(null == validationMessage && password.getText().length() < 6) {
 			validationMessage = "Password should be atleast 6 characters long.";
 		}
-	}
-
-	private void populateGender() {
-		genderBox.addItem("Male", "m");
-		genderBox.addItem("Female", "f");
 	}
 	
 	private void populateBirthday() {

@@ -31,7 +31,6 @@ import com.pratikabu.pem.shared.model.AccountDTO;
  * The data source for contact information used in the sample.
  */
 public class AccountsDatabase {
-	public static final String AT_PERSON = "person", AT_CREDIT = "credit", AT_MAIN = "main", AT_OTHER = "other", AT_ALL = "A";
 	private List<AccountDTO> data;
 	
 	private String filterdAccountType;
@@ -134,7 +133,7 @@ public class AccountsDatabase {
 	}
 	
 	public List<AccountDTO> getAccountsOfType(String accountType) {
-		if(AT_ALL.equals(accountType)) {
+		if(AccountTypeDatabase.AT_ALL.equals(accountType)) {
 			return data;
 		}
 		
