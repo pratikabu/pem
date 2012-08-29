@@ -87,6 +87,10 @@ public class TransactionDatabase {
 	 * Refresh all displays.
 	 */
 	public void refreshDisplays(Long transactionGroup) {
+		if(null == transactionGroup || -1L == transactionGroup) {
+			transactionGroup = null;
+		}
+		
 		ServiceHelper.getPemservice().getAllTransactionsForGroupId(transactionGroup, new AsyncCallback<ArrayList<TransactionDTO>>() {
 			@Override
 			public void onSuccess(ArrayList<TransactionDTO> result) {

@@ -15,6 +15,7 @@ import com.pratikabu.pem.client.dash.components.AccountTypeDatabase;
 import com.pratikabu.pem.model.Account;
 import com.pratikabu.pem.model.AccountType;
 import com.pratikabu.pem.model.PEMUser;
+import com.pratikabu.pem.model.TransactionGroup;
 import com.pratikabu.pem.model.utils.SearchHelper;
 import com.pratikabu.pem.server.PEMSecurity;
 import com.pratikabu.pem.server.PEMServiceImpl;
@@ -44,6 +45,8 @@ public class ProcessRegisterUserServlet extends HttpServlet {
 			createNewUser(request, response);
 		} else if("account".equals(createWhat)) {
 			createNewAccount(request, response);
+		} else if("transactionGroup".equals(createWhat)) {
+			createNewTransactionGroup(request, response);
 		}
 	}
 
@@ -102,7 +105,32 @@ public class ProcessRegisterUserServlet extends HttpServlet {
 		}
 		
 		if(userCorrect && SearchHelper.getFacade().saveModel(acc)) {
-			response.sendRedirect("SUCCESS");
+			response.getWriter().print(acc.getAccountId() + "");
+		} else {
+			response.getWriter().print("INVALID");
+		}
+	}
+	
+	private void createNewTransactionGroup(HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
+		long txnId = Long.parseLong(request.getParameter("txnId"));
+		long uid = PEMServiceImpl.getCurrentUser(request.getSession());
+		boolean userCorrect = true;
+		
+		TransactionGroup tg;
+		if(-1 == txnId) {
+			tg = new TransactionGroup();
+			tg.setUser(SearchHelper.getFacade().readModelWithId(PEMUser.class, uid, false));
+		} else {
+			tg = SearchHelper.getFacade().readModelWithId(TransactionGroup.class, txnId, false);
+			userCorrect = uid == tg.getUser().getUid();
+		}
+		
+		tg.setTripName(request.getParameter("transactionGroupName"));
+		
+		response.setContentType("text/html");
+		if(userCorrect && SearchHelper.getFacade().saveModel(tg)) {
+			response.getWriter().print(tg.getTripId() + "");
 		} else {
 			response.getWriter().print("INVALID");
 		}

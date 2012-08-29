@@ -32,7 +32,7 @@ public interface PEMService extends RemoteService {
 	
 	ArrayList<AccountDTO> getAllAccounts();
 	
-	Boolean saveIPaidTransaction(IPaidDTO dto);
+	Long saveIPaidTransaction(IPaidDTO dto);
 	
 	ArrayList<AccountTypeDTO> getAllAccountTypes();
 }

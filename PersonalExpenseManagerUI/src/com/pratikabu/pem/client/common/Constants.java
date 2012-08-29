@@ -19,4 +19,6 @@ public class Constants {
 	public static final int MAX_TRANSACTION_GROUP_NAME_CHARACTERS = 40;
 	public static final String CSS_MESSAGE_ALERT = "messageAlertBox";
 	public static final String SERVLET_CREATE_WHAT = "createWhat";
+	
+	public static final String CREATE_SERVLET_ACTION_NAME = "registerUser";
 }

@@ -69,6 +69,24 @@ public class AccountsDatabase {
 	 * Construct a new contact database.
 	 */
 	private AccountsDatabase() {
+		CentralEventHandler.addListener(new CentralEventHandler.AccountUpdateListener() {
+			@Override
+			public void accountUpdatedEvent(AccountDTO dto, int action) {
+				if(null == data) {
+					return;
+				}
+				
+				if(CentralEventHandler.ACTION_CREATED == action) {
+					addAccount(dto);
+				} else if(CentralEventHandler.ACTION_EDITED == action) {
+					data.remove(dto);
+					addAccount(dto);
+				} else if(CentralEventHandler.ACTION_DELETED == action) {
+					data.remove(dto);
+				}
+				dataProvider.refresh();
+			}
+		});
 	}
 
 	/**
@@ -78,10 +96,9 @@ public class AccountsDatabase {
 	 *            the contact to add.
 	 */
 	public void addAccount(AccountDTO contact) {
-		List<AccountDTO> contacts = dataProvider.getList();
 		// Remove the contact first so we don't add a duplicate.
-		contacts.remove(contact);
-		contacts.add(contact);
+		data.remove(contact);
+		data.add(contact);
 	}
 
 	/**

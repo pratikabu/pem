@@ -16,6 +16,7 @@
 
 package com.pratikabu.pem.client.dash.components;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.view.client.HasData;
@@ -118,6 +119,31 @@ public class TransactionGroupDatabase {
 
 	public ListDataProvider<TransactionGroupDTO> getDataProvider() {
 		return dataProvider;
+	}
+
+	public static void openSelectedProperties() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void deleteSelected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setTgList(ArrayList<TransactionGroupDTO> transactionGroups) {
+		TransactionGroupDTO dto = getTGAll();
+		
+		transactionGroups.add(0, dto);
+		dataProvider.setList(transactionGroups);
+	}
+
+	public TransactionGroupDTO getTGAll() {
+		TransactionGroupDTO dto = new TransactionGroupDTO();
+		dto.setId(-1L);
+		dto.setTgName("All Transactions");
+		
+		return dto;
 	}
 	
 }

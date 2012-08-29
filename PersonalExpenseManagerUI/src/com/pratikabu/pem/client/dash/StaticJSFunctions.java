@@ -3,11 +3,14 @@
  */
 package com.pratikabu.pem.client.dash;
 
+import com.pratikabu.pem.client.dash.components.TransactionGroupDatabase;
 import com.pratikabu.pem.client.dash.ui.AccountDialog;
 import com.pratikabu.pem.client.dash.ui.TransactionGroupChooserDialog;
+import com.pratikabu.pem.client.dash.ui.TransactionGroupChooserDialog.TransactionGroupSelectionListener;
 import com.pratikabu.pem.client.dash.ui.TransactionGroupDialog;
 import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
 import com.pratikabu.pem.shared.model.TransactionDTO;
+import com.pratikabu.pem.shared.model.TransactionGroupDTO;
 
 /**
  * @author pratsoni
@@ -70,9 +73,21 @@ public class StaticJSFunctions {
 		else if("tgntg".equals(toBeOpened)) {
 			TransactionGroupDialog.show(null);
 		} else if("tgchng".equals(toBeOpened)) {
-			TransactionGroupChooserDialog.chooseSingleAccount(null);
+			TransactionGroupChooserDialog.chooseSingleAccount(new TransactionGroupSelectionListener() {
+				@Override
+				public void transactionGroupSelectedEvent(TransactionGroupDTO dto) {
+					if(dto.getId() != PaneManager.gettList().getTransactionGroupId()) {
+						PaneManager.showEmptyArea();
+						PaneManager.gettList().showDataForTransactionGroup(dto.getId(), dto.getTgNameWithCount());
+					}
+				}
+			});
 		} else if("tgmanage".equals(toBeOpened)) {
 			TransactionGroupChooserDialog.chooseSingleAccount(null);
+		} else if("tgprop".equals(toBeOpened)) {
+			TransactionGroupDatabase.openSelectedProperties();
+		} else if("tgdel".equals(toBeOpened)) {
+			TransactionGroupDatabase.deleteSelected();
 		}
 	}
 }

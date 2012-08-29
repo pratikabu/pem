@@ -3,6 +3,7 @@ package com.pratikabu.pem.server;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpSession;
@@ -133,11 +134,17 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		otd.setUserSpecificPayableAccounts(accs);
 		
 		ArrayList<TransactionGroupDTO> transactionGroups = new ArrayList<TransactionGroupDTO>();
+		
+		Map<String, Object> criteria = new LinkedHashMap<String, Object>();
+		
 		for(TransactionGroup tg : SearchHelper.getFacade().readAllObjects(TransactionGroup.class, false, uid)) {
 			TransactionGroupDTO dto = new TransactionGroupDTO();
 			dto.setId(tg.getTripId());
 			dto.setTgName(tg.getTripName());
 			
+			criteria.put("trip.tripId", tg.getTripId());
+			
+			dto.setNoOfRecords(SearchHelper.getFacade().getCount(TransactionTable.class, criteria));
 			transactionGroups.add(dto);
 		}
 		
@@ -163,7 +170,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	}
 
 	@Override
-	public Boolean saveIPaidTransaction(IPaidDTO dto) {
+	public Long saveIPaidTransaction(IPaidDTO dto) {
 		List<Object> toBeSaved = new ArrayList<Object>();
 		List<Object> toBeDeleted = new ArrayList<Object>();
 		
@@ -246,7 +253,9 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		}
 		toBeSaved.add(updateCurrentBalance(outwardAccount, totalAmount, "sub"));
 		
-		return SearchHelper.getFacade().saveDeleteModels(toBeSaved, toBeDeleted);
+		boolean b = SearchHelper.getFacade().saveDeleteModels(toBeSaved, toBeDeleted);
+		
+		return b ? tt.getTxnGrpId() : -1L;
 	}
 
 	private Account updateCurrentBalance(Account a, double amount, String operation) {

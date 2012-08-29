@@ -5,6 +5,7 @@ package com.pratikabu.pem.model.utils;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import com.pratikabu.pem.model.Account;
 import com.pratikabu.pem.model.TransactionTable;
@@ -74,4 +75,12 @@ public interface SearchFacade {
 	List<Account> getAccountsForUser(Serializable pemUserPK, int startPosition, int offset, boolean loadLazyData);
 
 	List<Account> getAccountsForUserOfType(Serializable pemUserPK, String... accTypes);
+
+	/**
+	 * This method will return the count of all the records provided by the passed criteria.
+	 * @param c
+	 * @param criteria
+	 * @return
+	 */
+	<T> int getCount(Class<T> c, Map<String, Object> criteria);
 }

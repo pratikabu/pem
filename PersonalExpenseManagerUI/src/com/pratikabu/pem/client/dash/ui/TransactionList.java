@@ -8,10 +8,12 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardPagingPolicy.KeyboardPagingPolicy;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.pratikabu.pem.client.common.Constants;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.OneTimeDataManager;
 import com.pratikabu.pem.client.dash.PaneManager;
@@ -141,13 +143,22 @@ public class TransactionList extends VerticalPanel {
 		this.transactionGroupId = transactionGroupId;
 	}
 	
-	public void showDataForTransactionGroup(Long transactionGroupId) {
+	public void showDataForTransactionGroup(Long transactionGroupId, String tgName) {
 		this.transactionGroupId = transactionGroupId;
 		TransactionDatabase.get().refreshDisplays(transactionGroupId);
 		
 		if(null == transactionGroupId) {
 			this.transactionGroupId = TransactionGroupDatabase.get().getDefault().getId();
 		}
+		
+		if(null == tgName || -1 == transactionGroupId) {
+			tgName = TransactionGroupDatabase.get().getTGAll().getTgName();
+		}
+		
+		HTML h = new HTML();
+		h.setStyleName(Constants.CSS_NORMAL_LABEL);
+		h.setText(tgName);
+		PaneManager.setInId(h, "tgCurrentName");
 	}
 	
 	@SuppressWarnings("unchecked")

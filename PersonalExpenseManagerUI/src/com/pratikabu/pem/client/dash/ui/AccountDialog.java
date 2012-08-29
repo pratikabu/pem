@@ -22,6 +22,7 @@ import com.pratikabu.pem.client.common.Constants;
 import com.pratikabu.pem.client.common.MessageDialog;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.components.AccountTypeDatabase;
+import com.pratikabu.pem.client.dash.components.CentralEventHandler;
 import com.pratikabu.pem.client.dash.components.AccountTypeDatabase.AccountTypeLoadListener;
 import com.pratikabu.pem.client.dash.components.LengthConstraintTextBox;
 import com.pratikabu.pem.shared.model.AccountDTO;
@@ -83,16 +84,25 @@ public class AccountDialog extends DialogBox {
 		this.setAnimationEnabled(true);
 		
 		form = new FormPanel();
-		form.setAction("registerUser");
+		form.setAction(Constants.CREATE_SERVLET_ACTION_NAME);
 		form.setMethod(FormPanel.METHOD_POST);
 		form.addSubmitCompleteHandler(new SubmitCompleteHandler() {
 			@Override
 			public void onSubmitComplete(SubmitCompleteEvent event) {
-				if("INVALID".equals(event.getResults())) {
+				String result = event.getResults();
+				if(null == result || "INVALID".equals(result)) {
 					Utility.alert("Error while saving. Pleas try again.");
 				} else {
 					Utility.alert("Saved...");
 					hide();
+					
+					AccountDTO acc = new AccountDTO();
+					acc.setAccountId(Long.parseLong(result));
+					acc.setAccountName(accountName.getText());
+					acc.setAccountType(accountType.getValue(accountType.getSelectedIndex()));
+					
+					Long pk = Long.parseLong(accountId.getValue());
+					CentralEventHandler.accountUpdated(acc, CentralEventHandler.getActionForCreateUpdate(pk));
 				}
 			}
 		});
@@ -103,8 +113,7 @@ public class AccountDialog extends DialogBox {
 		
 		accountId = new Hidden("accountId");
 		
-		createWhat = new Hidden(Constants.SERVLET_CREATE_WHAT);
-		createWhat.setValue("account");
+		createWhat = new Hidden(Constants.SERVLET_CREATE_WHAT, "account");
 		
 		accountName = new LengthConstraintTextBox(Constants.MAX_TRANSACTION_GROUP_NAME_CHARACTERS);
 		accountName.setWidth("280px");

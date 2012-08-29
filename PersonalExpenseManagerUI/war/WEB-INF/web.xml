@@ -19,11 +19,6 @@
 		<servlet-name>LoginServlet</servlet-name>
 		<servlet-class>com.pratikabu.pem.server.servlet.LoginServlet</servlet-class>
 	</servlet>
-	<servlet>
-		<display-name>ProcessTransactionGroup</display-name>
-		<servlet-name>ProcessTransactionGroup</servlet-name>
-		<servlet-class>com.pratikabu.pem.server.servlet.TransactionGroupProcessingServlet</servlet-class>
-	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>pemServlet</servlet-name>
@@ -36,9 +31,5 @@
 	<servlet-mapping>
 		<servlet-name>LoginServlet</servlet-name>
 		<url-pattern>/loginServlet</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>ProcessTransactionGroup</servlet-name>
-		<url-pattern>/processTransactionGroup</url-pattern>
 	</servlet-mapping>
 </web-app>

@@ -27,7 +27,7 @@ public class TransactionGroupDialog extends DialogBox {
 	private static TransactionGroupDialog tgd;
 	private FormPanel form;
 	private LengthConstraintTextBox transactionGroup;
-	private Hidden transactionID;
+	private Hidden transactionID, createWhat;
 	
 	private Button saveButton, cancelButton;
 	
@@ -54,17 +54,19 @@ public class TransactionGroupDialog extends DialogBox {
 		
 		form = new FormPanel();
 		form.setMethod(FormPanel.METHOD_POST);
-		form.setAction("processTransactionGroup");
+		form.setAction(Constants.CREATE_SERVLET_ACTION_NAME);
 		form.addSubmitCompleteHandler(new SubmitCompleteHandler() {
 			@Override
 			public void onSubmitComplete(SubmitCompleteEvent event) {
-				if("INVALID".equals(event.getResults())) {
+				String result = event.getResults();
+				if(null == result || "INVALID".equals(event.getResults())) {
 					Utility.alert("Error while saving. Pleas try again.");
 				} else {
 					Utility.alert("Saved...");
 					hide();
 					
 					TransactionGroupDTO dto = new TransactionGroupDTO();
+					dto.setId(Long.parseLong(result));
 					dto.setTgName(transactionGroup.getText());
 					dto.setId(Long.parseLong(transactionID.getValue()));
 					CentralEventHandler.transactionGroupUpdated(dto, CentralEventHandler.getActionForCreateUpdate(dto.getId()));
@@ -77,6 +79,8 @@ public class TransactionGroupDialog extends DialogBox {
 		Utility.updateNameAndId(transactionGroup, "transactionGroupName");
 		
 		transactionID = new Hidden("txnId");
+		
+		createWhat = new Hidden(Constants.SERVLET_CREATE_WHAT, "transactionGroup");
 		
 		saveButton = Utility.getActionButton("Save");
 		saveButton.addClickHandler(new ClickHandler() {
@@ -102,6 +106,7 @@ public class TransactionGroupDialog extends DialogBox {
 		vp.setSpacing(5);
 		vp.add(transactionGroup);
 		vp.add(transactionID);
+		vp.add(createWhat);
 		vp.add(Utility.addHorizontally(5, saveButton, cancelButton));
 		
 		form.setWidget(vp);

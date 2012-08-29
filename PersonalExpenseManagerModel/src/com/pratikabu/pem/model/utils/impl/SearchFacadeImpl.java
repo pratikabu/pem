@@ -6,11 +6,15 @@ package com.pratikabu.pem.model.utils.impl;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.pratikabu.pem.model.Account;
@@ -275,5 +279,24 @@ public class SearchFacadeImpl implements SearchFacade {
 		s.getTransaction().commit();
 		
 		return accounts;
+	}
+
+	@Override
+	public <T> int getCount(Class<T> c, Map<String, Object> criteria) {
+		Session s = HibernateConfiguration.getFactory().getCurrentSession();
+		s.beginTransaction();
+		
+		Criteria cr = s.createCriteria(c);
+		
+		if(null != criteria) {
+			for(Entry<String, Object> entry : criteria.entrySet()) {
+				cr.add(Restrictions.eq(entry.getKey(), entry.getValue()));
+			}
+		}
+		
+		int count = ((Number)cr.setProjection(Projections.rowCount()).uniqueResult()).intValue();
+		s.getTransaction().commit();
+		
+		return count;
 	}
 }

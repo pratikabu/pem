@@ -122,10 +122,11 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 				
 				final int action =  CentralEventHandler.getActionForCreateUpdate(dto.getTransactionId());
 				completeTransactionData();
-				ServiceHelper.getPemservice().saveIPaidTransaction(dto, new AsyncCallback<Boolean>() {
+				ServiceHelper.getPemservice().saveIPaidTransaction(dto, new AsyncCallback<Long>() {
 					@Override
-					public void onSuccess(Boolean result) {
-						if(result) {
+					public void onSuccess(Long result) {
+						if(result != -1L) {
+							dto.setTransactionId(result);
 							CentralEventHandler.transactionUpdated(dto, action);
 							Utility.alert("saved");
 						} else {

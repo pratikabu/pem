@@ -5,6 +5,7 @@ package com.pratikabu.pem.client.dash;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.pratikabu.pem.client.common.Utility;
+import com.pratikabu.pem.client.dash.components.AccountsDatabase;
 import com.pratikabu.pem.client.dash.components.TransactionGroupDatabase;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
 import com.pratikabu.pem.shared.OneTimeData;
@@ -24,8 +25,9 @@ public class OneTimeDataManager {
 			public void onSuccess(OneTimeData result) {
 				otd = result;
 				PaneManager.setInTListPane(PaneManager.gettList());
-				PaneManager.gettList().showDataForTransactionGroup(null);// show all
-				TransactionGroupDatabase.get().getDataProvider().setList(otd.getTransactionGroups());
+				PaneManager.gettList().showDataForTransactionGroup(null, null);// show all
+				TransactionGroupDatabase.get().setTgList(otd.getTransactionGroups());
+				AccountsDatabase.get();
 			}
 			
 			@Override

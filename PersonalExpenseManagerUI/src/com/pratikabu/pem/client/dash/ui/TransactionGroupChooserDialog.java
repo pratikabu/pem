@@ -133,7 +133,11 @@ public class TransactionGroupChooserDialog extends DialogBox {
 			}
 
 			sb.appendHtmlConstant("<span class='normalLabel' style='font-size: 16px'>");
-			sb.appendHtmlConstant(value.getTgName());
+			if(-1 == value.getId()) {
+				sb.appendHtmlConstant(value.getTgName());
+			} else {
+				sb.appendHtmlConstant(value.getTgNameWithCount());
+			}
 			sb.appendHtmlConstant("</span>");
 		}
 

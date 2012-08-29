@@ -40,7 +40,7 @@ public class UserCreationForm extends FormPanel {
 	}
 
 	private void initializeComponents() {
-		this.setAction("registerUser");
+		this.setAction(Constants.CREATE_SERVLET_ACTION_NAME);
 		this.setMethod(METHOD_POST);
 		this.addSubmitCompleteHandler(new SubmitCompleteHandler() {
 			@Override
