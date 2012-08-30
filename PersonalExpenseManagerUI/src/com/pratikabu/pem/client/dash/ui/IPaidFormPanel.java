@@ -30,6 +30,7 @@ import com.pratikabu.pem.client.dash.components.AccountsDatabase;
 import com.pratikabu.pem.client.dash.components.AccountsDatabase.AccountsLoadingDoneListener;
 import com.pratikabu.pem.client.dash.components.AmountTextBox;
 import com.pratikabu.pem.client.dash.components.AmountTextBox.AmountChangeListener;
+import com.pratikabu.pem.client.dash.components.AccountTypeDatabase;
 import com.pratikabu.pem.client.dash.components.CentralEventHandler;
 import com.pratikabu.pem.client.dash.components.LengthConstraintTextBox;
 import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase;
@@ -156,6 +157,36 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 				}
 			}
 		});
+		
+		CentralEventHandler.addListener(new CentralEventHandler.AccountUpdateListener() {
+			@Override
+			public void accountUpdatedEvent(AccountDTO dto, int action) {
+				if(!(dto.getAccountType().equals(AccountTypeDatabase.AT_CREDIT) ||
+						dto.getAccountType().equals(AccountTypeDatabase.AT_MAIN))) {
+					return;
+				}
+				
+				if(CentralEventHandler.ACTION_CREATED == action) {
+					paymentSource.addItem(dto.getAccountName(), dto.getAccountId() + "");
+				} else if(CentralEventHandler.ACTION_EDITED == action) {
+					for(int i = 0; i < paymentSource.getItemCount(); i++) {
+						if(paymentSource.getValue(i).equals(dto.getAccountId() + "")) {
+							paymentSource.setItemText(i, dto.getAccountName());
+						}
+					}
+				} else if(CentralEventHandler.ACTION_DELETED == action) {
+					int index = -1;
+					for(int i = 0; i < paymentSource.getItemCount(); i++) {
+						if(paymentSource.getValue(i).equals(dto.getAccountId() + "")) {
+							index = i;
+							break;
+						}
+					}
+					
+					paymentSource.removeItem(index);
+				}
+			}
+		});
 	}
 
 	private boolean isValidatedFormData() {
@@ -249,12 +280,12 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		ft.setWidget(++row, 0, Utility.getLabel("Amount (in " + OneTimeDataManager.getOTD().getCurrecnySymbol() + ")"));
 		ft.setWidget(row, 1, amountBox);
 		
-		ft.setWidget(row, 2, Utility.getLabel("Payment Mode"));
+		ft.setWidget(row, 2, Utility.getLabel("Payment From"));
 		ft.setWidget(row, 3, paymentSource);
 		
 		this.add(ft);
 		
-		ft.setWidget(++row, 0, Utility.getLabel("People Associated:"));
+		ft.setWidget(++row, 0, Utility.getLabel("Paid to:"));
 		ft.setWidget(row, 2, Utility.getLabel("Select Tags (Tags help you associate your expense):"));
 		cellFormatter.setColSpan(row, 2, 2);
 		cellFormatter.setHorizontalAlignment(row, 2, HasHorizontalAlignment.ALIGN_LEFT);

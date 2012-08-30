@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.pratikabu.pem.client.dash.components.AccountTypeDatabase;
 import com.pratikabu.pem.client.dash.service.PEMService;
@@ -30,6 +32,7 @@ import com.pratikabu.pem.shared.model.TransactionGroupDTO;
  */
 @SuppressWarnings("serial")
 public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
+	private static final Logger logger = Logger.getLogger(PEMServiceImpl.class);
 
 	@Override
 	public ArrayList<TransactionDTO> getAllTransactionsForGroupId(Long groupId) {
@@ -174,24 +177,13 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		List<Object> toBeSaved = new ArrayList<Object>();
 		List<Object> toBeDeleted = new ArrayList<Object>();
 		
-		LinkedHashMap<Account, Double> oldAmountDistribution = new LinkedHashMap<Account, Double>();
-		
 		TransactionTable tt = null;
 		if(dto.getTransactionId() > 0) { // old transaction
 			tt = SearchHelper.getFacade().readModelWithId(TransactionTable.class, dto.getTransactionId(), true);
 			
-			Account outwardAcc = null;
-			double totalAmount = 0d;
-			for(TransactionEntry te : tt.getTransactionEntries()) {
-				oldAmountDistribution.put(te.getInwardAccount(), te.getAmount());
-				toBeDeleted.add(te);
-				
-				toBeSaved.add(updateCurrentBalance(te.getInwardAccount(), te.getAmount(), "sub"));
-				
-				totalAmount += te.getAmount();
-				outwardAcc = te.getOutwardAccount();
-			}
-			toBeSaved.add(updateCurrentBalance(outwardAcc, totalAmount, "add"));
+			Map<String, List<Object>> modifiedMap = modifedMapAfterDeletingTransaction(tt);
+			toBeDeleted.addAll(modifiedMap.get("toBeDeleted"));
+			toBeSaved.addAll(modifiedMap.get("toBeSaved"));
 			
 			// now remove all the te's from the tt collection
 			for(Object te : toBeDeleted) {
@@ -288,6 +280,92 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		}
 		
 		return dtos;
+	}
+
+	@Override
+	public boolean deleteTransactionGroup(Long tgId) {
+		TransactionGroup tg = SearchHelper.getFacade().readModelWithId(TransactionGroup.class, tgId, true);
+		List<Object> toBeDeleted = new ArrayList<Object>();
+		List<Object> toBeSaved = new ArrayList<Object>();
+		
+		for(TransactionTable tt : tg.getTransactionGroups()) {
+			toBeDeleted.add(tt);
+			
+			Map<String, List<Object>> modifiedMap = modifedMapAfterDeletingTransaction(getTransactionEntriesWithoutTT(tt.getTxnGrpId()));
+			toBeDeleted.addAll(modifiedMap.get("toBeDeleted"));
+			toBeSaved.addAll(modifiedMap.get("toBeSaved"));
+		}
+		
+		for(Object o : toBeDeleted) {
+			if(o instanceof TransactionTable) {
+				tg.getTransactionGroups().remove(o);
+			}
+		}
+		
+		toBeDeleted.add(tg);
+		
+		return SearchHelper.getFacade().saveDeleteModels(toBeSaved, toBeDeleted);
+	}
+
+	private TransactionTable getTransactionEntriesWithoutTT(long txnGrpId) {
+		// TODO write the readAllObjects method as we've written the getCount method
+		return null;
+	}
+
+	private Map<String, List<Object>> modifedMapAfterDeletingTransaction(TransactionTable tt) {
+		Map<String, List<Object>> map = new LinkedHashMap<String, List<Object>>();
+		List<Object> toBeSaved = new ArrayList<Object>();
+		List<Object> toBeDeleted = new ArrayList<Object>();
+		
+		Account outwardAcc = null;
+		double totalAmount = 0d;
+		for(TransactionEntry te : tt.getTransactionEntries()) {
+			toBeDeleted.add(te);
+			
+			toBeSaved.add(updateCurrentBalance(te.getInwardAccount(), te.getAmount(), "sub"));
+			
+			totalAmount += te.getAmount();
+			outwardAcc = te.getOutwardAccount();
+		}
+		toBeSaved.add(updateCurrentBalance(outwardAcc, totalAmount, "add"));
+		
+		map.put("toBeSaved", toBeSaved);
+		map.put("toBeDeleted", toBeDeleted);
+		return map;
+	}
+
+	@Override
+	public boolean deleteTransaction(long transactionId) {
+		TransactionTable tt = SearchHelper.getFacade().readModelWithId(TransactionTable.class, transactionId, true);
+		
+		if(getCurrentUser(this.getThreadLocalRequest().getSession()) != tt.getTrip().getUser().getUid()) {
+			logger.error("Unauthorized removal of Transaction with id: " + transactionId +
+					", User: " + tt.getTrip().getUser().getUid() +
+					", Actual User: " + getCurrentUser(this.getThreadLocalRequest().getSession()));
+			return false;
+		}
+		
+		List<Object> toBeSaved = new ArrayList<Object>();
+		List<Object> toBeDeleted = new ArrayList<Object>();
+		
+		Map<String, List<Object>> modifiedMap = modifedMapAfterDeletingTransaction(tt);
+		toBeDeleted.addAll(modifiedMap.get("toBeDeleted"));
+		toBeSaved.addAll(modifiedMap.get("toBeSaved"));
+		
+		// now remove all the te's from the tt collection
+		for(Object te : toBeDeleted) {
+			tt.getTransactionEntries().remove(te);
+		}
+		
+		toBeDeleted.add(tt);
+		
+		return SearchHelper.getFacade().saveDeleteModels(toBeSaved, toBeDeleted);
+	}
+
+	@Override
+	public String deleteAccount(long accountId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

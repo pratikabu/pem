@@ -23,6 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
+import com.pratikabu.pem.client.common.MessageDialog;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
 import com.pratikabu.pem.shared.model.AccountDTO;
@@ -107,7 +108,9 @@ public class AccountsDatabase {
 	 * @param display a {@Link HasData}.
 	 */
 	public void addDataDisplay(HasData<AccountDTO> display) {
-		dataProvider.addDataDisplay(display);
+		if(!dataProvider.getDataDisplays().contains(display)) {
+			dataProvider.addDataDisplay(display);
+		}
 	}
 
 	/**
@@ -188,6 +191,28 @@ public class AccountsDatabase {
 	
 	public static interface AccountsLoadingDoneListener {
 		void accountsLoadingDone();
+	}
+
+	public void deleteAccount(final AccountDTO selectedDTO) {
+		ServiceHelper.getPemservice().deleteAccount(selectedDTO.getAccountId(),
+				new AsyncCallback<String>() {
+					@Override
+					public void onFailure(Throwable caught) {
+						Utility.alert("Cannot delete account. Try again.");
+					}
+
+					@Override
+					public void onSuccess(String result) {
+						if("success".equals(result)) {
+							Utility.alert("Successfully deleted.");
+							CentralEventHandler.accountUpdated(selectedDTO, CentralEventHandler.ACTION_DELETED);
+						} else {
+							MessageDialog md = MessageDialog.get();
+							md.println("Cannot delete account. Server says:");
+							md.print(result);
+						}
+					}
+				});
 	}
 
 }

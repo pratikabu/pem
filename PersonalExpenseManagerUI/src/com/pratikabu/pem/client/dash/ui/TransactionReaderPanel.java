@@ -76,7 +76,9 @@ public class TransactionReaderPanel extends HTML implements DetailPaneable {
 				" class='readerHeader'>"+ Utility.getDateFormatted(d.getDate()) + "</td></tr> <tr>" +
 				"<td align='left' class='readerHeader'>" + d.getName() +
 				", in " + d.getGroupName() + "</td></tr> </table></td> <td width='50%' align='right' style='vertical-align: middle;'>" +
-				"<table cellspacing='0px' class='readerPTag'> <tr><td align='right'><input type='button' id='readerEdit' value='Edit'" +
+				"<table cellspacing='0px' class='readerPTag'> <tr><td align='right'><input type='button' id='readerDelete' value='Delete' " +
+				"class='normalButton' style='font-size: 12px; margin-right: 5px;' onclick='deleteTransaction()' />" +
+				"<input type='button' id='readerEdit' value='Edit'" +
 				" class='actionButton' style='font-size: 12px; margin-right: 5px;' onclick='editTransaction()' /></td></tr> </table></td>" +
 				" </tr></table><p class='readerPTag'> iPaid a total amount of <strong>" +
 				Utility.getPrintableAmountWithSign(OneTimeDataManager.getOTD().getCurrecnySymbol(), d.getTotalAmount()) +

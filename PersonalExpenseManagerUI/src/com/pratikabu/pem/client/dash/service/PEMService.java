@@ -35,4 +35,10 @@ public interface PEMService extends RemoteService {
 	Long saveIPaidTransaction(IPaidDTO dto);
 	
 	ArrayList<AccountTypeDTO> getAllAccountTypes();
+
+	boolean deleteTransactionGroup(Long tgId);
+
+	boolean deleteTransaction(long transactionId);
+
+	String deleteAccount(long accountId);
 }

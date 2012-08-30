@@ -32,6 +32,7 @@ public class TransactionList extends VerticalPanel {
 	private CellList<TransactionDTO> tgList;
 	
 	private Long transactionGroupId;
+	private Long actualId;
 	
 	public TransactionList() {
 		initializeObjects();
@@ -139,12 +140,13 @@ public class TransactionList extends VerticalPanel {
 		return transactionGroupId;
 	}
 
-	public void setTransactionGroupId(Long transactionGroupId) {
-		this.transactionGroupId = transactionGroupId;
+	public Long getActualId() {
+		return actualId;
 	}
 	
 	public void showDataForTransactionGroup(Long transactionGroupId, String tgName) {
 		this.transactionGroupId = transactionGroupId;
+		this.actualId = transactionGroupId;
 		TransactionDatabase.get().refreshDisplays(transactionGroupId);
 		
 		if(null == transactionGroupId) {

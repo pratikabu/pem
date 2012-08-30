@@ -19,12 +19,14 @@ package com.pratikabu.pem.client.dash.components;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
+import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 
 /**
@@ -101,6 +103,43 @@ public class TransactionDatabase {
 			@Override
 			public void onFailure(Throwable caught) {
 				Utility.alert("Error fetching transactions");
+			}
+		});
+	}
+	
+	public static void deleteSelected() {
+		Long tId = TransactionReaderPanel.getiPaidDTO().getTransactionId();
+		
+		if(null == tId) {
+			Utility.alert("Cannot delete the selected entry.");
+			return;
+		}
+		
+		deleteT(tId);
+	}
+
+	public static void deleteT(final Long tId) {
+		if(!Window.confirm("Are you sure you want to delete this Transaction?\n" +
+				"This step cannot be undone.")) {
+			return;
+		}
+		
+		ServiceHelper.getPemservice().deleteTransaction(tId,
+				new AsyncCallback<Boolean>() {
+			@Override
+			public void onSuccess(Boolean result) {
+				if(result) {
+					Utility.alert("Successfully Deleted.");
+					// TODO get the transaction value to pass
+					CentralEventHandler.transactionUpdated(null, CentralEventHandler.ACTION_DELETED);
+				} else {
+					Utility.alert("Error while deleting Transaction.");
+				}
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				Utility.alert("Error while deleting Transaction.");
 			}
 		});
 	}

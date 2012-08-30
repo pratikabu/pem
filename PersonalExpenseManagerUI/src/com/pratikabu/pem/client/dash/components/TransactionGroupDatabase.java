@@ -19,10 +19,16 @@ package com.pratikabu.pem.client.dash.components;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
+import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.OneTimeDataManager;
+import com.pratikabu.pem.client.dash.PaneManager;
+import com.pratikabu.pem.client.dash.service.ServiceHelper;
+import com.pratikabu.pem.client.dash.ui.TransactionGroupDialog;
 import com.pratikabu.pem.shared.model.TransactionGroupDTO;
 
 /**
@@ -122,13 +128,61 @@ public class TransactionGroupDatabase {
 	}
 
 	public static void openSelectedProperties() {
-		// TODO Auto-generated method stub
+		Long tgId = PaneManager.gettList().getActualId();
 		
+		if(null == tgId || -1 == tgId) {
+			Utility.alert("Cannot modify the selected entry.");
+			return;
+		}
+		
+		TransactionGroupDTO tg = get().getTG(tgId);
+		if("Default".equals(tg.getTgName())) {
+			Utility.alert("You cannot rename this Transaction Group.");
+			return;
+		}
+		
+		TransactionGroupDialog.show(tg);
 	}
 
 	public static void deleteSelected() {
-		// TODO Auto-generated method stub
+		Long tgId = PaneManager.gettList().getActualId();
 		
+		if(null == tgId || -1 == tgId) {
+			Utility.alert("Cannot delete the selected entry.");
+			return;
+		}
+		
+		if("Default".equals(get().getTG(tgId).getTgName())) {
+			Utility.alert("You cannot delete this Transaction Group.");
+			return;
+		}
+		
+		deleteTG(tgId);
+	}
+
+	public static void deleteTG(final Long tgId) {
+		if(!Window.confirm("Are you sure you want to delete this Transaction Group?\n" +
+				"All transactions under this will be deleted.\n" +
+				"This step cannot be undone.")) {
+			return;
+		}
+		
+		ServiceHelper.getPemservice().deleteTransactionGroup(tgId, new AsyncCallback<Boolean>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				Utility.alert("Error while deleting Transaction Group.");
+			}
+
+			@Override
+			public void onSuccess(Boolean result) {
+				if(result) {
+					Utility.alert("Successfully Deleted.");
+					CentralEventHandler.transactionGroupUpdated(get().getTG(tgId), CentralEventHandler.ACTION_DELETED);
+				} else {
+					Utility.alert("Error while deleting Transaction Group.");
+				}
+			}
+		});
 	}
 
 	public void setTgList(ArrayList<TransactionGroupDTO> transactionGroups) {
@@ -144,6 +198,15 @@ public class TransactionGroupDatabase {
 		dto.setTgName("All Transactions");
 		
 		return dto;
+	}
+	
+	public TransactionGroupDTO getTG(Long tgId) {
+		for(TransactionGroupDTO dto : dataProvider.getList()) {
+			if(tgId == dto.getId()) {
+				return dto;
+			}
+		}
+		return null;
 	}
 	
 }

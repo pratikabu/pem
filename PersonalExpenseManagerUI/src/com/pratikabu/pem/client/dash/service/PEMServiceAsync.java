@@ -34,4 +34,11 @@ public interface PEMServiceAsync {
 
 	void getAllAccountTypes(AsyncCallback<ArrayList<AccountTypeDTO>> callback);
 
+	void deleteTransactionGroup(Long tgId, AsyncCallback<Boolean> callback);
+
+	void deleteTransaction(long transactionId,
+			AsyncCallback<Boolean> asyncCallback);
+
+	void deleteAccount(long accountId, AsyncCallback<String> asyncCallback);
+
 }

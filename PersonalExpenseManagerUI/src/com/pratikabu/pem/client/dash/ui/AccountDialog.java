@@ -45,7 +45,7 @@ public class AccountDialog extends DialogBox {
 	private ListBox genderBox;
 	private TextBox email;
 	
-	private Hidden accountId, createWhat;
+	private Hidden accountId, createWhat, editAccType;
 	
 	private Button saveButton, cancelButton;
 	
@@ -114,6 +114,7 @@ public class AccountDialog extends DialogBox {
 		accountId = new Hidden("accountId");
 		
 		createWhat = new Hidden(Constants.SERVLET_CREATE_WHAT, "account");
+		editAccType = new Hidden("editAccType");
 		
 		accountName = new LengthConstraintTextBox(Constants.MAX_TRANSACTION_GROUP_NAME_CHARACTERS);
 		accountName.setWidth("280px");
@@ -181,6 +182,7 @@ public class AccountDialog extends DialogBox {
 		
 		ft.setWidget(++row, 0, accountId);
 		ft.setWidget(++row, 0, createWhat);
+		ft.setWidget(++row, 0, editAccType);
 		
 		ft.setWidget(++row, 1, Utility.addHorizontally(5, saveButton, cancelButton));
 		
@@ -196,6 +198,8 @@ public class AccountDialog extends DialogBox {
 			this.accountName.setText("");
 			this.genderBox.setSelectedIndex(0);
 			this.email.setText("");
+			
+			this.accountType.setEnabled(true);
 		} else {
 			this.accountId.setValue(acc.getAccountId() + "");
 			this.setText("Edit Account");
@@ -210,6 +214,17 @@ public class AccountDialog extends DialogBox {
 				}
 				this.email.setText(acc.getEmail());
 			}
+			
+			for(int i = 0; i < this.accountType.getItemCount(); i++) {
+				if(this.accountType.getValue(i).equals(acc.getAccountType())) {
+					this.accountType.setSelectedIndex(i);
+					updateContent();
+					break;
+				}
+			}
+			
+			editAccType.setValue(acc.getAccountType());
+			this.accountType.setEnabled(false);
 		}
 	}
 
@@ -227,6 +242,11 @@ public class AccountDialog extends DialogBox {
 			valid = false;
 			md.print("- ");
 			md.println(accountName.getErrorMessage());
+		}
+		
+		if("Myself".equals(accountName.getText())) {
+			valid = false;
+			md.print("- You cannot create a account with this name.");
 		}
 		
 		if(!valid) {

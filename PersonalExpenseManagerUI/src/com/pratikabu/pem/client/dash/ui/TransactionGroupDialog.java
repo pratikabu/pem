@@ -143,6 +143,11 @@ public class TransactionGroupDialog extends DialogBox {
 			md.println(transactionGroup.getErrorMessage());
 		}
 		
+		if("Default".equals(transactionGroup.getText())) {
+			valid = false;
+			md.print("- You cannot create a transaction group with Default name.");
+		}
+		
 		if(!valid) {
 			md.show();
 		}

@@ -3,8 +3,10 @@
  */
 package com.pratikabu.pem.client.dash;
 
+import com.pratikabu.pem.client.dash.components.TransactionDatabase;
 import com.pratikabu.pem.client.dash.components.TransactionGroupDatabase;
 import com.pratikabu.pem.client.dash.ui.AccountDialog;
+import com.pratikabu.pem.client.dash.ui.AccountManagerDialog;
 import com.pratikabu.pem.client.dash.ui.TransactionGroupChooserDialog;
 import com.pratikabu.pem.client.dash.ui.TransactionGroupChooserDialog.TransactionGroupSelectionListener;
 import com.pratikabu.pem.client.dash.ui.TransactionGroupDialog;
@@ -20,11 +22,16 @@ public class StaticJSFunctions {
 
 	public static native void exportStaticMethod() /*-{
 		$wnd.editTransaction = $entry(@com.pratikabu.pem.client.dash.StaticJSFunctions::editTransaction());
+		$wnd.deleteTransaction = $entry(@com.pratikabu.pem.client.dash.StaticJSFunctions::deleteTransaction());
 		$wnd.openRequest = $entry(@com.pratikabu.pem.client.dash.StaticJSFunctions::openRequest(Ljava/lang/String;));
 	}-*/;
 
 	public static void editTransaction() {
 		PaneManager.editDTOObject(TransactionReaderPanel.getiPaidDTO());
+	}
+
+	public static void deleteTransaction() {
+		TransactionDatabase.deleteSelected();
 	}
 
 	public static void openRequest(String toBeOpened) {
@@ -47,6 +54,7 @@ public class StaticJSFunctions {
 		// Second menu for Accounts
 		else if("ama".equals(toBeOpened)) {
 			// open Manage Accounts
+			AccountManagerDialog.showManager();
 		} else if("anacc".equals(toBeOpened)) {
 			// open New Person A/C
 			AccountDialog.show(null);
@@ -76,14 +84,12 @@ public class StaticJSFunctions {
 			TransactionGroupChooserDialog.chooseSingleAccount(new TransactionGroupSelectionListener() {
 				@Override
 				public void transactionGroupSelectedEvent(TransactionGroupDTO dto) {
-					if(dto.getId() != PaneManager.gettList().getTransactionGroupId()) {
+					if(dto.getId() != PaneManager.gettList().getActualId()) {
 						PaneManager.showEmptyArea();
 						PaneManager.gettList().showDataForTransactionGroup(dto.getId(), dto.getTgNameWithCount());
 					}
 				}
 			});
-		} else if("tgmanage".equals(toBeOpened)) {
-			TransactionGroupChooserDialog.chooseSingleAccount(null);
 		} else if("tgprop".equals(toBeOpened)) {
 			TransactionGroupDatabase.openSelectedProperties();
 		} else if("tgdel".equals(toBeOpened)) {

@@ -96,8 +96,15 @@ public class ProcessRegisterUserServlet extends HttpServlet {
 		}
 		
 		acc.setAccName(request.getParameter("accountName"));
+		
+		String accType = request.getParameter("accountType");
+		System.out.println(accType);
+		if(null == accType) {
+			accType = request.getParameter("editAccType");
+			System.out.println(accType);
+		}
 		acc.setAccountType(SearchHelper.getFacade().readModelWithId(AccountType.class,
-				request.getParameter("accountType"), false));
+				accType, false));
 		
 		if(AccountTypeDatabase.AT_PERSON.equals(acc.getAccountType().getAtCode())) {
 			acc.setGender(request.getParameter("gender").charAt(0));
