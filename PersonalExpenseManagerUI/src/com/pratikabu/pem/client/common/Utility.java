@@ -185,11 +185,14 @@ public class Utility {
 	}
 	
 	public static String getDateFormatted(Date date) {
+		return formatDate(date, "dd MMM, yyyy");
+	}
+	
+	public static String formatDate(Date date, String formattingString) {
 		if(null == date) {
 			return "null";
 		}
-		
-		DateTimeFormat formatter = DateTimeFormat.getFormat("dd MMM, yyyy");
+		DateTimeFormat formatter = DateTimeFormat.getFormat(formattingString);
 		return formatter.format(date);
 	}
 	

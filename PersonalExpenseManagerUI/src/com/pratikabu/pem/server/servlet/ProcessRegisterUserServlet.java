@@ -133,11 +133,11 @@ public class ProcessRegisterUserServlet extends HttpServlet {
 			userCorrect = uid == tg.getUser().getUid();
 		}
 		
-		tg.setTripName(request.getParameter("transactionGroupName"));
+		tg.setTgName(request.getParameter("transactionGroupName"));
 		
 		response.setContentType("text/html");
 		if(userCorrect && SearchHelper.getFacade().saveModel(tg)) {
-			response.getWriter().print(tg.getTripId() + "");
+			response.getWriter().print(tg.getTxnGroupId() + "");
 		} else {
 			response.getWriter().print("INVALID");
 		}

@@ -26,9 +26,9 @@ public class Tag {
 	private PEMUser user;
 	
 	@ManyToMany
-	@JoinTable(name = "JOIN_TXNGRP_TAG",
+	@JoinTable(name = "JOIN_TXN_TAG",
 		joinColumns = {@JoinColumn(name = "tagName")},
-		inverseJoinColumns = {@JoinColumn(name = "txnGrpId")}
+		inverseJoinColumns = {@JoinColumn(name = "txnId")}
 	)
 	private List<TransactionTable> transactionGroups;
 

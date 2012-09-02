@@ -37,12 +37,13 @@ public class TransactionReaderPanel extends HTML implements DetailPaneable {
 
 	@Override
 	public void renderRecord(Object obj) {
-		PaneManager.setInReaderPane(Utility.getLoadingWidget());
+		PaneManager.showLoading();
 		
 		if(obj instanceof IPaidDTO) {
 			IPaidDTO result = (IPaidDTO) obj;
 			setHTML(Utility.getSafeHtml(getIPaidReaderHTML(result)));
-			PaneManager.setInReaderPane(TransactionReaderPanel.this);
+			PaneManager.hideLoading();
+			ViewerDialog.showWidget(TransactionReaderPanel.this, "Transaction Details");
 			TransactionReaderPanel.iPaidDTO = result;
 		} else {
 			long[] data = (long[]) obj;
@@ -58,7 +59,6 @@ public class TransactionReaderPanel extends HTML implements DetailPaneable {
 					
 					@Override
 					public void onFailure(Throwable caught) {
-						PaneManager.showEmptyArea();
 						Utility.alert("Error fetching transaction details.");
 					}
 				});
@@ -76,8 +76,7 @@ public class TransactionReaderPanel extends HTML implements DetailPaneable {
 				" class='readerHeader'>"+ Utility.getDateFormatted(d.getDate()) + "</td></tr> <tr>" +
 				"<td align='left' class='readerHeader'>" + d.getName() +
 				", in " + d.getGroupName() + "</td></tr> </table></td> <td width='50%' align='right' style='vertical-align: middle;'>" +
-				"<table cellspacing='0px' class='readerPTag'> <tr><td align='right'><input type='button' id='readerDelete' value='Delete' " +
-				"class='normalButton' style='font-size: 12px; margin-right: 5px;' onclick='deleteTransaction()' />" +
+				"<table cellspacing='0px' class='readerPTag'> <tr><td align='right'>" +
 				"<input type='button' id='readerEdit' value='Edit'" +
 				" class='actionButton' style='font-size: 12px; margin-right: 5px;' onclick='editTransaction()' /></td></tr> </table></td>" +
 				" </tr></table><p class='readerPTag'> iPaid a total amount of <strong>" +

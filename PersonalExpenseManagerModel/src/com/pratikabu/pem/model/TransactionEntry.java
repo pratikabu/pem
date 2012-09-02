@@ -18,7 +18,7 @@ public class TransactionEntry {
 	
 	@Id
 	@GeneratedValue
-	private long txnId;
+	private long txnEntryId;
 	
 	@ManyToOne
 	@JoinColumn(name = "inwardAccount")
@@ -31,15 +31,15 @@ public class TransactionEntry {
 	private double amount;
 	
 	@ManyToOne
-	@JoinColumn(name = "txnGrpId")
-	private TransactionTable transactionGroup;
+	@JoinColumn(name = "txnId")
+	private TransactionTable transaction;
 
-	public long getTxnId() {
-		return txnId;
+	public long getTxnEntryId() {
+		return txnEntryId;
 	}
 
-	public void setTxnId(long txnId) {
-		this.txnId = txnId;
+	public void setTxnEntryId(long txnEntryId) {
+		this.txnEntryId = txnEntryId;
 	}
 
 	public Account getInwardAccount() {
@@ -66,11 +66,11 @@ public class TransactionEntry {
 		this.amount = amount;
 	}
 
-	public TransactionTable getTransactionGroup() {
-		return transactionGroup;
+	public TransactionTable getTransaction() {
+		return transaction;
 	}
 
-	public void setTransactionGroup(TransactionTable transactionGroup) {
-		this.transactionGroup = transactionGroup;
+	public void setTransaction(TransactionTable transaction) {
+		this.transaction = transaction;
 	}
 }

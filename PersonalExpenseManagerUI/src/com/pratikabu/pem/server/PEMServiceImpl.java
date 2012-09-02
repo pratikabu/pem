@@ -19,6 +19,8 @@ import com.pratikabu.pem.model.Tag;
 import com.pratikabu.pem.model.TransactionEntry;
 import com.pratikabu.pem.model.TransactionGroup;
 import com.pratikabu.pem.model.TransactionTable;
+import com.pratikabu.pem.model.UserSettings;
+import com.pratikabu.pem.model.WebsiteData;
 import com.pratikabu.pem.model.utils.SearchHelper;
 import com.pratikabu.pem.shared.OneTimeData;
 import com.pratikabu.pem.shared.model.AccountDTO;
@@ -26,6 +28,7 @@ import com.pratikabu.pem.shared.model.AccountTypeDTO;
 import com.pratikabu.pem.shared.model.IPaidDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 import com.pratikabu.pem.shared.model.TransactionGroupDTO;
+import com.pratikabu.pem.shared.model.UserSettingsDTO;
 
 /**
  * The server side implementation of the RPC service.
@@ -44,10 +47,10 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 			tdto = new ArrayList<TransactionDTO>();
 			for(TransactionTable tt : tTables) {
 				TransactionDTO t = new TransactionDTO();
-				t.setTransactionId(tt.getTxnGrpId());
+				t.setTransactionId(tt.getTxnId());
 				t.setDate(tt.getCreationDate());
 				t.setEntryType(tt.getEntryType());
-				t.setName(tt.getTgName());
+				t.setName(tt.getTxnName());
 				
 				double totalAmount = 0;
 				for(TransactionEntry te : tt.getTransactionEntries()) {
@@ -72,7 +75,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		
 		
 		// check for userId is same or not
-		if(getCurrentUser(this.getThreadLocalRequest().getSession()) != tt.getTrip().getUser().getUid()) {
+		if(getCurrentUser(this.getThreadLocalRequest().getSession()) != tt.getTransactionGroup().getUser().getUid()) {
 			return null; // request for a transaction of a different user
 		}
 		
@@ -80,7 +83,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		d.setTransactionId(transactionId);
 		d.setNotes(tt.getNotes());
 		d.setDate(tt.getCreationDate());
-		d.setName(tt.getTgName());
+		d.setName(tt.getTxnName());
 		
 		ArrayList<String> tags = new ArrayList<String>();
 		for(Tag t : tt.getTags()) {
@@ -104,8 +107,8 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		}
 		d.setAmountDistribution(amountDistribution);
 		
-		d.setGroupId(tt.getTrip().getTripId());
-		d.setGroupName(tt.getTrip().getTripName());
+		d.setGroupId(tt.getTransactionGroup().getTxnGroupId());
+		d.setGroupName(tt.getTransactionGroup().getTgName());
 		
 		return d;
 	}
@@ -115,7 +118,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		long uid = getCurrentUser(this.getThreadLocalRequest().getSession());
 		
 		OneTimeData otd = new OneTimeData();
-		otd.setCurrecnySymbol("Rs");
+		otd.setCurrecnySymbol(getCurrencySymbol());
 		
 		List<Tag> mtags = SearchHelper.getFacade().readAllObjects(Tag.class, false, null);
 		ArrayList<String> tags = new ArrayList<String>();
@@ -142,10 +145,10 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		
 		for(TransactionGroup tg : SearchHelper.getFacade().readAllObjects(TransactionGroup.class, false, uid)) {
 			TransactionGroupDTO dto = new TransactionGroupDTO();
-			dto.setId(tg.getTripId());
-			dto.setTgName(tg.getTripName());
+			dto.setId(tg.getTxnGroupId());
+			dto.setTgName(tg.getTgName());
 			
-			criteria.put("trip.tripId", tg.getTripId());
+			criteria.put("transactionGroup.txnGroupId", tg.getTxnGroupId());
 			
 			dto.setNoOfRecords(SearchHelper.getFacade().getCount(TransactionTable.class, criteria));
 			transactionGroups.add(dto);
@@ -191,10 +194,10 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 			}
 		} else { // new transaction
 			tt = new TransactionTable();
-			tt.setTrip(SearchHelper.getFacade().readModelWithId(TransactionGroup.class, dto.getGroupId(), false));
+			tt.setTransactionGroup(SearchHelper.getFacade().readModelWithId(TransactionGroup.class, dto.getGroupId(), false));
 		}
 		
-		tt.setTgName(dto.getName());
+		tt.setTxnName(dto.getName());
 		tt.setEntryType(TransactionDTO.ET_OUTWARD_TG);
 		tt.setCreationDate(dto.getDate());
 		tt.setNotes(dto.getNotes());
@@ -223,7 +226,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		for(Entry<AccountDTO, Double> entry : dto.getAmountDistribution().entrySet()) {
 			TransactionEntry te = new TransactionEntry();
 			te.setAmount(entry.getValue());
-			te.setTransactionGroup(tt);
+			te.setTransaction(tt);
 			te.setOutwardAccount(outwardAccount);
 			
 			Account inwardAccount = new Account();
@@ -247,7 +250,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		
 		boolean b = SearchHelper.getFacade().saveDeleteModels(toBeSaved, toBeDeleted);
 		
-		return b ? tt.getTxnGrpId() : -1L;
+		return b ? tt.getTxnId() : -1L;
 	}
 
 	private Account updateCurrentBalance(Account a, double amount, String operation) {
@@ -261,7 +264,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	
 	public static long getCurrentUser(HttpSession session) {
 		Long userId = (Long) session.getAttribute("userId");
-		return userId == null ? 360448L : userId;
+		return userId == null ? 65536L : userId;
 	}
 
 	@Override
@@ -288,17 +291,17 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		List<Object> toBeDeleted = new ArrayList<Object>();
 		List<Object> toBeSaved = new ArrayList<Object>();
 		
-		for(TransactionTable tt : tg.getTransactionGroups()) {
+		for(TransactionTable tt : tg.getTransactions()) {
 			toBeDeleted.add(tt);
 			
-			Map<String, List<Object>> modifiedMap = modifedMapAfterDeletingTransaction(getTransactionEntriesWithoutTT(tt.getTxnGrpId()));
+			Map<String, List<Object>> modifiedMap = modifedMapAfterDeletingTransaction(getTransactionEntriesWithoutTT(tt.getTxnId()));
 			toBeDeleted.addAll(modifiedMap.get("toBeDeleted"));
 			toBeSaved.addAll(modifiedMap.get("toBeSaved"));
 		}
 		
 		for(Object o : toBeDeleted) {
 			if(o instanceof TransactionTable) {
-				tg.getTransactionGroups().remove(o);
+				tg.getTransactions().remove(o);
 			}
 		}
 		
@@ -338,9 +341,9 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	public boolean deleteTransaction(long transactionId) {
 		TransactionTable tt = SearchHelper.getFacade().readModelWithId(TransactionTable.class, transactionId, true);
 		
-		if(getCurrentUser(this.getThreadLocalRequest().getSession()) != tt.getTrip().getUser().getUid()) {
+		if(getCurrentUser(this.getThreadLocalRequest().getSession()) != tt.getTransactionGroup().getUser().getUid()) {
 			logger.error("Unauthorized removal of Transaction with id: " + transactionId +
-					", User: " + tt.getTrip().getUser().getUid() +
+					", User: " + tt.getTransactionGroup().getUser().getUid() +
 					", Actual User: " + getCurrentUser(this.getThreadLocalRequest().getSession()));
 			return false;
 		}
@@ -366,6 +369,60 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	public String deleteAccount(long accountId) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public LinkedHashMap<String, String> fetchWebsiteData(int type) {
+		Map<String, Object> criteria = new LinkedHashMap<String, Object>();
+		criteria.put("pk.type", type);
+		
+		List<WebsiteData> wdList = SearchHelper.getFacade().readAllObjects(WebsiteData.class, criteria, false);
+		
+		LinkedHashMap<String, String> val = new LinkedHashMap<String, String>();
+		for(WebsiteData wd : wdList) {
+			val.put(wd.getPk().getCode(), wd.getMeaning());
+		}
+		
+		return val;
+	}
+
+	@Override
+	public UserSettingsDTO fetchUserSettings() {
+		UserSettings setting = SearchHelper.getFacade().readModelWithId(UserSettings.class,
+				getCurrentUser(this.getThreadLocalRequest().getSession()), false);
+		
+		if(null == setting) {
+			return null;
+		}
+		
+		UserSettingsDTO dto = new UserSettingsDTO();
+		dto.setCurrency(setting.getCurrency());
+		dto.setSendMonthly(setting.isSenMonthlyUpdates());
+		dto.setSendNews(setting.isSendNewsLetter());
+		return dto;
+	}
+
+	@Override
+	public boolean saveUserSettings(UserSettingsDTO dto) {
+		UserSettings us = new UserSettings();
+		us.setCurrency(dto.getCurrency());
+		us.setSendNewsLetter(dto.isSendNews());
+		us.setSenMonthlyUpdates(dto.isSendMonthly());
+		us.setUserId(getCurrentUser(this.getThreadLocalRequest().getSession()));
+		
+		return SearchHelper.getFacade().saveModel(us);
+	}
+
+	private String getCurrencySymbol() {
+		UserSettings setting = SearchHelper.getFacade().readModelWithId(UserSettings.class,
+				getCurrentUser(this.getThreadLocalRequest().getSession()), false);
+		
+		Map<String, Object> criteria = new LinkedHashMap<String, Object>();
+		criteria.put("pk.type", SearchHelper.WSD_CURRENCY);
+		criteria.put("pk.code", setting.getCurrency());
+		
+		String meaning = SearchHelper.getFacade().readAllObjects(WebsiteData.class, criteria, false).get(0).getMeaning();
+		return meaning.substring(meaning.indexOf(" - ") + 3);
 	}
 	
 }

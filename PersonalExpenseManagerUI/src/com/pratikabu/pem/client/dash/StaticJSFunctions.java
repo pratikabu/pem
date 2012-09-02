@@ -11,6 +11,8 @@ import com.pratikabu.pem.client.dash.ui.TransactionGroupChooserDialog;
 import com.pratikabu.pem.client.dash.ui.TransactionGroupChooserDialog.TransactionGroupSelectionListener;
 import com.pratikabu.pem.client.dash.ui.TransactionGroupDialog;
 import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
+import com.pratikabu.pem.client.dash.ui.UserSettingsPanel;
+import com.pratikabu.pem.client.dash.ui.ViewerDialog;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 import com.pratikabu.pem.shared.model.TransactionGroupDTO;
 
@@ -22,16 +24,26 @@ public class StaticJSFunctions {
 
 	public static native void exportStaticMethod() /*-{
 		$wnd.editTransaction = $entry(@com.pratikabu.pem.client.dash.StaticJSFunctions::editTransaction());
-		$wnd.deleteTransaction = $entry(@com.pratikabu.pem.client.dash.StaticJSFunctions::deleteTransaction());
 		$wnd.openRequest = $entry(@com.pratikabu.pem.client.dash.StaticJSFunctions::openRequest(Ljava/lang/String;));
+		$wnd.txnRequest = $entry(@com.pratikabu.pem.client.dash.StaticJSFunctions::txnRequest(DII));
 	}-*/;
 
 	public static void editTransaction() {
 		PaneManager.editDTOObject(TransactionReaderPanel.getiPaidDTO());
 	}
-
-	public static void deleteTransaction() {
-		TransactionDatabase.deleteSelected();
+	
+	/**
+	 * 
+	 * @param txnId
+	 * @param operation 1= View, 2= Delete
+	 */
+	public static void txnRequest(double txnId, int entryType, int operation) {
+		long transactionId = (long) txnId;
+		if(1 == operation) {
+			PaneManager.renderTransactionDetails(transactionId, entryType);
+		} else {
+			TransactionDatabase.deleteT(transactionId);
+		}
 	}
 
 	public static void openRequest(String toBeOpened) {
@@ -63,6 +75,7 @@ public class StaticJSFunctions {
 		// third menu for Tools
 		else if("toaccsetting".equals(toBeOpened)) {
 			// open Account Settings
+			ViewerDialog.showWidget(UserSettingsPanel.get(), "Hello");
 		} else if("toart".equals(toBeOpened)) {
 			// open Add Recursive Transaction
 		} else if("todtg".equals(toBeOpened)) {
@@ -85,7 +98,6 @@ public class StaticJSFunctions {
 				@Override
 				public void transactionGroupSelectedEvent(TransactionGroupDTO dto) {
 					if(dto.getId() != PaneManager.gettList().getActualId()) {
-						PaneManager.showEmptyArea();
 						PaneManager.gettList().showDataForTransactionGroup(dto.getId(), dto.getTgNameWithCount());
 					}
 				}

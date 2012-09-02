@@ -26,7 +26,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
-import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 
 /**
@@ -106,17 +105,6 @@ public class TransactionDatabase {
 			}
 		});
 	}
-	
-	public static void deleteSelected() {
-		Long tId = TransactionReaderPanel.getiPaidDTO().getTransactionId();
-		
-		if(null == tId) {
-			Utility.alert("Cannot delete the selected entry.");
-			return;
-		}
-		
-		deleteT(tId);
-	}
 
 	public static void deleteT(final Long tId) {
 		if(!Window.confirm("Are you sure you want to delete this Transaction?\n" +
@@ -142,6 +130,10 @@ public class TransactionDatabase {
 				Utility.alert("Error while deleting Transaction.");
 			}
 		});
+	}
+	
+	public TransactionDTO getTransactionDTO(long txnId) {
+		return null;
 	}
 
 }

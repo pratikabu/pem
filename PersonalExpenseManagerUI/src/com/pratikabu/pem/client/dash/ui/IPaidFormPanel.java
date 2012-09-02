@@ -277,18 +277,20 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		ft.setWidget(++row, 0, Utility.getLabel("Name"));
 		ft.setWidget(row, 1, transactionName);
 		
-		ft.setWidget(++row, 0, Utility.getLabel("Amount (in " + OneTimeDataManager.getOTD().getCurrecnySymbol() + ")"));
+		ft.setWidget(++row, 0, Utility.getLabel(OneTimeDataManager.getOTD().getCurrecnySymbol()));
 		ft.setWidget(row, 1, amountBox);
 		
-		ft.setWidget(row, 2, Utility.getLabel("Payment From"));
+		ft.setWidget(row, 2, Utility.getLabel("From"));
 		ft.setWidget(row, 3, paymentSource);
 		
 		this.add(ft);
 		
 		ft.setWidget(++row, 0, Utility.getLabel("Paid to:"));
-		ft.setWidget(row, 2, Utility.getLabel("Select Tags (Tags help you associate your expense):"));
-		cellFormatter.setColSpan(row, 2, 2);
-		cellFormatter.setHorizontalAlignment(row, 2, HasHorizontalAlignment.ALIGN_LEFT);
+		cellFormatter.setColSpan(row, 0, 2);
+		cellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_LEFT);
+		ft.setWidget(row, 1, Utility.getLabel("Tags (Tags help you associate your expense):"));
+		cellFormatter.setColSpan(row, 1, 2);
+		cellFormatter.setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		
 		//////////////////add more people
 		ft.setWidget(++row, 0, pdp);
@@ -297,7 +299,7 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		
 		// add tags
 		ft.setWidget(row, 2, tagList);
-		cellFormatter.setColSpan(row, 2, 2);
+//		cellFormatter.setColSpan(row, 2, 2);
 		cellFormatter.setHorizontalAlignment(row, 2, HasHorizontalAlignment.ALIGN_LEFT);
 		cellFormatter.setVerticalAlignment(row, 2, HasVerticalAlignment.ALIGN_TOP);
 	}
@@ -318,11 +320,12 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 
 	@Override
 	public void renderRecord(Object obj) {
-		PaneManager.setInReaderPane(Utility.getLoadingWidget());
+		PaneManager.showLoading();
 		if(null == obj || obj instanceof IPaidDTO) {
 			this.dto = (IPaidDTO)obj;
 			populateData();
-			PaneManager.setInReaderPane(IPaidFormPanel.this);
+			PaneManager.hideLoading();
+			ViewerDialog.showWidget(IPaidFormPanel.this, "Edit Transaction Details");
 		} else {
 			long transactionId = (Long)obj;
 			ServiceHelper.getPemservice().getTransactionDetail((Long) transactionId, new AsyncCallback<IPaidDTO>() {

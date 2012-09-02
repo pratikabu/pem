@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.pratikabu.pem.client.dash.ui.IPaidFormPanel;
 import com.pratikabu.pem.client.dash.ui.TransactionList;
 import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
+import com.pratikabu.pem.client.dash.ui.ViewerDialog;
 import com.pratikabu.pem.shared.model.IPaidDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 
@@ -48,7 +49,7 @@ public class PaneManager {
 	
 	public static void renderDTOObject(Object obj) {
 		if(null == obj) {
-			showEmptyArea();
+			ViewerDialog.get().close();
 		} else if(obj instanceof IPaidDTO) {
 			getTrp().renderRecord(obj);
 		} else {
@@ -77,14 +78,9 @@ public class PaneManager {
 	}
 	
 	public static void createNewForm(int entryType) {
-		gettList().setSelection(null);
 		if(TransactionDTO.ET_OUTWARD_TG == entryType) {
 			getIpfp().renderRecord(null);
 		}
-	}
-	
-	public static void showEmptyArea() {
-		setInReaderPane(null);
 	}
 	
 	public static void setInTListPane(Widget wid) {
@@ -97,5 +93,15 @@ public class PaneManager {
 		if(null != wid) {
 			RootPanel.get(id).add(wid);
 		}
+	}
+
+	public static void showLoading() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static void hideLoading() {
+		// TODO Auto-generated method stub
+		
 	}
 }

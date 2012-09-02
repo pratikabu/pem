@@ -25,36 +25,36 @@ import javax.persistence.OneToMany;
 public class TransactionTable {
 	@Id
 	@GeneratedValue
-	private long txnGrpId;
+	private long txnId;
 	
 	private Date creationDate;
-	private String tgName;
+	private String txnName;
 	private String notes;
 	
 	/** This should be of type outward = 1 or inward = 2 */
 	private int entryType;
 	
 	@ManyToOne
-	@JoinColumn(name = "tripId")
-	private TransactionGroup trip;
+	@JoinColumn(name = "txnGroupId")
+	private TransactionGroup transactionGroup;
 	
 	@OneToMany(targetEntity = TransactionEntry.class, fetch = FetchType.LAZY,
-			mappedBy = "transactionGroup", cascade = CascadeType.ALL)
+			mappedBy = "transaction", cascade = CascadeType.ALL)
 	private List<TransactionEntry> transactionEntries;
 	
 	@ManyToMany
-	@JoinTable(name = "JOIN_TXNGRP_TAG",
-		joinColumns = {@JoinColumn(name = "txnGrpId")},
+	@JoinTable(name = "JOIN_TXN_TAG",
+		joinColumns = {@JoinColumn(name = "txnId")},
 		inverseJoinColumns = {@JoinColumn(name = "tagName")}
 	)
 	private List<Tag> tags;
 
-	public long getTxnGrpId() {
-		return txnGrpId;
+	public long getTxnId() {
+		return txnId;
 	}
 
-	public void setTxnGrpId(long txnGrpId) {
-		this.txnGrpId = txnGrpId;
+	public void setTxnId(long txnGrpId) {
+		this.txnId = txnGrpId;
 	}
 
 	public Date getCreationDate() {
@@ -73,12 +73,12 @@ public class TransactionTable {
 		this.notes = notes;
 	}
 
-	public TransactionGroup getTrip() {
-		return trip;
+	public TransactionGroup getTransactionGroup() {
+		return transactionGroup;
 	}
 
-	public void setTrip(TransactionGroup trip) {
-		this.trip = trip;
+	public void setTransactionGroup(TransactionGroup transactionGroup) {
+		this.transactionGroup = transactionGroup;
 	}
 
 	public List<TransactionEntry> getTransactionEntries() {
@@ -97,12 +97,12 @@ public class TransactionTable {
 		this.tags = tags;
 	}
 
-	public String getTgName() {
-		return tgName;
+	public String getTxnName() {
+		return txnName;
 	}
 
-	public void setTgName(String tgName) {
-		this.tgName = tgName;
+	public void setTxnName(String tgName) {
+		this.txnName = tgName;
 	}
 
 	public int getEntryType() {

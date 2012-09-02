@@ -13,6 +13,7 @@ import com.pratikabu.pem.model.Tag;
 import com.pratikabu.pem.model.TransactionEntry;
 import com.pratikabu.pem.model.TransactionTable;
 import com.pratikabu.pem.model.TransactionGroup;
+import com.pratikabu.pem.model.UserSettings;
 import com.pratikabu.pem.model.WebsiteData;
 
 /**
@@ -60,5 +61,6 @@ public class HibernateConfiguration {
 		HibernateConfiguration.getCfg().addAnnotatedClass(Tag.class);
 		HibernateConfiguration.getCfg().addAnnotatedClass(PEMUser.class);
 		HibernateConfiguration.getCfg().addAnnotatedClass(WebsiteData.class);
+		HibernateConfiguration.getCfg().addAnnotatedClass(UserSettings.class);
 	}
 }

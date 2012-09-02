@@ -22,40 +22,40 @@ import javax.persistence.OneToMany;
 public class TransactionGroup {
 	@Id
 	@GeneratedValue
-	private long tripId;
+	private long txnGroupId;
 	
-	private String tripName;
+	private String tgName;
 
 	@OneToMany(targetEntity = TransactionTable.class, fetch = FetchType.LAZY,
-			mappedBy = "trip", cascade = CascadeType.ALL)
-	private List<TransactionTable> transactionGroups;
+			mappedBy = "transactionGroup", cascade = CascadeType.ALL)
+	private List<TransactionTable> transactions;
 	
 	@ManyToOne
 	@JoinColumn(name = "uid")
 	private PEMUser user;
 
-	public long getTripId() {
-		return tripId;
+	public long getTxnGroupId() {
+		return txnGroupId;
 	}
 
-	public void setTripId(long tripId) {
-		this.tripId = tripId;
+	public void setTxnGroupId(long tripId) {
+		this.txnGroupId = tripId;
 	}
 
-	public String getTripName() {
-		return tripName;
+	public String getTgName() {
+		return tgName;
 	}
 
-	public void setTripName(String tripName) {
-		this.tripName = tripName;
+	public void setTgName(String tripName) {
+		this.tgName = tripName;
 	}
 
-	public List<TransactionTable> getTransactionGroups() {
-		return transactionGroups;
+	public List<TransactionTable> getTransactions() {
+		return transactions;
 	}
 
-	public void setTransactionGroups(List<TransactionTable> transactionGroups) {
-		this.transactionGroups = transactionGroups;
+	public void setTransactions(List<TransactionTable> transactionGroups) {
+		this.transactions = transactionGroups;
 	}
 
 	public PEMUser getUser() {

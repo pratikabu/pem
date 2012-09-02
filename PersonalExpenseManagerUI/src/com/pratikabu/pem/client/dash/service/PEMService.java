@@ -4,6 +4,7 @@
 package com.pratikabu.pem.client.dash.service;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -12,6 +13,7 @@ import com.pratikabu.pem.shared.model.AccountDTO;
 import com.pratikabu.pem.shared.model.AccountTypeDTO;
 import com.pratikabu.pem.shared.model.IPaidDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
+import com.pratikabu.pem.shared.model.UserSettingsDTO;
 
 /**
  * @author pratsoni
@@ -41,4 +43,10 @@ public interface PEMService extends RemoteService {
 	boolean deleteTransaction(long transactionId);
 
 	String deleteAccount(long accountId);
+
+	LinkedHashMap<String, String> fetchWebsiteData(int type);
+
+	UserSettingsDTO fetchUserSettings();
+
+	boolean saveUserSettings(UserSettingsDTO dto);
 }

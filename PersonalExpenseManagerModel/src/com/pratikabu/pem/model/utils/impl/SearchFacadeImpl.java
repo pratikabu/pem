@@ -157,20 +157,20 @@ public class SearchFacadeImpl implements SearchFacade {
 		final String orderBy = " ORDER BY creationDate DESC";
 		if(null != transactionGroupPK) {
 			// check whether this transaction group pk belongs to the supplied user.
-			query = s.createQuery("FROM TransactionGroup WHERE tripId=:tripId");
-			query.setLong("tripId", (Long)transactionGroupPK);
+			query = s.createQuery("FROM TransactionGroup WHERE txnGroupId=:txnGroupId");
+			query.setLong("txnGroupId", (Long)transactionGroupPK);
 			TransactionGroup tg = (TransactionGroup)query.uniqueResult();
 			
 			if(null != tg && tg.getUser().getUid() == userId) {
-				query = s.createQuery("FROM TransactionTable WHERE tripId=:tripId" + orderBy);
-				query.setLong("tripId", (Long)transactionGroupPK);
+				query = s.createQuery("FROM TransactionTable WHERE txnGroupId=:txnGroupId" + orderBy);
+				query.setLong("txnGroupId", (Long)transactionGroupPK);
 			} else {
 				return null;
 			}
 		} else {
 			// show all the transactions for current user
-			query = s.createQuery("FROM TransactionTable WHERE tripId IN " +
-					"(SELECT tripId FROM TransactionGroup WHERE uid=:userId)" + orderBy);
+			query = s.createQuery("FROM TransactionTable WHERE txnGroupId IN " +
+					"(SELECT txnGroupId FROM TransactionGroup WHERE uid=:userId)" + orderBy);
 			query.setLong("userId", userId);
 		}
 		
@@ -303,5 +303,26 @@ public class SearchFacadeImpl implements SearchFacade {
 		s.getTransaction().commit();
 		
 		return count;
+	}
+
+	@Override
+	public <T> List<T> readAllObjects(Class<T> c, Map<String, Object> criteria,
+			boolean loadLazyObjects) {
+		
+		Session s = HibernateConfiguration.getFactory().getCurrentSession();
+		s.beginTransaction();
+		
+		Criteria cr = s.createCriteria(c);
+		
+		if(null != criteria) {
+			for(Entry<String, Object> entry : criteria.entrySet()) {
+				cr.add(Restrictions.eq(entry.getKey(), entry.getValue()));
+			}
+		}
+		
+		List<T> list = cr.list();
+		s.getTransaction().commit();
+		
+		return list;
 	}
 }

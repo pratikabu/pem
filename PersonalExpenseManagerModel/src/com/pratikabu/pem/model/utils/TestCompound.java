@@ -18,6 +18,7 @@ public class TestCompound {
 	public static void main(String[] args) {
 		initializeDB();
 		updateData();
+		CountryCurrencyDataLoad.saveData();
 		
 		System.out.println("Successfully updated/initialized.");
 	}
@@ -47,7 +48,7 @@ public class TestCompound {
 		Tag tag = null;
 		
 		tag = new Tag();
-		tag.setTagName("Other");
+		tag.setTagName("General");
 		SearchHelper.getFacade().saveModel(tag);
 		
 		tag = new Tag();
@@ -60,6 +61,18 @@ public class TestCompound {
 		
 		tag = new Tag();
 		tag.setTagName("Travelling");
+		SearchHelper.getFacade().saveModel(tag);
+		
+		tag = new Tag();
+		tag.setTagName("Rent");
+		SearchHelper.getFacade().saveModel(tag);
+		
+		tag = new Tag();
+		tag.setTagName("TV/Internet");
+		SearchHelper.getFacade().saveModel(tag);
+		
+		tag = new Tag();
+		tag.setTagName("Groceries");
 		SearchHelper.getFacade().saveModel(tag);
 		
 		//////////////Account Type

@@ -14,28 +14,46 @@ import javax.persistence.Embeddable;
 @SuppressWarnings("serial")
 @Embeddable
 public class WebsiteDataPk implements Serializable {
-	private int code;
+	private int type;
 	
-	private String type;
+	private String code;
 
-	public WebsiteDataPk(int code, String type) {
-		this.code = code;
-		this.type = type;
-	}
-
-	public int getCode() {
-		return code;
-	}
-
-	public void setCode(int code) {
-		this.code = code;
-	}
-
-	public String getType() {
+	public int getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(int type) {
 		this.type = type;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(null == obj) {
+			return false;
+		}
+		
+		if(obj instanceof WebsiteDataPk) {
+			return type == ((WebsiteDataPk)obj).type &&
+					code.equals(((WebsiteDataPk)obj).code);
+		}
+		
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		if(null == code) {
+			return type;
+		}
+		
+		return code.hashCode() + type;
 	}
 }

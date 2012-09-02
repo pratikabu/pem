@@ -10,6 +10,9 @@ import com.pratikabu.pem.model.utils.impl.SearchFacadeImpl;
  *
  */
 public class SearchHelper {
+	public static final int WSD_COUNTRY = 1;
+	public static final int WSD_CURRENCY = 2;
+	
 	private static SearchFacade facade;
 	
 	static {

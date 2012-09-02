@@ -112,7 +112,7 @@ public class TransactionTesting {
 		
 		if(null != tList) {
 			for(TransactionTable tt : tList) {
-				System.out.println(tt.getTgName());
+				System.out.println(tt.getTxnName());
 				
 				System.out.println(tt.getTags());
 				System.out.println(tt.getTransactionEntries());
@@ -126,12 +126,12 @@ public class TransactionTesting {
 		PEMUser user = SearchHelper.getFacade().readModelWithId(PEMUser.class, userId, false);
 		
 		TransactionGroup tg = new TransactionGroup();
-		tg.setTripName("Testing Transaction Group");
+		tg.setTgName("Testing Transaction Group");
 		tg.setUser(user);
 		SearchHelper.getFacade().saveModel(tg);
 		
 		TransactionGroup tgd = new TransactionGroup();
-		tgd.setTripName("Default");
+		tgd.setTgName("Default");
 		tgd.setUser(user);
 		SearchHelper.getFacade().saveModel(tgd);
 		
@@ -139,16 +139,16 @@ public class TransactionTesting {
 		tt.setCreationDate(new Date());
 		tt.setEntryType(1);// outward
 		tt.setNotes("This is a testing transaction");
-		tt.setTgName("Txn Name 1" + userId);
-		tt.setTrip(tgd);
+		tt.setTxnName("Txn Name 1" + userId);
+		tt.setTransactionGroup(tgd);
 		SearchHelper.getFacade().saveModel(tt);
 		
 		tt = new TransactionTable();
 		tt.setCreationDate(new Date());
 		tt.setEntryType(1);// outward
 		tt.setNotes("This is a testing transaction 2");
-		tt.setTgName("Txn Name 2" + userId);
-		tt.setTrip(tgd);
+		tt.setTxnName("Txn Name 2" + userId);
+		tt.setTransactionGroup(tgd);
 		SearchHelper.getFacade().saveModel(tt);
 		
 		// normal trip
@@ -156,16 +156,16 @@ public class TransactionTesting {
 		tt.setCreationDate(new Date());
 		tt.setEntryType(1);// outward
 		tt.setNotes("This is a testing transaction");
-		tt.setTgName("Txn Name n1" + userId);
-		tt.setTrip(tg);
+		tt.setTxnName("Txn Name n1" + userId);
+		tt.setTransactionGroup(tg);
 		SearchHelper.getFacade().saveModel(tt);
 		
 		tt = new TransactionTable();
 		tt.setCreationDate(new Date());
 		tt.setEntryType(2);// outward
 		tt.setNotes("This is a testing transaction");
-		tt.setTgName("Txn Name n2" + userId);
-		tt.setTrip(tg);
+		tt.setTxnName("Txn Name n2" + userId);
+		tt.setTransactionGroup(tg);
 		SearchHelper.getFacade().saveModel(tt);
 	}
 }

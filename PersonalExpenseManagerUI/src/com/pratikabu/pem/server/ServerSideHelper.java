@@ -48,7 +48,7 @@ public class ServerSideHelper {
 		
 		// create default transaction group entry
 		TransactionGroup tg = new TransactionGroup();
-		tg.setTripName("Default");
+		tg.setTgName("Default");
 		tg.setUser(user);
 		toBeSaved.add(tg);
 		

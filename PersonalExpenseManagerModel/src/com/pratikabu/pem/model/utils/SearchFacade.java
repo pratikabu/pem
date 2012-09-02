@@ -65,6 +65,15 @@ public interface SearchFacade {
 	<T> List<T> readAllObjects(Class<T> c, boolean loadLazyObjects, Serializable pemUserPK);
 	
 	/**
+	 * Read all objects with the specified conditions
+	 * @param c
+	 * @param criteria
+	 * @param loadLazyObjects
+	 * @return
+	 */
+	<T> List<T> readAllObjects(Class<T> c, Map<String, Object> criteria, boolean loadLazyObjects);
+	
+	/**
 	 * This method fetches user for the supplied user. It will fetch all kind of users.
 	 * @param pemUserPK
 	 * @param startPosition
