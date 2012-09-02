@@ -24,12 +24,17 @@ public class StaticJSFunctions {
 
 	public static native void exportStaticMethod() /*-{
 		$wnd.editTransaction = $entry(@com.pratikabu.pem.client.dash.StaticJSFunctions::editTransaction());
+		$wnd.deleteTransaction = $entry(@com.pratikabu.pem.client.dash.StaticJSFunctions::deleteTransaction());
 		$wnd.openRequest = $entry(@com.pratikabu.pem.client.dash.StaticJSFunctions::openRequest(Ljava/lang/String;));
-		$wnd.txnRequest = $entry(@com.pratikabu.pem.client.dash.StaticJSFunctions::txnRequest(DII));
+		$wnd.txnRequest = $entry(@com.pratikabu.pem.client.dash.StaticJSFunctions::txnRequest(DI));
 	}-*/;
 
 	public static void editTransaction() {
-		PaneManager.editDTOObject(TransactionReaderPanel.getiPaidDTO());
+		PaneManager.editTransaction(TransactionReaderPanel.getTransaction());
+	}
+
+	public static void deleteTransaction() {
+		TransactionDatabase.deleteSelected();
 	}
 	
 	/**
@@ -37,12 +42,13 @@ public class StaticJSFunctions {
 	 * @param txnId
 	 * @param operation 1= View, 2= Delete
 	 */
-	public static void txnRequest(double txnId, int entryType, int operation) {
+	public static void txnRequest(double txnId, int operation) {
 		long transactionId = (long) txnId;
-		if(1 == operation) {
-			PaneManager.renderTransactionDetails(transactionId, entryType);
-		} else {
-			TransactionDatabase.deleteT(transactionId);
+		if(1 == operation) {// view
+			PaneManager.renderTransactionDetails(transactionId);
+		} else if(2 == operation) {// delete
+			// transactionId is actually txnEntryId
+			TransactionDatabase.deleteT(transactionId, false);
 		}
 	}
 
@@ -97,7 +103,7 @@ public class StaticJSFunctions {
 			TransactionGroupChooserDialog.chooseSingleAccount(new TransactionGroupSelectionListener() {
 				@Override
 				public void transactionGroupSelectedEvent(TransactionGroupDTO dto) {
-					if(dto.getId() != PaneManager.gettList().getActualId()) {
+					if(dto.getId() != PaneManager.gettList().getActualTransactionGroupId()) {
 						PaneManager.gettList().showDataForTransactionGroup(dto.getId(), dto.getTgNameWithCount());
 					}
 				}

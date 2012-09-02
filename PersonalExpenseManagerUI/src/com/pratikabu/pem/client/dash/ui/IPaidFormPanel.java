@@ -26,21 +26,22 @@ import com.pratikabu.pem.client.common.MessageDialog;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.OneTimeDataManager;
 import com.pratikabu.pem.client.dash.PaneManager;
+import com.pratikabu.pem.client.dash.components.AccountTypeDatabase;
 import com.pratikabu.pem.client.dash.components.AccountsDatabase;
 import com.pratikabu.pem.client.dash.components.AccountsDatabase.AccountsLoadingDoneListener;
 import com.pratikabu.pem.client.dash.components.AmountTextBox;
 import com.pratikabu.pem.client.dash.components.AmountTextBox.AmountChangeListener;
-import com.pratikabu.pem.client.dash.components.AccountTypeDatabase;
 import com.pratikabu.pem.client.dash.components.CentralEventHandler;
 import com.pratikabu.pem.client.dash.components.LengthConstraintTextBox;
 import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase;
 import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase.Data;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
 import com.pratikabu.pem.shared.model.AccountDTO;
-import com.pratikabu.pem.shared.model.IPaidDTO;
+import com.pratikabu.pem.shared.model.TransactionDTO;
+import com.pratikabu.pem.shared.model.TransactionEntryDTO;
 
 public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
-	private IPaidDTO dto;
+	private TransactionDTO dto;
 	
 	private FlexTable ft;
 	
@@ -123,7 +124,7 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 				
 				final int action =  CentralEventHandler.getActionForCreateUpdate(dto.getTransactionId());
 				completeTransactionData();
-				ServiceHelper.getPemservice().saveIPaidTransaction(dto, new AsyncCallback<Long>() {
+				ServiceHelper.getPemservice().saveTransaction(dto, new AsyncCallback<Long>() {
 					@Override
 					public void onSuccess(Long result) {
 						if(result != -1L) {
@@ -151,9 +152,9 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 			@Override
 			public void onClick(ClickEvent event) {
 				if(dto.getTransactionId() > 0) {
-					PaneManager.renderDTOObject(dto);
+					PaneManager.renderTransaction(dto);
 				} else {
-					PaneManager.renderDTOObject(null);
+					PaneManager.renderTransaction(null);
 				}
 			}
 		});
@@ -321,27 +322,14 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 	@Override
 	public void renderRecord(Object obj) {
 		PaneManager.showLoading();
-		if(null == obj || obj instanceof IPaidDTO) {
-			this.dto = (IPaidDTO)obj;
-			populateData();
-			PaneManager.hideLoading();
-			ViewerDialog.showWidget(IPaidFormPanel.this, "Edit Transaction Details");
-		} else {
-			long transactionId = (Long)obj;
-			ServiceHelper.getPemservice().getTransactionDetail((Long) transactionId, new AsyncCallback<IPaidDTO>() {
-				@Override
-				public void onSuccess(IPaidDTO result) {
-					renderRecord(result);
-				}
-				
-				@Override
-				public void onFailure(Throwable caught) {
-					Utility.alert("Error fetching transaction details.");
-				}
-			});
-		}
+		
+		this.dto = (TransactionDTO)obj;
+		populateData();
+		ViewerDialog.showWidget(IPaidFormPanel.this, "Edit Transaction Details");
 		
 		transactionName.setFocus(true);
+		
+		PaneManager.hideLoading();
 	}
 
 	private void populateData() {
@@ -358,34 +346,32 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 					}
 				}
 			}
-		
-			pdp.updateData(dto.getAmountDistribution());
 			
-			for(int i = 0; i < paymentSource.getItemCount(); i++) {
-				if((dto.getPaymentMode() + "").equals(paymentSource.getValue(i))) {
-					paymentSource.setSelectedIndex(i);
-					break;
+			if(!dto.getTransactionEntries().isEmpty()) {
+				AccountDTO outAcc =  dto.getTransactionEntries().get(0).getOutwardAccount();
+				for(int i = 0; i < paymentSource.getItemCount(); i++) {
+					if((outAcc.getAccountId() + "").equals(paymentSource.getValue(i))) {
+						paymentSource.setSelectedIndex(i);
+						break;
+					}
 				}
+			} else {
+				paymentSource.setSelectedIndex(0);
 			}
+			
+			pdp.updateData(getLinkedHashMap());
 		} else {
-			transactionDate.setValue(new Date());
-			this.transactionName.setText("");
-			this.amountBox.setAmount(0d);
-			this.notes.setText("");
+			dto = new TransactionDTO();
+			dto.getSelectedTags().add("General");
+			dto.setDate(new Date());
+			dto.setName("");
+			dto.setAmount(0);
+			dto.setNotes("");
+			dto.setEntryType(TransactionDTO.ET_OUTWARD_TG);
 			
-			paymentSource.setSelectedIndex(0);
+			populateData();// call itself to render the data
 			
-			for(int i = 0; i < tagList.getItemCount(); i++) {
-				if("Other".equals(tagList.getValue(i))) {
-					tagList.setItemSelected(i, true);
-				} else {
-					tagList.setItemSelected(i, false);
-				}
-			}
-			
-			dto = new IPaidDTO();
-			
-			pdp.updateData(dto.getAmountDistribution());
+			// set Myself as default entry
 			AccountsDatabase.get().loadAccountsData(new AccountsLoadingDoneListener() {
 				@Override
 				public void accountsLoadingDone() {
@@ -396,6 +382,18 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 				}
 			});
 		}
+	}
+
+	private LinkedHashMap<AccountDTO, Double> getLinkedHashMap() {
+		LinkedHashMap<AccountDTO, Double> map = new LinkedHashMap<AccountDTO, Double>();
+		
+		if(null != dto) {
+			for(TransactionEntryDTO ted : dto.getTransactionEntries()) {
+				map.put(ted.getInwardAccount(), ted.getAmount());
+			}
+		}
+		
+		return map;
 	}
 
 	private void populateTagList() {
@@ -419,7 +417,8 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		dto.setNotes(notes.getText());
 		dto.setDate(transactionDate.getValue());
 		// save payment mode
-		dto.setPaymentMode(Long.parseLong(paymentSource.getValue(paymentSource.getSelectedIndex())));
+		AccountDTO outward = AccountsDatabase.get().getAccount(
+				Long.parseLong(paymentSource.getValue(paymentSource.getSelectedIndex())));
 		
 		// save tags
 		ArrayList<String> tags = new ArrayList<String>();
@@ -435,13 +434,17 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		}
 		
 		// copy distribution
-		LinkedHashMap<AccountDTO, Double> amountDistribution = new LinkedHashMap<AccountDTO, Double>();
-		
+		ArrayList<TransactionEntryDTO> tes = new ArrayList<TransactionEntryDTO>();
 		for(Data d : PaymentDistributionDatabase.get().getDataProvider().getList()) {
-			amountDistribution.put(d.getAccount(), d.getAmount());
+			TransactionEntryDTO ted = new TransactionEntryDTO();
+			ted.setAmount(d.getAmount());
+			ted.setInwardAccount(d.getAccount());
+			ted.setOutwardAccount(outward);
+			
+			tes.add(ted);
 		}
 		
-		dto.setAmountDistribution(amountDistribution);
+		dto.setTransactionEntries(tes);
 	}
 
 }

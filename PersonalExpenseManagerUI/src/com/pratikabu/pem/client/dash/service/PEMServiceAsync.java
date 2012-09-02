@@ -10,11 +10,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.pratikabu.pem.shared.OneTimeData;
 import com.pratikabu.pem.shared.model.AccountDTO;
 import com.pratikabu.pem.shared.model.AccountTypeDTO;
-import com.pratikabu.pem.shared.model.IPaidDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 import com.pratikabu.pem.shared.model.UserSettingsDTO;
-
-
 
 /**
  * @author pratsoni
@@ -22,23 +19,23 @@ import com.pratikabu.pem.shared.model.UserSettingsDTO;
  */
 public interface PEMServiceAsync {
 
-	void getAllTransactionsForGroupId(Long groupId,
+	void getAllTransactionsForGroupId(Long groupId, int startPosition, int offset,
 			AsyncCallback<ArrayList<TransactionDTO>> callback);
 
 	void getTransactionDetail(Long transactionId,
-			AsyncCallback<IPaidDTO> callback);
+			AsyncCallback<TransactionDTO> callback);
 
 	void fetchOneTimeData(AsyncCallback<OneTimeData> callback);
 
 	void getAllAccounts(AsyncCallback<ArrayList<AccountDTO>> callback);
 
-	void saveIPaidTransaction(IPaidDTO dto, AsyncCallback<Long> callback);
+	void saveTransaction(TransactionDTO dto, AsyncCallback<Long> callback);
 
 	void getAllAccountTypes(AsyncCallback<ArrayList<AccountTypeDTO>> callback);
 
 	void deleteTransactionGroup(Long tgId, AsyncCallback<Boolean> callback);
 
-	void deleteTransaction(long transactionId,
+	void deleteTransaction(long transactionId, boolean deleteFullTransaction,
 			AsyncCallback<Boolean> asyncCallback);
 
 	void deleteAccount(long accountId, AsyncCallback<String> asyncCallback);

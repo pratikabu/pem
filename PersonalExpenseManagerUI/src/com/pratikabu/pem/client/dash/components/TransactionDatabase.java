@@ -26,17 +26,19 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
+import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
 import com.pratikabu.pem.shared.model.TransactionDTO;
+import com.pratikabu.pem.shared.model.TransactionEntryDTO;
 
 /**
  * The data source for contact information used in the sample.
  */
 public class TransactionDatabase {
 
-	public static final ProvidesKey<TransactionDTO> KEY_PROVIDER = new ProvidesKey<TransactionDTO>() {
+	public static final ProvidesKey<TransactionAndEntry> KEY_PROVIDER = new ProvidesKey<TransactionAndEntry>() {
 		@Override
-		public Object getKey(TransactionDTO item) {
-			return item == null ? null : item.getTransactionId();
+		public Object getKey(TransactionAndEntry item) {
+			return item == null ? null : item.getEntry().getTxnEntryId();
 		}
 	};
 
@@ -60,7 +62,7 @@ public class TransactionDatabase {
 	/**
 	 * The provider that holds the list of contacts in the database.
 	 */
-	private ListDataProvider<TransactionDTO> dataProvider = new ListDataProvider<TransactionDTO>();
+	private ListDataProvider<TransactionAndEntry> dataProvider = new ListDataProvider<TransactionAndEntry>();
 
 	/**
 	 * Add a new contact.
@@ -68,8 +70,8 @@ public class TransactionDatabase {
 	 * @param contact
 	 *            the contact to add.
 	 */
-	public void addTransaction(TransactionDTO contact) {
-		List<TransactionDTO> contacts = dataProvider.getList();
+	public void addTransactionEntry(TransactionAndEntry contact) {
+		List<TransactionAndEntry> contacts = dataProvider.getList();
 		// Remove the contact first so we don't add a duplicate.
 		contacts.remove(contact);
 		contacts.add(contact);
@@ -80,7 +82,7 @@ public class TransactionDatabase {
 	 * display will be populated with data.
 	 * @param display a {@Link HasData}.
 	 */
-	public void addDataDisplay(HasData<TransactionDTO> display) {
+	public void addDataDisplay(HasData<TransactionAndEntry> display) {
 		dataProvider.addDataDisplay(display);
 	}
 
@@ -92,10 +94,10 @@ public class TransactionDatabase {
 			transactionGroup = null;
 		}
 		
-		ServiceHelper.getPemservice().getAllTransactionsForGroupId(transactionGroup, new AsyncCallback<ArrayList<TransactionDTO>>() {
+		ServiceHelper.getPemservice().getAllTransactionsForGroupId(transactionGroup, -1, -1, new AsyncCallback<ArrayList<TransactionDTO>>() {
 			@Override
 			public void onSuccess(ArrayList<TransactionDTO> result) {
-				dataProvider.setList(result);
+				dataProvider.setList(getTransactionAndEntry(result));
 				dataProvider.refresh();
 			}
 			
@@ -106,13 +108,24 @@ public class TransactionDatabase {
 		});
 	}
 
-	public static void deleteT(final Long tId) {
-		if(!Window.confirm("Are you sure you want to delete this Transaction?\n" +
-				"This step cannot be undone.")) {
+	public static void deleteSelected() {
+		Long tId = TransactionReaderPanel.getTransaction().getTransactionId();
+		
+		if(null == tId) {
+			Utility.alert("Cannot delete the selected entry.");
 			return;
 		}
 		
-		ServiceHelper.getPemservice().deleteTransaction(tId,
+		deleteT(tId, true);
+	}
+
+	public static void deleteT(final Long tId, boolean deleteFullTransaction) {
+		if(!Window.confirm("Are you sure you want to delete this Transaction" +
+				(deleteFullTransaction ? "" : " Entry") + "?\nThis step cannot be undone.")) {
+			return;
+		}
+		
+		ServiceHelper.getPemservice().deleteTransaction(tId, deleteFullTransaction,
 				new AsyncCallback<Boolean>() {
 			@Override
 			public void onSuccess(Boolean result) {
@@ -133,7 +146,26 @@ public class TransactionDatabase {
 	}
 	
 	public TransactionDTO getTransactionDTO(long txnId) {
+		List<TransactionAndEntry> data = dataProvider.getList();
+		for(TransactionAndEntry tae : data) {
+			if(txnId == tae.getTransaction().getTransactionId()) {
+				return tae.getTransaction();
+			}
+		}
 		return null;
+	}
+	
+	public static List<TransactionAndEntry> getTransactionAndEntry(
+			ArrayList<TransactionDTO> result) {
+		ArrayList<TransactionAndEntry> list = new ArrayList<TransactionAndEntry>();
+		
+		for(TransactionDTO t : result) {
+			for(TransactionEntryDTO ted : t.getTransactionEntries()) {
+				list.add(new TransactionAndEntry(t, ted));
+			}
+		}
+		
+		return list;
 	}
 
 }

@@ -214,5 +214,15 @@ public class AccountsDatabase {
 					}
 				});
 	}
+	
+	public AccountDTO getAccount(long id) {
+		for(AccountDTO a : data) {
+			if(id == a.getAccountId()) {
+				return a;
+			}
+		}
+		
+		return null;
+	}
 
 }

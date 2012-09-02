@@ -4,6 +4,7 @@
 package com.pratikabu.pem.shared.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -22,8 +23,16 @@ public class TransactionDTO implements Serializable {
 	
 	private String notes;
 	
+	private ArrayList<String> selectedTags;
+	private ArrayList<TransactionEntryDTO> transactionEntries;
+	
 	private long groupId;
 	private String groupName;
+
+	public TransactionDTO() {
+		selectedTags = new ArrayList<String>();
+		transactionEntries = new ArrayList<TransactionEntryDTO>();
+	}
 
 	public String getName() {
 		return name;
@@ -87,5 +96,31 @@ public class TransactionDTO implements Serializable {
 
 	public void setGroupName(String groupName) {
 		this.groupName = groupName;
+	}
+
+	public ArrayList<String> getSelectedTags() {
+		return selectedTags;
+	}
+
+	public void setSelectedTags(ArrayList<String> selectedTags) {
+		this.selectedTags = selectedTags;
+	}
+
+	public ArrayList<TransactionEntryDTO> getTransactionEntries() {
+		return transactionEntries;
+	}
+
+	public void setTransactionEntries(
+			ArrayList<TransactionEntryDTO> transactionEntries) {
+		this.transactionEntries = transactionEntries;
+	}
+
+	public double getTotalAmount() {
+		double ta = 0d;
+		for(TransactionEntryDTO dto : transactionEntries) {
+			ta += dto.getAmount();
+		}
+		
+		return ta;
 	}
 }

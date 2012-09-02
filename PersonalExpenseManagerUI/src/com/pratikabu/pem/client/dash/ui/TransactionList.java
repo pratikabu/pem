@@ -17,20 +17,21 @@ import com.pratikabu.pem.client.dash.OneTimeDataManager;
 import com.pratikabu.pem.client.dash.PaneManager;
 import com.pratikabu.pem.client.dash.components.CentralEventHandler;
 import com.pratikabu.pem.client.dash.components.CentralEventHandler.TransactionUpdateListener;
+import com.pratikabu.pem.client.dash.components.TransactionAndEntry;
 import com.pratikabu.pem.client.dash.components.TransactionDatabase;
 import com.pratikabu.pem.client.dash.components.TransactionGroupDatabase;
-import com.pratikabu.pem.shared.model.IPaidDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
+import com.pratikabu.pem.shared.model.TransactionEntryDTO;
 
 /**
  * @author pratsoni
  *
  */
 public class TransactionList extends VerticalPanel {
-	private CellList<TransactionDTO> tgList;
+	private CellList<TransactionAndEntry> tgList;
 	
 	private Long transactionGroupId;
-	private Long actualId;
+	private Long actualTransactionGroupId;
 	
 	public TransactionList() {
 		initializeObjects();
@@ -41,7 +42,7 @@ public class TransactionList extends VerticalPanel {
 		this.setWidth("100%");
 		this.setHeight("100%");
 		
-		tgList = new CellList<TransactionDTO>(new TransactionCell());
+		tgList = new CellList<TransactionAndEntry>(new TransactionCell());
 
 		tgList.setPageSize(30);
 		tgList.setKeyboardPagingPolicy(KeyboardPagingPolicy.INCREASE_RANGE);
@@ -53,12 +54,8 @@ public class TransactionList extends VerticalPanel {
 		CentralEventHandler.addListener(new TransactionUpdateListener() {
 			@Override
 			public void transactionUpdatedEvent(TransactionDTO dto, int action) {
-				PaneManager.renderDTOObject(dto);
-				if(dto instanceof IPaidDTO) {
-					
-				} else {
-					
-				}
+				ViewerDialog.get().close();
+				TransactionDatabase.get().refreshDisplays(null);
 			}
 		} );
 	}
@@ -69,26 +66,29 @@ public class TransactionList extends VerticalPanel {
 		this.add(sp);
 	}
 
-	public class TransactionCell extends AbstractCell<TransactionDTO> {
+	public class TransactionCell extends AbstractCell<TransactionAndEntry> {
 
 		@Override
 		public void render(Context context,
-				TransactionDTO value, SafeHtmlBuilder sb) {
+				TransactionAndEntry value, SafeHtmlBuilder sb) {
 			// Value can be null, so do a null check..
 			if (value == null) {
 				return;
 			}
 
+			TransactionDTO trans = value.getTransaction();
+			TransactionEntryDTO ted = value.getEntry();
+			
 			String currencySymbol = OneTimeDataManager.getOTD().getCurrecnySymbol();
-			String amountStr = Utility.get2DecimalAmount(value.getAmount());
-			String formattedDate = Utility.getDateFormatted(value.getDate());
+			String amountStr = Utility.get2DecimalAmount(ted.getAmount());
+			String formattedDate = Utility.getDateFormatted(trans.getDate());
 			String title = "You spent " + currencySymbol + " " + amountStr + " on " + formattedDate;
 			String tgCellIconStyle = "tgCellIconOut";
-			String heading = value.getName();
+			String heading = trans.getName();
 			String tgTableStyle = "tgCellTable";
 			char entrySymbol = '►';
 			
-			if(TransactionDTO.ET_INWARD_TG == value.getEntryType()) {
+			if(TransactionDTO.ET_INWARD_TG == trans.getEntryType()) {
 				tgCellIconStyle = "tgCellIconIn";
 				entrySymbol = '◄';
 				title = "You recieved " + currencySymbol + " " + amountStr + " on " + formattedDate;
@@ -99,25 +99,25 @@ public class TransactionList extends VerticalPanel {
 			
 			sb.appendHtmlConstant("<td align='left' class='tgCellTDStyle' width='5%' style='padding-left: 5px;'><table cellspacing='0px'>");
 			sb.appendHtmlConstant("<tr><td align='center' class='tgCellTDStyle' style='padding-left: 5px;'><div class='normalLabel' style='font-size: 12px;'>" +
-					Utility.formatDate(value.getDate(), "MMM") + "</div></td></tr>");
+					Utility.formatDate(trans.getDate(), "MMM") + "</div></td></tr>");
 			sb.appendHtmlConstant("<tr><td align='center' class='tgCellTDStyle' style='padding-left: 5px;'><div class='normalLabel' style='font-size: 20px;'>" +
-					Utility.formatDate(value.getDate(), "dd") + "</div></td></tr></table></td>");
+					Utility.formatDate(trans.getDate(), "dd") + "</div></td></tr></table></td>");
 			
 			sb.appendHtmlConstant("<td align='left' class='tgCellTDStyle' width='58%'><div class='tgCellNormalLabel'>" + heading + "</div></td>");
 			
 			sb.appendHtmlConstant("<td align='center' class='tgCellTDStyle' width='7%'><div class='actions'> <table cellspacing='0px'>");
 			sb.appendHtmlConstant("<tr><td align='center'><input type='button' class='mybutton small green' style='width: 45px;' value='View' onclick='txnRequest(" +
-					value.getTransactionId() + ", " + value.getEntryType() + ", 1)' />");
+					trans.getTransactionId() + ", 1)' />");
 			sb.appendHtmlConstant("</td></tr>");
 			sb.appendHtmlConstant("<tr><td align='center'><input type='button' class='mybutton small red' style='width: 45px;' value='Delete' onclick='txnRequest(" +
-					value.getTransactionId() + ", " + value.getEntryType() + ", 2)' />");
+					ted.getTxnEntryId() + ", 2)' />");
 			sb.appendHtmlConstant("</td></tr></table></div></td>");
 			
 			String right = null, left = null;
-			if(TransactionDTO.ET_INWARD_TG != value.getEntryType()) {
+			if(TransactionDTO.ET_INWARD_TG != trans.getEntryType()) {
 				right = amountStr;
 				left = null;
-			} else if(TransactionDTO.ET_OUTWARD_TG != value.getEntryType()) {
+			} else if(TransactionDTO.ET_OUTWARD_TG != trans.getEntryType()) {
 				left = amountStr;
 				right = null;
 			}
@@ -143,13 +143,13 @@ public class TransactionList extends VerticalPanel {
 		return transactionGroupId;
 	}
 
-	public Long getActualId() {
-		return actualId;
+	public Long getActualTransactionGroupId() {
+		return actualTransactionGroupId;
 	}
 	
 	public void showDataForTransactionGroup(Long transactionGroupId, String tgName) {
 		this.transactionGroupId = transactionGroupId;
-		this.actualId = transactionGroupId;
+		this.actualTransactionGroupId = transactionGroupId;
 		TransactionDatabase.get().refreshDisplays(transactionGroupId);
 		
 		if(null == transactionGroupId) {

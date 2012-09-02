@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.http.HttpSession;
 
@@ -25,8 +24,8 @@ import com.pratikabu.pem.model.utils.SearchHelper;
 import com.pratikabu.pem.shared.OneTimeData;
 import com.pratikabu.pem.shared.model.AccountDTO;
 import com.pratikabu.pem.shared.model.AccountTypeDTO;
-import com.pratikabu.pem.shared.model.IPaidDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
+import com.pratikabu.pem.shared.model.TransactionEntryDTO;
 import com.pratikabu.pem.shared.model.TransactionGroupDTO;
 import com.pratikabu.pem.shared.model.UserSettingsDTO;
 
@@ -38,7 +37,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	private static final Logger logger = Logger.getLogger(PEMServiceImpl.class);
 
 	@Override
-	public ArrayList<TransactionDTO> getAllTransactionsForGroupId(Long groupId) {
+	public ArrayList<TransactionDTO> getAllTransactionsForGroupId(Long groupId, int startPosition, int offset) {
 		ArrayList<TransactionDTO> tdto = null;
 		List<TransactionTable> tTables = SearchHelper.getFacade().getTransactionsForUser(getCurrentUser(this.getThreadLocalRequest().getSession()),
 				groupId, -1, -1, true);
@@ -46,19 +45,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		if(null != tTables) {
 			tdto = new ArrayList<TransactionDTO>();
 			for(TransactionTable tt : tTables) {
-				TransactionDTO t = new TransactionDTO();
-				t.setTransactionId(tt.getTxnId());
-				t.setDate(tt.getCreationDate());
-				t.setEntryType(tt.getEntryType());
-				t.setName(tt.getTxnName());
-				
-				double totalAmount = 0;
-				for(TransactionEntry te : tt.getTransactionEntries()) {
-					totalAmount += te.getAmount();
-				}
-				t.setAmount(totalAmount);
-				
-				tdto.add(t);
+				tdto.add(getTransactionDTO(tt));
 			}
 		}
 		
@@ -66,51 +53,57 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	}
 
 	@Override
-	public IPaidDTO getTransactionDetail(Long transactionId) {
+	public TransactionDTO getTransactionDetail(Long transactionId) {
 		TransactionTable tt = SearchHelper.getFacade().readModelWithId(TransactionTable.class, transactionId, true);
 		
+		return getTransactionDTO(tt);
+	}
+
+	private TransactionDTO getTransactionDTO(TransactionTable tt) {
 		if(null == tt) {
 			return null;
 		}
-		
 		
 		// check for userId is same or not
 		if(getCurrentUser(this.getThreadLocalRequest().getSession()) != tt.getTransactionGroup().getUser().getUid()) {
 			return null; // request for a transaction of a different user
 		}
 		
-		IPaidDTO d = new IPaidDTO();
-		d.setTransactionId(transactionId);
+		TransactionDTO d = new TransactionDTO();
+		d.setTransactionId(tt.getTxnId());
 		d.setNotes(tt.getNotes());
 		d.setDate(tt.getCreationDate());
 		d.setName(tt.getTxnName());
+		d.setEntryType(tt.getEntryType());
 		
-		ArrayList<String> tags = new ArrayList<String>();
 		for(Tag t : tt.getTags()) {
-			tags.add(t.getTagName());
-		}
-		d.setSelectedTags(tags);
-		
-		if(!tt.getTransactionEntries().isEmpty()) {
-			Account acc = tt.getTransactionEntries().get(0).getOutwardAccount();
-			d.setPaymentMode(acc.getAccountId());
-			d.setPaymentModeString(acc.getAccName());
+			d.getSelectedTags().add(t.getTagName());
 		}
 		
-		LinkedHashMap<AccountDTO, Double> amountDistribution = new LinkedHashMap<AccountDTO, Double>();
-		for(TransactionEntry entry : tt.getTransactionEntries()) {
-			AccountDTO acc = new AccountDTO();
-			acc.setAccountId(entry.getInwardAccount().getAccountId());
-			acc.setAccountName(entry.getInwardAccount().getAccName());
-			
-			amountDistribution.put(acc, entry.getAmount());
+		for(TransactionEntry te : tt.getTransactionEntries()) {
+			d.getTransactionEntries().add(getTransactionEntryDTO(te));
 		}
-		d.setAmountDistribution(amountDistribution);
 		
 		d.setGroupId(tt.getTransactionGroup().getTxnGroupId());
 		d.setGroupName(tt.getTransactionGroup().getTgName());
 		
 		return d;
+	}
+
+	private TransactionEntryDTO getTransactionEntryDTO(TransactionEntry te) {
+		TransactionEntryDTO d = new TransactionEntryDTO();
+		d.setTxnEntryId(te.getTxnEntryId());
+		d.setInwardAccount(getAccDTOFromAcc(te.getInwardAccount()));
+		d.setOutwardAccount(getAccDTOFromAcc(te.getOutwardAccount()));
+		d.setAmount(te.getAmount());
+		return d;
+	}
+
+	private AccountDTO getAccDTOFromAcc(Account acc) {
+		AccountDTO a = new AccountDTO();
+		a.setAccountId(acc.getAccountId());
+		a.setAccountName(acc.getAccName());
+		return a;
 	}
 
 	@Override
@@ -176,7 +169,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	}
 
 	@Override
-	public Long saveIPaidTransaction(IPaidDTO dto) {
+	public Long saveTransaction(TransactionDTO dto) {
 		List<Object> toBeSaved = new ArrayList<Object>();
 		List<Object> toBeDeleted = new ArrayList<Object>();
 		
@@ -197,11 +190,13 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 			tt.setTransactionGroup(SearchHelper.getFacade().readModelWithId(TransactionGroup.class, dto.getGroupId(), false));
 		}
 		
+		// save general details
 		tt.setTxnName(dto.getName());
-		tt.setEntryType(TransactionDTO.ET_OUTWARD_TG);
+		tt.setEntryType(dto.getEntryType());
 		tt.setCreationDate(dto.getDate());
 		tt.setNotes(dto.getNotes());
 		
+		// save tags
 		ArrayList<Tag> tags = new ArrayList<Tag>();
 		for(String tag : dto.getSelectedTags()) {
 			Tag t = new Tag();
@@ -210,47 +205,41 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		}
 		tt.setTags(tags);
 		
-		toBeSaved.add(tt);
-		
-		Account outwardAccount = new Account();
-		outwardAccount.setAccountId(dto.getPaymentMode());
-		int index;
-		if((index = toBeSaved.indexOf(outwardAccount)) != -1) {
-			outwardAccount = (Account)toBeSaved.get(index);
-		} else {
-			outwardAccount = SearchHelper.getFacade().readModelWithId(Account.class, dto.getPaymentMode(), false);
-		}
-		
-		double totalAmount = 0d;
-		// add the transaction entries
-		for(Entry<AccountDTO, Double> entry : dto.getAmountDistribution().entrySet()) {
+		// save the TransactionEntries
+		for(TransactionEntryDTO ted : dto.getTransactionEntries()) {
+			Account outwardAccount = getAccountFromList(toBeSaved, ted.getOutwardAccount().getAccountId());
+			Account inwardAccount = getAccountFromList(toBeSaved, ted.getInwardAccount().getAccountId());
+			
 			TransactionEntry te = new TransactionEntry();
-			te.setAmount(entry.getValue());
+			te.setAmount(ted.getAmount());
 			te.setTransaction(tt);
 			te.setOutwardAccount(outwardAccount);
-			
-			Account inwardAccount = new Account();
-			inwardAccount.setAccountId(entry.getKey().getAccountId());
-			
-			if((index = toBeSaved.indexOf(inwardAccount)) != -1) {
-				inwardAccount = (Account)toBeSaved.get(index);
-			} else {
-				inwardAccount = SearchHelper.getFacade().readModelWithId(Account.class, entry.getKey().getAccountId(), false);
-			}
-			
 			te.setInwardAccount(inwardAccount);
 			
+			toBeSaved.add(updateCurrentBalance(inwardAccount, ted.getAmount(), "add"));
+			toBeSaved.add(updateCurrentBalance(outwardAccount, ted.getAmount(), "sub"));
+			
 			toBeSaved.add(te);
-			
-			toBeSaved.add(updateCurrentBalance(te.getInwardAccount(), te.getAmount(), "add"));
-			
-			totalAmount += te.getAmount();
 		}
-		toBeSaved.add(updateCurrentBalance(outwardAccount, totalAmount, "sub"));
+		
+		toBeSaved.add(tt);
 		
 		boolean b = SearchHelper.getFacade().saveDeleteModels(toBeSaved, toBeDeleted);
 		
 		return b ? tt.getTxnId() : -1L;
+	}
+
+	private Account getAccountFromList(List<Object> toBeSaved, long accId) {
+		Account account = new Account();
+		account.setAccountId(accId);
+		int index;
+		if((index = toBeSaved.indexOf(account)) != -1) {
+			account = (Account)toBeSaved.get(index);
+		} else {
+			account = SearchHelper.getFacade().readModelWithId(Account.class, accId, false);
+		}
+		
+		return account;
 	}
 
 	private Account updateCurrentBalance(Account a, double amount, String operation) {
@@ -294,6 +283,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		for(TransactionTable tt : tg.getTransactions()) {
 			toBeDeleted.add(tt);
 			
+			// TODO not working code.. since it is not required in this release.. so need to worry.. :)
 			Map<String, List<Object>> modifiedMap = modifedMapAfterDeletingTransaction(getTransactionEntriesWithoutTT(tt.getTxnId()));
 			toBeDeleted.addAll(modifiedMap.get("toBeDeleted"));
 			toBeSaved.addAll(modifiedMap.get("toBeSaved"));
@@ -320,17 +310,11 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		List<Object> toBeSaved = new ArrayList<Object>();
 		List<Object> toBeDeleted = new ArrayList<Object>();
 		
-		Account outwardAcc = null;
-		double totalAmount = 0d;
 		for(TransactionEntry te : tt.getTransactionEntries()) {
 			toBeDeleted.add(te);
-			
 			toBeSaved.add(updateCurrentBalance(te.getInwardAccount(), te.getAmount(), "sub"));
-			
-			totalAmount += te.getAmount();
-			outwardAcc = te.getOutwardAccount();
+			toBeSaved.add(updateCurrentBalance(te.getOutwardAccount(), te.getAmount(), "add"));
 		}
-		toBeSaved.add(updateCurrentBalance(outwardAcc, totalAmount, "add"));
 		
 		map.put("toBeSaved", toBeSaved);
 		map.put("toBeDeleted", toBeDeleted);
@@ -338,29 +322,44 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	}
 
 	@Override
-	public boolean deleteTransaction(long transactionId) {
-		TransactionTable tt = SearchHelper.getFacade().readModelWithId(TransactionTable.class, transactionId, true);
-		
-		if(getCurrentUser(this.getThreadLocalRequest().getSession()) != tt.getTransactionGroup().getUser().getUid()) {
-			logger.error("Unauthorized removal of Transaction with id: " + transactionId +
-					", User: " + tt.getTransactionGroup().getUser().getUid() +
-					", Actual User: " + getCurrentUser(this.getThreadLocalRequest().getSession()));
-			return false;
-		}
-		
+	public boolean deleteTransaction(long transactionId, boolean deleteFullTransaction) {
 		List<Object> toBeSaved = new ArrayList<Object>();
 		List<Object> toBeDeleted = new ArrayList<Object>();
 		
-		Map<String, List<Object>> modifiedMap = modifedMapAfterDeletingTransaction(tt);
-		toBeDeleted.addAll(modifiedMap.get("toBeDeleted"));
-		toBeSaved.addAll(modifiedMap.get("toBeSaved"));
-		
-		// now remove all the te's from the tt collection
-		for(Object te : toBeDeleted) {
-			tt.getTransactionEntries().remove(te);
+		if(deleteFullTransaction) { // delete the whole transaction
+			TransactionTable tt = SearchHelper.getFacade().readModelWithId(TransactionTable.class, transactionId, true);
+			
+			if(getCurrentUser(this.getThreadLocalRequest().getSession()) != tt.getTransactionGroup().getUser().getUid()) {
+				logger.error("Unauthorized removal of Transaction with id: " + transactionId +
+						", User: " + tt.getTransactionGroup().getUser().getUid() +
+						", Actual User: " + getCurrentUser(this.getThreadLocalRequest().getSession()));
+				return false;
+			}
+			
+			Map<String, List<Object>> modifiedMap = modifedMapAfterDeletingTransaction(tt);
+			toBeDeleted.addAll(modifiedMap.get("toBeDeleted"));
+			toBeSaved.addAll(modifiedMap.get("toBeSaved"));
+			
+			// now remove all the te's from the tt collection
+			for(Object te : toBeDeleted) {
+				tt.getTransactionEntries().remove(te);
+			}
+			
+			toBeDeleted.add(tt);
+		} else { // delete the specified transaction entry
+			TransactionEntry te = SearchHelper.getFacade().readModelWithId(TransactionEntry.class, transactionId, false);
+			
+			if(getCurrentUser(this.getThreadLocalRequest().getSession()) != te.getTransaction().getTransactionGroup().getUser().getUid()) {
+				logger.error("Unauthorized removal of Transaction with id: " + transactionId +
+						", User: " + te.getTransaction().getTransactionGroup().getUser().getUid() +
+						", Actual User: " + getCurrentUser(this.getThreadLocalRequest().getSession()));
+				return false;
+			}
+			
+			toBeSaved.add(updateCurrentBalance(te.getInwardAccount(), te.getAmount(), "sub"));
+			toBeSaved.add(updateCurrentBalance(te.getOutwardAccount(), te.getAmount(), "add"));
+			toBeDeleted.add(te);
 		}
-		
-		toBeDeleted.add(tt);
 		
 		return SearchHelper.getFacade().saveDeleteModels(toBeSaved, toBeDeleted);
 	}

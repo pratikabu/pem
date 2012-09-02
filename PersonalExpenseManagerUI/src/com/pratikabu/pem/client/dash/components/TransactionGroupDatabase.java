@@ -128,7 +128,7 @@ public class TransactionGroupDatabase {
 	}
 
 	public static void openSelectedProperties() {
-		Long tgId = PaneManager.gettList().getActualId();
+		Long tgId = PaneManager.gettList().getActualTransactionGroupId();
 		
 		if(null == tgId || -1 == tgId) {
 			Utility.alert("Cannot modify the selected entry.");
@@ -145,7 +145,7 @@ public class TransactionGroupDatabase {
 	}
 
 	public static void deleteSelected() {
-		Long tgId = PaneManager.gettList().getActualId();
+		Long tgId = PaneManager.gettList().getActualTransactionGroupId();
 		
 		if(null == tgId || -1 == tgId) {
 			Utility.alert("Cannot delete the selected entry.");

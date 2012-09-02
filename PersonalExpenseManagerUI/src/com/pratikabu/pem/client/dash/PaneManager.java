@@ -9,7 +9,6 @@ import com.pratikabu.pem.client.dash.ui.IPaidFormPanel;
 import com.pratikabu.pem.client.dash.ui.TransactionList;
 import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
 import com.pratikabu.pem.client.dash.ui.ViewerDialog;
-import com.pratikabu.pem.shared.model.IPaidDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 
 /**
@@ -43,15 +42,15 @@ public class PaneManager {
 		return ipfp;
 	}
 
-	public static void renderTransactionDetails(long txnId, int entryType) {
-		getTrp().renderRecord(new long[] {txnId, entryType});
+	public static void renderTransactionDetails(long txnId) {
+		getTrp().renderRecord(txnId);
 	}
 	
-	public static void renderDTOObject(Object obj) {
-		if(null == obj) {
+	public static void renderTransaction(TransactionDTO dto) {
+		if(null == dto) {
 			ViewerDialog.get().close();
-		} else if(obj instanceof IPaidDTO) {
-			getTrp().renderRecord(obj);
+		} else if(TransactionDTO.ET_OUTWARD_TG == dto.getEntryType()) {
+			getTrp().renderRecord(dto);
 		} else {
 			
 		}
@@ -65,9 +64,9 @@ public class PaneManager {
 		}
 	}
 	
-	public static void editDTOObject(Object obj) {
-		if(obj instanceof IPaidDTO) {
-			getIpfp().renderRecord(obj);
+	public static void editTransaction(TransactionDTO dto) {
+		if(TransactionDTO.ET_OUTWARD_TG == dto.getEntryType()) {
+			getIpfp().renderRecord(dto);
 		} else {
 			
 		}
