@@ -40,7 +40,7 @@ import com.pratikabu.pem.shared.model.AccountDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 import com.pratikabu.pem.shared.model.TransactionEntryDTO;
 
-public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
+public class IGotFormPanel extends VerticalPanel implements DetailPaneable {
 	private TransactionDTO dto;
 	
 	private FlexTable ft;
@@ -57,7 +57,7 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 	
 	private Button save, cancel;
 	
-	public IPaidFormPanel() {
+	public IGotFormPanel() {
 		initializeObjects();
 		placeObjects();
 	}
@@ -325,7 +325,7 @@ public class IPaidFormPanel extends VerticalPanel implements DetailPaneable {
 		
 		this.dto = (TransactionDTO)obj;
 		populateData();
-		ViewerDialog.showWidget(IPaidFormPanel.this, "Edit Transaction Details");
+		ViewerDialog.showWidget(IGotFormPanel.this, "Edit Transaction Details");
 		
 		transactionName.setFocus(true);
 		

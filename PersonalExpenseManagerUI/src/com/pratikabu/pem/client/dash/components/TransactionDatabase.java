@@ -25,8 +25,11 @@ import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.pratikabu.pem.client.common.Utility;
+import com.pratikabu.pem.client.dash.PaneManager;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
+import com.pratikabu.pem.client.dash.ui.FilterPanel;
 import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
+import com.pratikabu.pem.shared.model.FilteredTransactionListData;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 import com.pratikabu.pem.shared.model.TransactionEntryDTO;
 
@@ -92,13 +95,18 @@ public class TransactionDatabase {
 	public void refreshDisplays(Long transactionGroup) {
 		if(null == transactionGroup || -1L == transactionGroup) {
 			transactionGroup = null;
+			// assign the default transaction group
+			transactionGroup = TransactionGroupDatabase.get().getDefault().getId();
 		}
 		
-		ServiceHelper.getPemservice().getAllTransactionsForGroupId(transactionGroup, -1, -1, new AsyncCallback<ArrayList<TransactionDTO>>() {
+		ServiceHelper.getPemservice().getAllTransactionsForGroupId(transactionGroup,
+				FilterPanel.get().getFilter(), -1, -1, new AsyncCallback<FilteredTransactionListData>() {
 			@Override
-			public void onSuccess(ArrayList<TransactionDTO> result) {
-				dataProvider.setList(getTransactionAndEntry(result));
+			public void onSuccess(FilteredTransactionListData result) {
+				List<TransactionAndEntry> tes = getTransactionAndEntry(result.getTransactions());
+				dataProvider.setList(tes);
 				dataProvider.refresh();
+				PaneManager.updateBalance(result, tes.size());
 			}
 			
 			@Override

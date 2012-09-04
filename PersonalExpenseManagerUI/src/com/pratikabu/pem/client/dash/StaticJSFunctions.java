@@ -4,17 +4,13 @@
 package com.pratikabu.pem.client.dash;
 
 import com.pratikabu.pem.client.dash.components.TransactionDatabase;
-import com.pratikabu.pem.client.dash.components.TransactionGroupDatabase;
 import com.pratikabu.pem.client.dash.ui.AccountDialog;
 import com.pratikabu.pem.client.dash.ui.AccountManagerDialog;
-import com.pratikabu.pem.client.dash.ui.TransactionGroupChooserDialog;
-import com.pratikabu.pem.client.dash.ui.TransactionGroupChooserDialog.TransactionGroupSelectionListener;
-import com.pratikabu.pem.client.dash.ui.TransactionGroupDialog;
+import com.pratikabu.pem.client.dash.ui.FilterPanel;
 import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
 import com.pratikabu.pem.client.dash.ui.UserSettingsPanel;
 import com.pratikabu.pem.client.dash.ui.ViewerDialog;
 import com.pratikabu.pem.shared.model.TransactionDTO;
-import com.pratikabu.pem.shared.model.TransactionGroupDTO;
 
 /**
  * @author pratsoni
@@ -96,22 +92,9 @@ public class StaticJSFunctions {
 			
 		}
 		
-		// for the Transaction Group Menu
-		else if("tgntg".equals(toBeOpened)) {
-			TransactionGroupDialog.show(null);
-		} else if("tgchng".equals(toBeOpened)) {
-			TransactionGroupChooserDialog.chooseSingleAccount(new TransactionGroupSelectionListener() {
-				@Override
-				public void transactionGroupSelectedEvent(TransactionGroupDTO dto) {
-					if(dto.getId() != PaneManager.gettList().getActualTransactionGroupId()) {
-						PaneManager.gettList().showDataForTransactionGroup(dto.getId(), dto.getTgNameWithCount());
-					}
-				}
-			});
-		} else if("tgprop".equals(toBeOpened)) {
-			TransactionGroupDatabase.openSelectedProperties();
-		} else if("tgdel".equals(toBeOpened)) {
-			TransactionGroupDatabase.deleteSelected();
+		// for filter
+		else if("filter".equals(toBeOpened)) {
+			ViewerDialog.showWidget(FilterPanel.get(), "Filter Options");
 		}
 	}
 }

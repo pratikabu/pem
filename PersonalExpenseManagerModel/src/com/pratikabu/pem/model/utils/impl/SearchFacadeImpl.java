@@ -14,15 +14,16 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.pratikabu.pem.model.Account;
 import com.pratikabu.pem.model.PEMUser;
-import com.pratikabu.pem.model.TransactionGroup;
-import com.pratikabu.pem.model.TransactionTable;
 import com.pratikabu.pem.model.utils.HibernateConfiguration;
 import com.pratikabu.pem.model.utils.SearchFacade;
+import com.pratikabu.pem.model.utils.SearchHelper;
 
 /**
  * @author pratsoni
@@ -139,62 +140,18 @@ public class SearchFacadeImpl implements SearchFacade {
 		return null != user && password.equals(user.getPassword());
 	}
 
-	@Override
-	public List<TransactionTable> getTransactionsForUser(Serializable pemUserPK, Serializable transactionGroupPK,
-			int startPosition, int offset, boolean loadLazyData) {
-		List<TransactionTable> transactions = null;
-		
-		if(null == pemUserPK) {
-			return null;
-		}
-		
-		long userId = (Long) pemUserPK;
-		
-		Session s = HibernateConfiguration.getFactory().getCurrentSession();
-		s.beginTransaction();
-		Query query = null;
-		
-		final String orderBy = " ORDER BY creationDate DESC";
-		if(null != transactionGroupPK) {
-			// check whether this transaction group pk belongs to the supplied user.
-			query = s.createQuery("FROM TransactionGroup WHERE txnGroupId=:txnGroupId");
-			query.setLong("txnGroupId", (Long)transactionGroupPK);
-			TransactionGroup tg = (TransactionGroup)query.uniqueResult();
-			
-			if(null != tg && tg.getUser().getUid() == userId) {
-				query = s.createQuery("FROM TransactionTable WHERE txnGroupId=:txnGroupId" + orderBy);
-				query.setLong("txnGroupId", (Long)transactionGroupPK);
-			} else {
-				return null;
-			}
-		} else {
-			// show all the transactions for current user
-			query = s.createQuery("FROM TransactionTable WHERE txnGroupId IN " +
-					"(SELECT txnGroupId FROM TransactionGroup WHERE uid=:userId)" + orderBy);
-			query.setLong("userId", userId);
-		}
-		
-		applyPagination(startPosition, offset, query);
-		
-		transactions = query.list();
-		
-		if(loadLazyData) {
-			for(TransactionTable tt : transactions) {
-				tt.getTags().size();
-				tt.getTransactionEntries().size();
-			}
-		}
-		
-		s.getTransaction().commit();
-		
-		return transactions;
-	}
-
-	private void applyPagination(int startPosition, int offset, Query query) {
+	private void applyPagination(int startPosition, int offset, Object obj) {
 		// filter result if asked
 		if(-1 != startPosition) {
-			query.setFetchSize(offset);
-			query.setFirstResult(startPosition);
+			if(obj instanceof Query) {
+				Query query = (Query) obj;
+				query.setFetchSize(offset);
+				query.setFirstResult(startPosition);
+			} else if(obj instanceof Criteria) {
+				Criteria criteria = (Criteria) obj;
+				criteria.setFetchSize(offset);
+				criteria.setFirstResult(startPosition);
+			}
 		}
 	}
 
@@ -287,42 +244,97 @@ public class SearchFacadeImpl implements SearchFacade {
 	}
 
 	@Override
-	public <T> int getCount(Class<T> c, Map<String, Object> criteria) {
+	public <T> int getCount(Class<T> c, Map<String, Object> criteria, boolean customOperation) {
+		return ((Number)getProjection(c, criteria, null, SearchHelper.PROJECTION_COUNT, customOperation)).intValue();
+	}
+	
+	@Override
+	public <T> Object getProjection(Class<T> c, Map<String, Object> criteria, String property, int projectionType, boolean customOperation) {
 		Session s = HibernateConfiguration.getFactory().getCurrentSession();
 		s.beginTransaction();
 		
 		Criteria cr = s.createCriteria(c);
 		
-		if(null != criteria) {
-			for(Entry<String, Object> entry : criteria.entrySet()) {
-				cr.add(Restrictions.eq(entry.getKey(), entry.getValue()));
-			}
+		updateCriteriaWithCustomOpr(criteria, cr, customOperation);
+		
+		Projection projection = null;
+		
+		if(SearchHelper.PROJECTION_COUNT == projectionType) {
+			projection = Projections.rowCount();
+		} else if(SearchHelper.PROJECTION_SUM == projectionType) {
+			projection = Projections.sum(property);
 		}
 		
-		int count = ((Number)cr.setProjection(Projections.rowCount()).uniqueResult()).intValue();
+		Object obj = cr.setProjection(projection).uniqueResult();
 		s.getTransaction().commit();
 		
-		return count;
+		return obj;
 	}
 
 	@Override
-	public <T> List<T> readAllObjects(Class<T> c, Map<String, Object> criteria,
-			boolean loadLazyObjects) {
+	public <T> List<T> readAllObjects(Class<T> c, Map<String, Object> criteria, boolean customCriteria,
+			int startPosition, int offset, boolean loadLazyObjects, Map<String, Integer> orderBy) {
 		
 		Session s = HibernateConfiguration.getFactory().getCurrentSession();
 		s.beginTransaction();
 		
 		Criteria cr = s.createCriteria(c);
 		
-		if(null != criteria) {
+		// add criteria
+		updateCriteriaWithCustomOpr(criteria, cr, customCriteria);
+		
+		// add order by clause
+		if(null != orderBy) {
+			for(Entry<String, Integer> entry : orderBy.entrySet()) {
+				if(SearchHelper.ORDERBY_DESC == entry.getValue()) {
+					cr.addOrder(Order.desc(entry.getKey()));
+				} else {
+					cr.addOrder(Order.asc(entry.getKey()));
+				}
+			}
+		}
+		
+		// apply pagination if passed
+		applyPagination(startPosition, offset, cr);
+		
+		// fetch the list
+		List<T> list = cr.list();
+		
+		// load lazy objects if required
+		if(loadLazyObjects && null != list) {
+			for(T t : list) {
+				loadLazyObjects(c, loadLazyObjects, t);
+			}
+		}
+		
+		s.getTransaction().commit();
+		
+		return list;
+	}
+
+	private void updateCriteriaWithCustomOpr(Map<String, Object> criteria, Criteria cr, boolean customOperation) {
+		if(null == criteria) {
+			return;
+		}
+		
+		if(customOperation) {
+			for(Entry<String, Object> entry : criteria.entrySet()) {
+				String[] keys = entry.getKey().split(",");
+				String key = keys[0];
+				String opr = keys[1];
+				
+				if("eq".equals(opr)) {
+					cr.add(Restrictions.eq(key, entry.getValue()));
+				} else if("le".equals(opr)) {
+					cr.add(Restrictions.le(key, entry.getValue()));
+				} else if("ge".equals(opr)) {
+					cr.add(Restrictions.ge(key, entry.getValue()));
+				}
+			}
+		} else {
 			for(Entry<String, Object> entry : criteria.entrySet()) {
 				cr.add(Restrictions.eq(entry.getKey(), entry.getValue()));
 			}
 		}
-		
-		List<T> list = cr.list();
-		s.getTransaction().commit();
-		
-		return list;
 	}
 }

@@ -73,35 +73,19 @@
 	</div>
 	<div id="mainContent" class="mainContent"
 		style="bottom: 50px; top: 50px; width: 100%;">
-		<div id="westContainer" class="mainContent"
+		<div id="centerContainer" class="mainContent"
 			style="bottom: 0px; top: 0px; margin-left: -450px; left: 50%; width: 900px;
 			border-right: 1px SOLID #CBCBCB; border-left: 1px SOLID #CBCBCB;"">
 
 			<div id="tgHeaderContainer" class="tgOuterDiv"
 				style="top: 0px; left: 0px; width: 100%; height: 35px;">
-				<div id="tgNameMenu" align="left"
-					style="position: absolute; top: 0px; left: 0px; width: 85%; height: 35px; padding-top: 10px; padding-left: 5px;">
-					<ul>
-						<li class="has-sub"><a href='#'><span id="tgCurrentName"></span></a>
-							<ul>
-								<li><a href='#' onclick="openRequest('tgprop')"><span>Properties</span></a></li>
-								<li><a href='#' onclick="openRequest('tgdel')"><span>Delete...</span></a></li>
-							</ul></li>
-					</ul>
-				</div>
+				<div id="tgCurrentName" align="left"
+					style="position: absolute; top: 0px; left: 0px; width: 85%; height: 35px; padding-top: 10px; padding-left: 5px;"></div>
 				<div
 					style="position: absolute; top: 0px; right: 0px; width: 15%; height: 35px;">
 					<div id="tgMenu"
-						style="position: absolute; top: 7px; right: 5px; bottom: 0px;">
-						<ul>
-							<li class="has-sub"><a href='#'><span>▼</span></a>
-								<ul>
-									<li><a href='#' onclick="openRequest('tgntg')"><span>New
-												Transaction Group...</span></a></li>
-									<li><a href='#' onclick="openRequest('tgchng')"><span>Change
-												Transaction Group</span></a></li>
-								</ul></li>
-						</ul>
+						style="position: absolute; top: 9px; right: 5px; bottom: 0px;">
+						<input type="button" id="readerEdit" value="Filter" class="mybutton small red" style="margin-right: 5px;" onclick="openRequest('filter')">
 					</div>
 				</div>
 			</div>
@@ -116,8 +100,8 @@
 						<td align="left" class="tgCellTDStyle" width="5%" style="padding-left: 5px;"></td>
 						<td align="left" class="tgCellTDStyle" width="58%">Grand Total</td>
 						<td align="center" class="tgCellTDStyle" width="7%"></td>
-						<td align="right" class="tgCellTDStyle" width="15%"><span id="leftTotal" class="normalLabel" style="padding-right: 5px;">R</span></td>
-						<td align="right" class="tgCellTDStyle" width="15%"><span id="rightTotal" class="normalLabel" style="padding-right: 5px;">R</span></td>
+						<td align="right" class="tgCellTDStyle" width="15%"><span id="leftTotal" class="normalLabel"></span></td>
+						<td align="right" class="tgCellTDStyle" width="15%"><span id="rightTotal" class="normalLabel"></span></td>
 					</tr>
 				</table>
 			</div>

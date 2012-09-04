@@ -1,7 +1,6 @@
 package com.pratikabu.pem.model.utils;
 
 import java.util.Date;
-import java.util.List;
 
 import com.pratikabu.pem.model.Account;
 import com.pratikabu.pem.model.PEMUser;
@@ -105,21 +104,6 @@ public class TransactionTesting {
 //		te.setOutwardAccount(SearchHelper.getFacade().readModelWithId(Account.class, 262144L, false));
 //		te.setInwardAccount(SearchHelper.getFacade().readModelWithId(Account.class, 262147L, false));
 //		SearchHelper.getFacade().saveModel(te);
-	}
-
-	private static void readData(long userid, Long tripId) {
-		List<TransactionTable> tList = SearchHelper.getFacade().getTransactionsForUser(userid, tripId, -1, -1, true);
-		
-		if(null != tList) {
-			for(TransactionTable tt : tList) {
-				System.out.println(tt.getTxnName());
-				
-				System.out.println(tt.getTags());
-				System.out.println(tt.getTransactionEntries());
-			}
-		} else {
-			System.out.println("There is no data found.");
-		}
 	}
 	
 	static void createTestData(long userId) {

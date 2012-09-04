@@ -3,12 +3,16 @@
  */
 package com.pratikabu.pem.client.dash;
 
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.pratikabu.pem.client.common.Constants;
+import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.ui.IPaidFormPanel;
 import com.pratikabu.pem.client.dash.ui.TransactionList;
 import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
 import com.pratikabu.pem.client.dash.ui.ViewerDialog;
+import com.pratikabu.pem.shared.model.FilteredTransactionListData;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 
 /**
@@ -102,5 +106,38 @@ public class PaneManager {
 	public static void hideLoading() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public static void updateBalance(FilteredTransactionListData result, int countOfTransactionEntries) {
+		setInId(getTotalAmountHtml(result.getTotalInwadAmount()), "leftTotal");
+		setInId(getTotalAmountHtml(result.getTotalOutwardAmount()), "rightTotal");
+		
+		String entries = "Entr", transactions = "Transaction";
+		
+		if(countOfTransactionEntries > 1) {
+			entries += "ies";
+		} else {
+			entries += "y";
+		}
+		
+		if(result.getCount() > 1) {
+			transactions += "s";
+		}
+		
+		HTML h = new HTML();
+		h.setStyleName(Constants.CSS_NORMAL_LABEL);
+		h.setText("Showing " + countOfTransactionEntries + " " + entries + " from " +
+		result.getCount() + " " + transactions + ". This result is filtered.");
+		setInId(h, "tgCurrentName");
+	}
+
+	private static HTML getTotalAmountHtml(double amount) {
+		HTML h = new HTML();
+		h.setHeight("100%");
+		h.setWidth("100%");
+//		h.getElement().getStyle().setPaddingLeft(5, Unit.PX);
+		h.setHTML(Utility.getSafeHtml(OneTimeDataManager.getOTD().getCurrecnySymbol() +
+				" <b>" + Utility.get2DecimalAmount(amount) + "</b>"));
+		return h;
 	}
 }

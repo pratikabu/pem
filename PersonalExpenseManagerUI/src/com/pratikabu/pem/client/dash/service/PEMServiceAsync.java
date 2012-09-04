@@ -10,6 +10,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.pratikabu.pem.shared.OneTimeData;
 import com.pratikabu.pem.shared.model.AccountDTO;
 import com.pratikabu.pem.shared.model.AccountTypeDTO;
+import com.pratikabu.pem.shared.model.FilterDTO;
+import com.pratikabu.pem.shared.model.FilteredTransactionListData;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 import com.pratikabu.pem.shared.model.UserSettingsDTO;
 
@@ -19,8 +21,8 @@ import com.pratikabu.pem.shared.model.UserSettingsDTO;
  */
 public interface PEMServiceAsync {
 
-	void getAllTransactionsForGroupId(Long groupId, int startPosition, int offset,
-			AsyncCallback<ArrayList<TransactionDTO>> callback);
+	void getAllTransactionsForGroupId(Long groupId, FilterDTO filter, int startPosition, int offset,
+			AsyncCallback<FilteredTransactionListData> callback);
 
 	void getTransactionDetail(Long transactionId,
 			AsyncCallback<TransactionDTO> callback);

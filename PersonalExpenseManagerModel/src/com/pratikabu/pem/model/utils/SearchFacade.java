@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.pratikabu.pem.model.Account;
-import com.pratikabu.pem.model.TransactionTable;
 
 /**
  * @author pratsoni
@@ -43,19 +42,6 @@ public interface SearchFacade {
 	boolean isValidUser(String email, String password);
 	
 	/**
-	 * This method will return a list of transactions for a particular user and for particular transactionGroup.
-	 * The list will be sorted based on transaction date in descending order.
-	 * @param pemUserPK PK of user for which we want the data.
-	 * @param transactionGroupPK PK of the txn group for which we want the data. If null the all txn groups data will be returned.
-	 * @param startPosition if you want pagination pass some non negative value, pass -1 if you don't want pagination to happen
-	 * @param offset number of records to be fetched
-	 * @param loadLazyData
-	 * @return
-	 */
-	List<TransactionTable> getTransactionsForUser(Serializable pemUserPK, Serializable transactionGroupPK,
-			int startPosition, int offset, boolean loadLazyData);
-	
-	/**
 	 * It gives you freedom to fetch the list of particular type without any constraints.
 	 * @param c
 	 * @param loadLazyObjects
@@ -65,13 +51,17 @@ public interface SearchFacade {
 	<T> List<T> readAllObjects(Class<T> c, boolean loadLazyObjects, Serializable pemUserPK);
 	
 	/**
-	 * Read all objects with the specified conditions
+	 * Read all objects with the specified conditions.
 	 * @param c
 	 * @param criteria
+	 * @param startPosition
+	 * @param offset
 	 * @param loadLazyObjects
+	 * @param orderBy
 	 * @return
 	 */
-	<T> List<T> readAllObjects(Class<T> c, Map<String, Object> criteria, boolean loadLazyObjects);
+	<T> List<T> readAllObjects(Class<T> c, Map<String, Object> criteria, boolean customCriteria, int startPosition, int offset,
+			boolean loadLazyObjects , Map<String, Integer> orderBy);
 	
 	/**
 	 * This method fetches user for the supplied user. It will fetch all kind of users.
@@ -89,7 +79,19 @@ public interface SearchFacade {
 	 * This method will return the count of all the records provided by the passed criteria.
 	 * @param c
 	 * @param criteria
+	 * @param customOperation
 	 * @return
 	 */
-	<T> int getCount(Class<T> c, Map<String, Object> criteria);
+	<T> int getCount(Class<T> c, Map<String, Object> criteria, boolean customOperation);
+	
+	/**
+	 * Apply any projection on the property which you've passed.
+	 * @param c
+	 * @param criteria
+	 * @param property on which you want to apply the projection. Not always required.
+	 * @param projectionType See <code>SearchHelper.PROJECTION_*</code> properties.
+	 * @param customOperation
+	 * @return
+	 */
+	<T> Object getProjection(Class<T> c, Map<String, Object> criteria, String property, int projectionType, boolean customOperation);
 }
