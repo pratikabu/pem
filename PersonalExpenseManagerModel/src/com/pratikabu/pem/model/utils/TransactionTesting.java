@@ -1,14 +1,38 @@
 package com.pratikabu.pem.model.utils;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.pratikabu.pem.model.Account;
 import com.pratikabu.pem.model.PEMUser;
+import com.pratikabu.pem.model.TransactionEntry;
 import com.pratikabu.pem.model.TransactionGroup;
 import com.pratikabu.pem.model.TransactionTable;
 
 public class TransactionTesting {
+	
 	public static void main(String[] args) {
+Map<String, Object> criteria = new LinkedHashMap<String, Object>();
+		
+		Map<String, String> alias = new LinkedHashMap<String, String>();
+		alias.put("txn", "transaction");
+		alias.put("txnGroup", "transaction.transactionGroup");
+		
+		///////////// Pull Transactions
+		Map<String, Integer> orderBy = new LinkedHashMap<String, Integer>();
+		orderBy.put("txn.creationDate", SearchHelper.ORDERBY_DESC);
+		
+		criteria.put("txnGroup.txnGroupId,eq", 32768L);
+		
+		List<TransactionEntry> tTables = SearchHelper.getFacade().
+				readAllObjects(TransactionEntry.class, criteria, true, alias, 2, 10, true, orderBy);
+		
+		System.out.println(tTables.size() + tTables.get(0).getAmount());
+	}
+	
+	public static void main1(String[] args) {
 		for(Account a : SearchHelper.getFacade().getAccountsForUserOfType(1L, "main", "credit")) {
 			System.out.println(a.getAccName());
 		}

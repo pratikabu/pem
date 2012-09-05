@@ -16,7 +16,6 @@
 
 package com.pratikabu.pem.client.dash.components;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.Window;
@@ -30,17 +29,17 @@ import com.pratikabu.pem.client.dash.service.ServiceHelper;
 import com.pratikabu.pem.client.dash.ui.FilterPanel;
 import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
 import com.pratikabu.pem.shared.model.FilteredTransactionListData;
+import com.pratikabu.pem.shared.model.TransactionAndEntryDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
-import com.pratikabu.pem.shared.model.TransactionEntryDTO;
 
 /**
  * The data source for contact information used in the sample.
  */
 public class TransactionDatabase {
 
-	public static final ProvidesKey<TransactionAndEntry> KEY_PROVIDER = new ProvidesKey<TransactionAndEntry>() {
+	public static final ProvidesKey<TransactionAndEntryDTO> KEY_PROVIDER = new ProvidesKey<TransactionAndEntryDTO>() {
 		@Override
-		public Object getKey(TransactionAndEntry item) {
+		public Object getKey(TransactionAndEntryDTO item) {
 			return item == null ? null : item.getEntry().getTxnEntryId();
 		}
 	};
@@ -65,7 +64,7 @@ public class TransactionDatabase {
 	/**
 	 * The provider that holds the list of contacts in the database.
 	 */
-	private ListDataProvider<TransactionAndEntry> dataProvider = new ListDataProvider<TransactionAndEntry>();
+	private ListDataProvider<TransactionAndEntryDTO> dataProvider = new ListDataProvider<TransactionAndEntryDTO>();
 
 	/**
 	 * Add a new contact.
@@ -73,8 +72,8 @@ public class TransactionDatabase {
 	 * @param contact
 	 *            the contact to add.
 	 */
-	public void addTransactionEntry(TransactionAndEntry contact) {
-		List<TransactionAndEntry> contacts = dataProvider.getList();
+	public void addTransactionEntry(TransactionAndEntryDTO contact) {
+		List<TransactionAndEntryDTO> contacts = dataProvider.getList();
 		// Remove the contact first so we don't add a duplicate.
 		contacts.remove(contact);
 		contacts.add(contact);
@@ -85,7 +84,7 @@ public class TransactionDatabase {
 	 * display will be populated with data.
 	 * @param display a {@Link HasData}.
 	 */
-	public void addDataDisplay(HasData<TransactionAndEntry> display) {
+	public void addDataDisplay(HasData<TransactionAndEntryDTO> display) {
 		dataProvider.addDataDisplay(display);
 	}
 
@@ -100,13 +99,14 @@ public class TransactionDatabase {
 		}
 		
 		ServiceHelper.getPemservice().getAllTransactionsForGroupId(transactionGroup,
-				FilterPanel.get().getFilter(), -1, -1, new AsyncCallback<FilteredTransactionListData>() {
+				FilterPanel.get().getFilter(), 0, PaginationManager.get().getMaxResultCount(),
+				new AsyncCallback<FilteredTransactionListData>() {
 			@Override
 			public void onSuccess(FilteredTransactionListData result) {
-				List<TransactionAndEntry> tes = getTransactionAndEntry(result.getTransactions());
+				List<TransactionAndEntryDTO> tes = result.getTransactionAndEntries();
 				dataProvider.setList(tes);
 				dataProvider.refresh();
-				PaneManager.updateBalance(result, tes.size());
+				PaneManager.updateBalance(result);
 			}
 			
 			@Override
@@ -154,26 +154,13 @@ public class TransactionDatabase {
 	}
 	
 	public TransactionDTO getTransactionDTO(long txnId) {
-		List<TransactionAndEntry> data = dataProvider.getList();
-		for(TransactionAndEntry tae : data) {
+		List<TransactionAndEntryDTO> data = dataProvider.getList();
+		for(TransactionAndEntryDTO tae : data) {
 			if(txnId == tae.getTransaction().getTransactionId()) {
 				return tae.getTransaction();
 			}
 		}
 		return null;
-	}
-	
-	public static List<TransactionAndEntry> getTransactionAndEntry(
-			ArrayList<TransactionDTO> result) {
-		ArrayList<TransactionAndEntry> list = new ArrayList<TransactionAndEntry>();
-		
-		for(TransactionDTO t : result) {
-			for(TransactionEntryDTO ted : t.getTransactionEntries()) {
-				list.add(new TransactionAndEntry(t, ted));
-			}
-		}
-		
-		return list;
 	}
 
 }

@@ -1,24 +1,25 @@
 /**
  * 
  */
-package com.pratikabu.pem.client.dash.components;
+package com.pratikabu.pem.shared.model;
 
-import com.pratikabu.pem.shared.model.TransactionDTO;
-import com.pratikabu.pem.shared.model.TransactionEntryDTO;
+import java.io.Serializable;
+
 
 /**
  * @author pratsoni
  *
  */
-public class TransactionAndEntry {
+@SuppressWarnings("serial")
+public class TransactionAndEntryDTO implements Serializable {
 	private TransactionDTO transaction;
 	
 	private TransactionEntryDTO entry;
 
-	public TransactionAndEntry() {
+	public TransactionAndEntryDTO() {
 	}
 
-	public TransactionAndEntry(TransactionDTO transaction,
+	public TransactionAndEntryDTO(TransactionDTO transaction,
 			TransactionEntryDTO entry) {
 		this.transaction = transaction;
 		this.entry = entry;

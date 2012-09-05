@@ -12,18 +12,18 @@ import java.util.ArrayList;
  */
 @SuppressWarnings("serial")
 public class FilteredTransactionListData implements Serializable {
-	private ArrayList<TransactionDTO> transactions;
+	private ArrayList<TransactionAndEntryDTO> transactionAndEntries;
 	
 	private int count;
 	
 	private double totalInwadAmount, totalOutwardAmount;
 
-	public ArrayList<TransactionDTO> getTransactions() {
-		return transactions;
+	public ArrayList<TransactionAndEntryDTO> getTransactionAndEntries() {
+		return transactionAndEntries;
 	}
 
-	public void setTransactions(ArrayList<TransactionDTO> transactions) {
-		this.transactions = transactions;
+	public void setTransactionAndEntries(ArrayList<TransactionAndEntryDTO> transactionAndEntries) {
+		this.transactionAndEntries = transactionAndEntries;
 	}
 
 	public int getCount() {

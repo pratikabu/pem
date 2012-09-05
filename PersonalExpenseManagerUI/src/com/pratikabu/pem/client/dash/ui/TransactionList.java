@@ -14,9 +14,9 @@ import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.OneTimeDataManager;
 import com.pratikabu.pem.client.dash.components.CentralEventHandler;
 import com.pratikabu.pem.client.dash.components.CentralEventHandler.TransactionUpdateListener;
-import com.pratikabu.pem.client.dash.components.TransactionAndEntry;
 import com.pratikabu.pem.client.dash.components.TransactionDatabase;
 import com.pratikabu.pem.client.dash.components.TransactionGroupDatabase;
+import com.pratikabu.pem.shared.model.TransactionAndEntryDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 import com.pratikabu.pem.shared.model.TransactionEntryDTO;
 
@@ -25,7 +25,7 @@ import com.pratikabu.pem.shared.model.TransactionEntryDTO;
  *
  */
 public class TransactionList extends VerticalPanel {
-	private CellList<TransactionAndEntry> tgList;
+	private CellList<TransactionAndEntryDTO> tgList;
 	
 	private Long transactionGroupId;
 	private Long actualTransactionGroupId;
@@ -39,7 +39,7 @@ public class TransactionList extends VerticalPanel {
 		this.setWidth("100%");
 		this.setHeight("100%");
 		
-		tgList = new CellList<TransactionAndEntry>(new TransactionCell());
+		tgList = new CellList<TransactionAndEntryDTO>(new TransactionCell());
 
 		tgList.setPageSize(30);
 		tgList.setKeyboardPagingPolicy(KeyboardPagingPolicy.INCREASE_RANGE);
@@ -63,11 +63,11 @@ public class TransactionList extends VerticalPanel {
 		this.add(sp);
 	}
 
-	public class TransactionCell extends AbstractCell<TransactionAndEntry> {
+	public class TransactionCell extends AbstractCell<TransactionAndEntryDTO> {
 
 		@Override
 		public void render(Context context,
-				TransactionAndEntry value, SafeHtmlBuilder sb) {
+				TransactionAndEntryDTO value, SafeHtmlBuilder sb) {
 			// Value can be null, so do a null check..
 			if (value == null) {
 				return;

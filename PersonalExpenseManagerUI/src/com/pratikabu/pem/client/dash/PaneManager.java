@@ -108,13 +108,13 @@ public class PaneManager {
 		
 	}
 
-	public static void updateBalance(FilteredTransactionListData result, int countOfTransactionEntries) {
+	public static void updateBalance(FilteredTransactionListData result) {
 		setInId(getTotalAmountHtml(result.getTotalInwadAmount()), "leftTotal");
 		setInId(getTotalAmountHtml(result.getTotalOutwardAmount()), "rightTotal");
 		
 		String entries = "Entr", transactions = "Transaction";
 		
-		if(countOfTransactionEntries > 1) {
+		if(result.getTransactionAndEntries().size() > 1) {
 			entries += "ies";
 		} else {
 			entries += "y";
@@ -126,7 +126,7 @@ public class PaneManager {
 		
 		HTML h = new HTML();
 		h.setStyleName(Constants.CSS_NORMAL_LABEL);
-		h.setText("Showing " + countOfTransactionEntries + " " + entries + " from " +
+		h.setText("Showing " + result.getTransactionAndEntries().size() + " " + entries + " from " +
 		result.getCount() + " " + transactions + ". This result is filtered.");
 		setInId(h, "tgCurrentName");
 	}

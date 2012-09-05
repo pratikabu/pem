@@ -145,12 +145,12 @@ public class SearchFacadeImpl implements SearchFacade {
 		if(-1 != startPosition) {
 			if(obj instanceof Query) {
 				Query query = (Query) obj;
-				query.setFetchSize(offset);
 				query.setFirstResult(startPosition);
+				query.setMaxResults(offset);
 			} else if(obj instanceof Criteria) {
 				Criteria criteria = (Criteria) obj;
-				criteria.setFetchSize(offset);
 				criteria.setFirstResult(startPosition);
+				criteria.setMaxResults(offset);
 			}
 		}
 	}
@@ -245,15 +245,16 @@ public class SearchFacadeImpl implements SearchFacade {
 
 	@Override
 	public <T> int getCount(Class<T> c, Map<String, Object> criteria, boolean customOperation) {
-		return ((Number)getProjection(c, criteria, null, SearchHelper.PROJECTION_COUNT, customOperation)).intValue();
+		return ((Number)getProjection(c, criteria, null, null, SearchHelper.PROJECTION_COUNT, customOperation)).intValue();
 	}
 	
 	@Override
-	public <T> Object getProjection(Class<T> c, Map<String, Object> criteria, String property, int projectionType, boolean customOperation) {
+	public <T> Object getProjection(Class<T> c, Map<String, Object> criteria, Map<String, String> alias,
+			String property, int projectionType, boolean customOperation) {
 		Session s = HibernateConfiguration.getFactory().getCurrentSession();
 		s.beginTransaction();
 		
-		Criteria cr = s.createCriteria(c);
+		Criteria cr = updateCriteriaWithAlias(s.createCriteria(c), alias);
 		
 		updateCriteriaWithCustomOpr(criteria, cr, customOperation);
 		
@@ -271,14 +272,27 @@ public class SearchFacadeImpl implements SearchFacade {
 		return obj;
 	}
 
+	private Criteria updateCriteriaWithAlias(Criteria cr,
+			Map<String, String> alias) {
+		if(null != alias) {
+			for(Entry<String, String> entry : alias.entrySet()) {
+				cr.createAlias(entry.getValue(), entry.getKey());
+			}
+		}
+		
+		return cr;
+	}
+
 	@Override
-	public <T> List<T> readAllObjects(Class<T> c, Map<String, Object> criteria, boolean customCriteria,
+	public <T> List<T> readAllObjects(Class<T> c, Map<String, Object> criteria, boolean customCriteria, Map<String, String> alias,
 			int startPosition, int offset, boolean loadLazyObjects, Map<String, Integer> orderBy) {
 		
 		Session s = HibernateConfiguration.getFactory().getCurrentSession();
 		s.beginTransaction();
 		
 		Criteria cr = s.createCriteria(c);
+		
+		updateCriteriaWithAlias(cr, alias);
 		
 		// add criteria
 		updateCriteriaWithCustomOpr(criteria, cr, customCriteria);

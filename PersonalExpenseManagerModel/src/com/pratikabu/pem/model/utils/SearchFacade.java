@@ -54,13 +54,15 @@ public interface SearchFacade {
 	 * Read all objects with the specified conditions.
 	 * @param c
 	 * @param criteria
+	 * @param customCriteria
+	 * @param alias
 	 * @param startPosition
 	 * @param offset
 	 * @param loadLazyObjects
 	 * @param orderBy
 	 * @return
 	 */
-	<T> List<T> readAllObjects(Class<T> c, Map<String, Object> criteria, boolean customCriteria, int startPosition, int offset,
+	<T> List<T> readAllObjects(Class<T> c, Map<String, Object> criteria, boolean customCriteria, Map<String, String> alias, int startPosition, int offset,
 			boolean loadLazyObjects , Map<String, Integer> orderBy);
 	
 	/**
@@ -88,10 +90,12 @@ public interface SearchFacade {
 	 * Apply any projection on the property which you've passed.
 	 * @param c
 	 * @param criteria
+	 * @param alias
 	 * @param property on which you want to apply the projection. Not always required.
 	 * @param projectionType See <code>SearchHelper.PROJECTION_*</code> properties.
 	 * @param customOperation
 	 * @return
 	 */
-	<T> Object getProjection(Class<T> c, Map<String, Object> criteria, String property, int projectionType, boolean customOperation);
+	<T> Object getProjection(Class<T> c, Map<String, Object> criteria, Map<String, String> alias,
+			String property, int projectionType, boolean customOperation);
 }

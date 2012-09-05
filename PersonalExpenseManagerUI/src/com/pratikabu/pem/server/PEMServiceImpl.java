@@ -26,6 +26,7 @@ import com.pratikabu.pem.shared.model.AccountDTO;
 import com.pratikabu.pem.shared.model.AccountTypeDTO;
 import com.pratikabu.pem.shared.model.FilterDTO;
 import com.pratikabu.pem.shared.model.FilteredTransactionListData;
+import com.pratikabu.pem.shared.model.TransactionAndEntryDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 import com.pratikabu.pem.shared.model.TransactionEntryDTO;
 import com.pratikabu.pem.shared.model.TransactionGroupDTO;
@@ -41,37 +42,41 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	@Override
 	public FilteredTransactionListData getAllTransactionsForGroupId(Long groupId, FilterDTO filter, int startPosition, int offset) {
 		FilteredTransactionListData ftd = new FilteredTransactionListData();
-		ArrayList<TransactionDTO> tdto = null;
+		ArrayList<TransactionAndEntryDTO> taedto = null;
 		
 		long uid = getCurrentUser(this.getThreadLocalRequest().getSession());
 		
 		Map<String, Object> criteria = new LinkedHashMap<String, Object>();
 		
+		Map<String, String> alias = new LinkedHashMap<String, String>();
+		alias.put("txn", "transaction");
+		alias.put("txnGroup", "transaction.transactionGroup");
+		
 		///////////// Pull Transactions
 		Map<String, Integer> orderBy = new LinkedHashMap<String, Integer>();
-		orderBy.put("creationDate", SearchHelper.ORDERBY_DESC);
+		orderBy.put("txn.creationDate", SearchHelper.ORDERBY_DESC);
 		
 		if(null != groupId) {
-			criteria.put("transactionGroup.txnGroupId,eq", groupId);
+			criteria.put("txnGroup.txnGroupId,eq", groupId);
 		} else {
 			// TODO write a code to fetch records from all the TransactionGroups
-			criteria.put("transactionGroup.user.uid,eq", uid);
+			criteria.put("txnGroup.user.uid,eq", uid);
 		}
 		
-		criteria.put("creationDate,ge", filter.getStartingDate());
-		criteria.put("creationDate,le", filter.getEndingDate());
+		criteria.put("txn.creationDate,ge", filter.getStartingDate());
+		criteria.put("txn.creationDate,le", filter.getEndingDate());
 		
 		if(0 < filter.getDirection()) {
-			criteria.put("entryType,eq", filter.getDirection());
+			criteria.put("txn.entryType,eq", filter.getDirection());
 		}
 		
-		List<TransactionTable> tTables = SearchHelper.getFacade().
-				readAllObjects(TransactionTable.class, criteria, true, startPosition, offset, true, orderBy);
+		List<TransactionEntry> tTables = SearchHelper.getFacade().
+				readAllObjects(TransactionEntry.class, criteria, true, alias, startPosition, offset, true, orderBy);
 		
 		if(null != tTables) {
-			tdto = new ArrayList<TransactionDTO>();
+			taedto = new ArrayList<TransactionAndEntryDTO>();
 			if(!tTables.isEmpty()) {
-				long tUid = tTables.get(0).getTransactionGroup().getUser().getUid();
+				long tUid = tTables.get(0).getTransaction().getTransactionGroup().getUser().getUid();
 				if(uid != tUid) {
 					logger.error("Request for unauthorized access from: " + uid +
 							"\nTrying to access Transactions of UID: " + tUid);
@@ -79,35 +84,41 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 				}
 			}
 			
-			for(TransactionTable tt : tTables) {
-				tdto.add(getTransactionDTO(tt));
+			for(TransactionEntry te : tTables) {
+				taedto.add(new TransactionAndEntryDTO(getTransactionDTO(SearchHelper.getFacade()
+						.readModelWithId(TransactionTable.class, te.getTransaction().getTxnId(), true)),
+						getTransactionEntryDTO(te)));
 			}
 		}
 		
-		ftd.setTransactions(tdto);
+		ftd.setTransactionAndEntries(taedto);
 		//////////// transaction pulling ends here
 		
+		// create alias for the hibernate query
 		//////////// get the total count of transactions
-		ftd.setCount(SearchHelper.getFacade().getCount(TransactionTable.class, criteria, true));
+		Number number = (Number)SearchHelper.getFacade().getProjection(
+				TransactionEntry.class, criteria, alias, null, SearchHelper.PROJECTION_COUNT, true);
+		if(null != number) {
+			ftd.setCount(number.intValue());
+		}
 		//////////// count of transactions ends here
 		
 		//////////// fetch the total amount
-//		Map<String, Object> cr2 = new LinkedHashMap<String, Object>();
-//		for(Entry<String, Object> entry : criteria.entrySet()) {
-//			String key = "transaction." + entry.getKey();
-//			cr2.put(key, entry.getValue());
-//		}
-//		
-//		cr2.remove("transaction.transactionGroup.txnGroupId,eq");
-//		
-//		////// inward amount
-//		cr2.put("transaction.entryType,eq", TransactionDTO.ET_INWARD_TG);
-//		System.out.println("Printing CRITERIA: " + cr2);
-//		System.out.println(SearchHelper.getFacade().getProjection(TransactionEntry.class, cr2, "amount", SearchHelper.PROJECTION_SUM, true));
-//		
-//		////// outward amount
-//		cr2.put("transaction.entryType,eq", TransactionDTO.ET_OUTWARD_TG);
-//		System.out.println(SearchHelper.getFacade().getProjection(TransactionEntry.class, cr2, "amount", SearchHelper.PROJECTION_SUM, true));
+		////// inward amount
+		criteria.put("txn.entryType,eq", TransactionDTO.ET_INWARD_TG);
+		Double amt = (Double) SearchHelper.getFacade().getProjection(TransactionEntry.class, criteria, alias, "amount", SearchHelper.PROJECTION_SUM, true);
+		if(null == amt) {
+			amt = 0d;
+		}
+		ftd.setTotalInwadAmount(amt);
+		
+		////// outward amount
+		criteria.put("txn.entryType,eq", TransactionDTO.ET_OUTWARD_TG);
+		amt = (Double)SearchHelper.getFacade().getProjection(TransactionEntry.class, criteria, alias, "amount", SearchHelper.PROJECTION_SUM, true);
+		if(null == amt) {
+			amt = 0d;
+		}
+		ftd.setTotalOutwardAmount(amt);
 		//////////// fetching total amount ends here
 		
 		return ftd;
@@ -117,17 +128,17 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	public TransactionDTO getTransactionDetail(Long transactionId) {
 		TransactionTable tt = SearchHelper.getFacade().readModelWithId(TransactionTable.class, transactionId, true);
 		
+		// check for userId is same or not
+		if(getCurrentUser(this.getThreadLocalRequest().getSession()) != tt.getTransactionGroup().getUser().getUid()) {
+			return null; // request for a transaction of a different user
+		}
+		
 		return getTransactionDTO(tt);
 	}
 
 	private TransactionDTO getTransactionDTO(TransactionTable tt) {
 		if(null == tt) {
 			return null;
-		}
-		
-		// check for userId is same or not
-		if(getCurrentUser(this.getThreadLocalRequest().getSession()) != tt.getTransactionGroup().getUser().getUid()) {
-			return null; // request for a transaction of a different user
 		}
 		
 		TransactionDTO d = new TransactionDTO();
@@ -453,7 +464,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		Map<String, Object> criteria = new LinkedHashMap<String, Object>();
 		criteria.put("pk.type", type);
 		
-		List<WebsiteData> wdList = SearchHelper.getFacade().readAllObjects(WebsiteData.class, criteria, false, -1, -1, false, null);
+		List<WebsiteData> wdList = SearchHelper.getFacade().readAllObjects(WebsiteData.class, criteria, false, null, -1, -1, false, null);
 		
 		LinkedHashMap<String, String> val = new LinkedHashMap<String, String>();
 		for(WebsiteData wd : wdList) {
@@ -498,7 +509,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		criteria.put("pk.type", SearchHelper.WSD_CURRENCY);
 		criteria.put("pk.code", setting.getCurrency());
 		
-		String meaning = SearchHelper.getFacade().readAllObjects(WebsiteData.class, criteria, false, -1, -1, false, null).get(0).getMeaning();
+		String meaning = SearchHelper.getFacade().readAllObjects(WebsiteData.class, criteria, false, null, -1, -1, false, null).get(0).getMeaning();
 		return meaning.substring(meaning.indexOf(" - ") + 3);
 	}
 	

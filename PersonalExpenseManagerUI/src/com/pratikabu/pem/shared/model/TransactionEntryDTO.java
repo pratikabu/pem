@@ -16,7 +16,7 @@ public class TransactionEntryDTO implements Serializable {
 	private AccountDTO inwardAccount, outwardAccount;
 	
 	private double amount;
-
+	
 	public long getTxnEntryId() {
 		return txnEntryId;
 	}
