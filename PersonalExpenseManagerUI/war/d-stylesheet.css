@@ -59,7 +59,7 @@ html, body {
 }
 
 /** The CSS for top menu */
-#cssmenu{ height:28px; display:block; padding:0; margin:0;  border:1px solid;} 
+#cssmenu, #cssmenuOuter{ height:28px; display:block; padding:0; margin:0;} 
 #cssmenu > ul {list-style:inside none; padding:0; margin:0;} 
 #cssmenu > ul > li {list-style:inside none; padding:0; margin:0; float:left; display:block; position:relative;} 
 #cssmenu > ul > li > a{ outline:none; display:block; position:relative; padding:8px 20px; font:bold 12px/100% Arial, Helvetica, sans-serif; text-align:center; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.4); }
@@ -76,8 +76,8 @@ html, body {
 #cssmenu ul li > ul li a{ outline:none; display:block; position:relative; margin:0; padding:8px 20px; font:10pt Arial, Helvetica, sans-serif; color:#fff; text-decoration:none; text-shadow:1px 1px 0 rgba(0,0,0, 0.5); } 
 
 
-#cssmenu, #cssmenu > ul > li > ul > li a:hover{ background:#e0541d; background:-moz-linear-gradient(top,  #e0541d 0%, #c23919 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#e0541d), color-stop(100%,#c23919)); background:-webkit-linear-gradient(top,  #e0541d 0%,#c23919 100%); background:-o-linear-gradient(top,  #e0541d 0%,#c23919 100%); background:-ms-linear-gradient(top,  #e0541d 0%,#c23919 100%); background:linear-gradient(top,  #e0541d 0%,#c23919 100%); filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#e0541d', endColorstr='#c23919',GradientType=0 ); } 
-#cssmenu{border-color:#912b14;} 
+#cssmenu, #cssmenuOuter, #cssmenu > ul > li > ul > li a:hover{ background:#e0541d; background:-moz-linear-gradient(top,  #e0541d 0%, #c23919 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#e0541d), color-stop(100%,#c23919)); background:-webkit-linear-gradient(top,  #e0541d 0%,#c23919 100%); background:-o-linear-gradient(top,  #e0541d 0%,#c23919 100%); background:-ms-linear-gradient(top,  #e0541d 0%,#c23919 100%); background:linear-gradient(top,  #e0541d 0%,#c23919 100%); filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#e0541d', endColorstr='#c23919',GradientType=0 ); } 
+#cssmenuOuter{border: 1px solid #912b14;} 
 #cssmenu > ul > li > a{border-right:1px solid #912b14; color:#fff;} 
 #cssmenu > ul > li > a:after{border-color:#ff723b;} 
 #cssmenu > ul > li > a:hover{background:#b03d18;}

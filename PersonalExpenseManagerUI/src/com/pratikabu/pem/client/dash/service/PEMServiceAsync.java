@@ -12,6 +12,7 @@ import com.pratikabu.pem.shared.model.AccountDTO;
 import com.pratikabu.pem.shared.model.AccountTypeDTO;
 import com.pratikabu.pem.shared.model.FilterDTO;
 import com.pratikabu.pem.shared.model.FilteredTransactionListData;
+import com.pratikabu.pem.shared.model.TransactionAndEntryDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 import com.pratikabu.pem.shared.model.UserSettingsDTO;
 
@@ -22,7 +23,7 @@ import com.pratikabu.pem.shared.model.UserSettingsDTO;
 public interface PEMServiceAsync {
 
 	void getAllTransactionsForGroupId(Long groupId, FilterDTO filter, int startPosition, int offset,
-			AsyncCallback<FilteredTransactionListData> callback);
+			AsyncCallback<ArrayList<TransactionAndEntryDTO>> callback);
 
 	void getTransactionDetail(Long transactionId,
 			AsyncCallback<TransactionDTO> callback);
@@ -49,5 +50,8 @@ public interface PEMServiceAsync {
 
 	void saveUserSettings(UserSettingsDTO dto,
 			AsyncCallback<Boolean> asyncCallback);
+
+	void getFilterInfo(Long transactionGroup, FilterDTO filter,
+			AsyncCallback<FilteredTransactionListData> asyncCallback);
 
 }

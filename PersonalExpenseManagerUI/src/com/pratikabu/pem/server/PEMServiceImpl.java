@@ -40,8 +40,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	private static final Logger logger = Logger.getLogger(PEMServiceImpl.class);
 
 	@Override
-	public FilteredTransactionListData getAllTransactionsForGroupId(Long groupId, FilterDTO filter, int startPosition, int offset) {
-		FilteredTransactionListData ftd = new FilteredTransactionListData();
+	public ArrayList<TransactionAndEntryDTO> getAllTransactionsForGroupId(Long groupId, FilterDTO filter, int startPosition, int offset) {
 		ArrayList<TransactionAndEntryDTO> taedto = null;
 		
 		long uid = getCurrentUser(this.getThreadLocalRequest().getSession());
@@ -91,11 +90,38 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 			}
 		}
 		
-		ftd.setTransactionAndEntries(taedto);
 		//////////// transaction pulling ends here
 		
-		// create alias for the hibernate query
-		//////////// get the total count of transactions
+		return taedto;
+	}
+
+	@Override
+	public FilteredTransactionListData getFilterInfo(Long transactionGroup,
+			FilterDTO filter) {
+		FilteredTransactionListData ftd = new FilteredTransactionListData();
+		
+		long uid = getCurrentUser(this.getThreadLocalRequest().getSession());
+		
+		Map<String, Object> criteria = new LinkedHashMap<String, Object>();
+		if(null != transactionGroup) {
+			criteria.put("txnGroup.txnGroupId,eq", transactionGroup);
+		} else {
+			// TODO write a code to fetch records from all the TransactionGroups
+			criteria.put("txnGroup.user.uid,eq", uid);
+		}
+		
+		criteria.put("txn.creationDate,ge", filter.getStartingDate());
+		criteria.put("txn.creationDate,le", filter.getEndingDate());
+		
+		if(0 < filter.getDirection()) {
+			criteria.put("txn.entryType,eq", filter.getDirection());
+		}
+		
+		Map<String, String> alias = new LinkedHashMap<String, String>();
+		alias.put("txn", "transaction");
+		alias.put("txnGroup", "transaction.transactionGroup");
+		
+		////////////get the total count of transactions
 		Number number = (Number)SearchHelper.getFacade().getProjection(
 				TransactionEntry.class, criteria, alias, null, SearchHelper.PROJECTION_COUNT, true);
 		if(null != number) {
@@ -120,7 +146,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		}
 		ftd.setTotalOutwardAmount(amt);
 		//////////// fetching total amount ends here
-		
+	
 		return ftd;
 	}
 
@@ -228,7 +254,9 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	public ArrayList<AccountDTO> getAllAccounts() {
 		ArrayList<AccountDTO> accounts = new ArrayList<AccountDTO>();
 		
-		for(Account a : SearchHelper.getFacade().getAccountsForUser(getCurrentUser(this.getThreadLocalRequest().getSession()), 0, 0, false)) {
+		List<Account> accs = SearchHelper.getFacade().
+				getAccountsForUser(getCurrentUser(this.getThreadLocalRequest().getSession()), -1, -1, false);
+		for(Account a : accs) {
 			AccountDTO ad = new AccountDTO();
 			ad.setAccountId(a.getAccountId());
 			ad.setAccountName(a.getAccName());

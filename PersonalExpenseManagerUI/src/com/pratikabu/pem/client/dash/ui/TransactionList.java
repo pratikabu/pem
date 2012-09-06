@@ -25,7 +25,7 @@ import com.pratikabu.pem.shared.model.TransactionEntryDTO;
  *
  */
 public class TransactionList extends VerticalPanel {
-	private CellList<TransactionAndEntryDTO> tgList;
+	private CellList<TransactionAndEntryDTO> tList;
 	
 	private Long transactionGroupId;
 	private Long actualTransactionGroupId;
@@ -39,26 +39,23 @@ public class TransactionList extends VerticalPanel {
 		this.setWidth("100%");
 		this.setHeight("100%");
 		
-		tgList = new CellList<TransactionAndEntryDTO>(new TransactionCell());
+		tList = new CellList<TransactionAndEntryDTO>(new TransactionCell());
 
-		tgList.setPageSize(30);
-		tgList.setKeyboardPagingPolicy(KeyboardPagingPolicy.INCREASE_RANGE);
-		tgList.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.BOUND_TO_SELECTION);
-		tgList.setLoadingIndicator(Utility.getLoadingWidget());
-		
-		TransactionDatabase.get().addDataDisplay(tgList);
+		tList.setKeyboardPagingPolicy(KeyboardPagingPolicy.INCREASE_RANGE);
+		tList.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.BOUND_TO_SELECTION);
+		tList.setLoadingIndicator(Utility.getLoadingWidget());
 		
 		CentralEventHandler.addListener(new TransactionUpdateListener() {
 			@Override
 			public void transactionUpdatedEvent(TransactionDTO dto, int action) {
 				ViewerDialog.get().close();
-				TransactionDatabase.get().refreshDisplays(null);
+				TransactionDatabase.get().fetchAndResetCounter();
 			}
 		} );
 	}
 
 	private void placeObjects() {
-		ScrollPanel sp = new ScrollPanel(tgList);
+		ScrollPanel sp = new ScrollPanel(tList);
 		sp.setHeight("100%");
 		this.add(sp);
 	}
@@ -150,14 +147,18 @@ public class TransactionList extends VerticalPanel {
 	public void showDataForTransactionGroup(Long transactionGroupId, String tgName) {
 		this.transactionGroupId = transactionGroupId;
 		this.actualTransactionGroupId = transactionGroupId;
-		TransactionDatabase.get().refreshDisplays(transactionGroupId);
+		TransactionDatabase.get().fetchAndResetCounter();
 		
 		if(null == transactionGroupId) {
 			this.transactionGroupId = TransactionGroupDatabase.get().getDefault().getId();
 		}
 		
-		if(null == tgName || -1 == transactionGroupId) {
-			tgName = TransactionGroupDatabase.get().getTGAll().getTgName();
-		}
+//		if(null == tgName || -1 == transactionGroupId) {
+//			tgName = TransactionGroupDatabase.get().getTGAll().getTgName();
+//		}
+	}
+
+	public CellList<TransactionAndEntryDTO> gettList() {
+		return tList;
 	}
 }

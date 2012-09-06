@@ -59,6 +59,7 @@ public class StaticJSFunctions {
 			PaneManager.createNewForm(TransactionDTO.ET_OUTWARD_TG);
 		} else if("tnig".equals(toBeOpened)) {
 			// open New iGot
+			PaneManager.createNewForm(TransactionDTO.ET_INWARD_TG);
 		} else if("tnis".equals(toBeOpened)) {
 			// open New iSaved
 		} else if("tnsal".equals(toBeOpened)) {

@@ -8,6 +8,8 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.pratikabu.pem.client.common.Constants;
 import com.pratikabu.pem.client.common.Utility;
+import com.pratikabu.pem.client.dash.components.PaginationManager;
+import com.pratikabu.pem.client.dash.ui.IGotFormPanel;
 import com.pratikabu.pem.client.dash.ui.IPaidFormPanel;
 import com.pratikabu.pem.client.dash.ui.TransactionList;
 import com.pratikabu.pem.client.dash.ui.TransactionReaderPanel;
@@ -22,6 +24,7 @@ import com.pratikabu.pem.shared.model.TransactionDTO;
 public class PaneManager {
 	private static TransactionReaderPanel trp;
 	private static IPaidFormPanel ipfp;
+	private static IGotFormPanel igfp;
 	private static TransactionList tList;
 	
 	public static TransactionList gettList() {
@@ -46,6 +49,13 @@ public class PaneManager {
 		return ipfp;
 	}
 
+	public static IGotFormPanel getIgfp() {
+		if(null == igfp) {
+			igfp = new IGotFormPanel();
+		}
+		return igfp;
+	}
+
 	public static void renderTransactionDetails(long txnId) {
 		getTrp().renderRecord(txnId);
 	}
@@ -53,10 +63,8 @@ public class PaneManager {
 	public static void renderTransaction(TransactionDTO dto) {
 		if(null == dto) {
 			ViewerDialog.get().close();
-		} else if(TransactionDTO.ET_OUTWARD_TG == dto.getEntryType()) {
-			getTrp().renderRecord(dto);
 		} else {
-			
+			getTrp().renderRecord(dto);
 		}
 	}
 	
@@ -64,15 +72,15 @@ public class PaneManager {
 		if(TransactionDTO.ET_OUTWARD_TG == entryType) {
 			getIpfp().renderRecord(txnId);
 		} else if(TransactionDTO.ET_INWARD_TG == entryType) {
-			
+			getIgfp().renderRecord(txnId);
 		}
 	}
 	
 	public static void editTransaction(TransactionDTO dto) {
 		if(TransactionDTO.ET_OUTWARD_TG == dto.getEntryType()) {
 			getIpfp().renderRecord(dto);
-		} else {
-			
+		} else if(TransactionDTO.ET_INWARD_TG == dto.getEntryType()) {
+			getIgfp().renderRecord(dto);
 		}
 	}
 	
@@ -83,6 +91,8 @@ public class PaneManager {
 	public static void createNewForm(int entryType) {
 		if(TransactionDTO.ET_OUTWARD_TG == entryType) {
 			getIpfp().renderRecord(null);
+		} else if(TransactionDTO.ET_INWARD_TG == entryType) {
+			getIgfp().renderRecord(null);
 		}
 	}
 	
@@ -109,25 +119,25 @@ public class PaneManager {
 	}
 
 	public static void updateBalance(FilteredTransactionListData result) {
+		int count = result.getCount();
+		
+		PaginationManager.get().getPager().setTotalPageCount(count, PaginationManager.get().getMaxResultCount());
+		
 		setInId(getTotalAmountHtml(result.getTotalInwadAmount()), "leftTotal");
 		setInId(getTotalAmountHtml(result.getTotalOutwardAmount()), "rightTotal");
 		
-		String entries = "Entr", transactions = "Transaction";
+		String entries = "Transaction Entr";
 		
-		if(result.getTransactionAndEntries().size() > 1) {
+		if(count > 1) {
 			entries += "ies";
 		} else {
 			entries += "y";
 		}
 		
-		if(result.getCount() > 1) {
-			transactions += "s";
-		}
-		
 		HTML h = new HTML();
 		h.setStyleName(Constants.CSS_NORMAL_LABEL);
-		h.setText("Showing " + result.getTransactionAndEntries().size() + " " + entries + " from " +
-		result.getCount() + " " + transactions + ". This result is filtered.");
+		h.setText("Filtered " +
+				count + " " + entries + " as per the conditions. Click on 'Filter' button to change.");
 		setInId(h, "tgCurrentName");
 	}
 

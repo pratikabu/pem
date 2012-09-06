@@ -5,14 +5,14 @@ package com.pratikabu.pem.client.dash.components;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.cellview.client.SimplePager;
-import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.PaneManager;
+import com.pratikabu.pem.client.dash.ui.PaginationPanel;
+import com.pratikabu.pem.client.dash.ui.PaginationPanel.PaginationHandler;
 
 /**
  * @author pratsoni
@@ -21,9 +21,10 @@ import com.pratikabu.pem.client.dash.PaneManager;
 public class PaginationManager {
 	private static PaginationManager pm;
 	
-	private SimplePager pager;
+	private PaginationPanel pager;
 	
 	private int maxResultCount = 10;
+	private int endPos;
 	
 	public static PaginationManager get() {
 		if(null == pm) {
@@ -48,11 +49,21 @@ public class PaginationManager {
 			@Override
 			public void onChange(ChangeEvent event) {
 				maxResultCount = Integer.parseInt(maxResultBox.getValue(maxResultBox.getSelectedIndex()));
-				TransactionDatabase.get().refreshDisplays(null);
+				pager.setElementsPerPageCount(maxResultCount);
 			}
 		});
 		
-		pager = new SimplePager(TextLocation.CENTER);
+		pager = new PaginationPanel(new PaginationHandler() {
+			@Override
+			public void renderPaginatedObjects(int start, int count) {
+				start--;
+				if(-1 == start) {
+					return;
+				}
+				TransactionDatabase.get().fetchTransactionsAndShow(start, count);
+				pager.refreshLinks();
+			}
+		});
 		PaneManager.setInId(pager, "idPagination");
 		
 		HorizontalPanel hp = new HorizontalPanel();
@@ -65,11 +76,19 @@ public class PaginationManager {
 		PaneManager.setInId(hp, "idPagination");
 	}
 
-	public SimplePager getPager() {
+	public PaginationPanel getPager() {
 		return pager;
 	}
 
 	public int getMaxResultCount() {
 		return maxResultCount;
+	}
+
+	public int getEndPos() {
+		return endPos;
+	}
+
+	public void setEndPos(int endPos) {
+		this.endPos = endPos;
 	}
 }

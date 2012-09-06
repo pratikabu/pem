@@ -2,7 +2,6 @@ package com.pratikabu.pem.client.dash.ui;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.google.gwt.dom.client.Style.Unit;
@@ -12,9 +11,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
@@ -30,11 +26,8 @@ import com.pratikabu.pem.client.dash.components.AccountTypeDatabase;
 import com.pratikabu.pem.client.dash.components.AccountsDatabase;
 import com.pratikabu.pem.client.dash.components.AccountsDatabase.AccountsLoadingDoneListener;
 import com.pratikabu.pem.client.dash.components.AmountTextBox;
-import com.pratikabu.pem.client.dash.components.AmountTextBox.AmountChangeListener;
 import com.pratikabu.pem.client.dash.components.CentralEventHandler;
 import com.pratikabu.pem.client.dash.components.LengthConstraintTextBox;
-import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase;
-import com.pratikabu.pem.client.dash.components.PaymentDistributionDatabase.Data;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
 import com.pratikabu.pem.shared.model.AccountDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
@@ -47,13 +40,9 @@ public class IGotFormPanel extends VerticalPanel implements DetailPaneable {
 	
 	private LengthConstraintTextBox transactionName;
 	private AmountTextBox amountBox;
-	private ListBox paymentSource;
+	private ListBox paymentToList, accountFromList;
 	private DateBox transactionDate;
 	private TextArea notes;
-	
-	private PaymentDistributionPanel pdp;
-	
-	private ListBox tagList;
 	
 	private Button save, cancel;
 	
@@ -67,7 +56,7 @@ public class IGotFormPanel extends VerticalPanel implements DetailPaneable {
 		
 		ft = new FlexTable();
 		ft.setCellSpacing(15);
-		Utility.updateNameAndId(this, "iPaidFormContainer");
+		Utility.updateNameAndId(this, "iGotFormContainer");
 		
 		final String width = "280px";
 		int tabIndex = 1;
@@ -82,36 +71,30 @@ public class IGotFormPanel extends VerticalPanel implements DetailPaneable {
 		transactionName.setWidth(width);
 		transactionName.setTabIndex(tabIndex++);
 		
+		String widhtList = "290px";
+		
+		accountFromList = Utility.getListBox(false);
+		accountFromList.setWidth(widhtList);
+		Utility.updateNameAndId(accountFromList, "accountFrom");
+		populateAccountFrom();
+		accountFromList.setTabIndex(tabIndex++);
+		
+		paymentToList = Utility.getListBox(false);
+		paymentToList.setWidth(widhtList);
+		Utility.updateNameAndId(paymentToList, "paymentTo");
+		populateAccountIn();
+		paymentToList.setTabIndex(tabIndex++);
+		
 		amountBox = new AmountTextBox(false);
 		Utility.updateNameAndId(amountBox, "amount");
 		amountBox.setWidth(width);
 		amountBox.setTabIndex(tabIndex++);
-		amountBox.setAmountChangeListener(new AmountChangeListener() {
-			@Override
-			public void amountChanged(Double newValue) {
-				pdp.distributeEqualAmount();
-			}
-		});
 		
 		notes = Utility.getTextArea();
 		Utility.updateNameAndId(notes, "notes");
-		notes.setWidth("270px");
-		notes.setHeight("100%");
+		notes.setWidth(width);
+		notes.setHeight("70px");
 		notes.setTabIndex(tabIndex++);
-		
-		paymentSource = Utility.getListBox(false);
-		paymentSource.setWidth(width);
-		Utility.updateNameAndId(paymentSource, "paymentSource");
-		populatePaymentMode();
-		paymentSource.setTabIndex(tabIndex++);
-		
-		tagList = Utility.getListBox(true);
-		tagList.setHeight("200px");
-		Utility.updateNameAndId(tagList, "transactionTags");
-		populateTagList();
-		tagList.setTabIndex(tabIndex++);
-		
-		pdp = new PaymentDistributionPanel(PaymentDistributionPanel.TYPE_IPAID);
 		
 		save = Utility.getActionButton("Save");
 		save.getElement().getStyle().setFontSize(12, Unit.PX);
@@ -168,23 +151,23 @@ public class IGotFormPanel extends VerticalPanel implements DetailPaneable {
 				}
 				
 				if(CentralEventHandler.ACTION_CREATED == action) {
-					paymentSource.addItem(dto.getAccountName(), dto.getAccountId() + "");
+					paymentToList.addItem(dto.getAccountName(), dto.getAccountId() + "");
 				} else if(CentralEventHandler.ACTION_EDITED == action) {
-					for(int i = 0; i < paymentSource.getItemCount(); i++) {
-						if(paymentSource.getValue(i).equals(dto.getAccountId() + "")) {
-							paymentSource.setItemText(i, dto.getAccountName());
+					for(int i = 0; i < paymentToList.getItemCount(); i++) {
+						if(paymentToList.getValue(i).equals(dto.getAccountId() + "")) {
+							paymentToList.setItemText(i, dto.getAccountName());
 						}
 					}
 				} else if(CentralEventHandler.ACTION_DELETED == action) {
 					int index = -1;
-					for(int i = 0; i < paymentSource.getItemCount(); i++) {
-						if(paymentSource.getValue(i).equals(dto.getAccountId() + "")) {
+					for(int i = 0; i < paymentToList.getItemCount(); i++) {
+						if(paymentToList.getValue(i).equals(dto.getAccountId() + "")) {
 							index = i;
 							break;
 						}
 					}
 					
-					paymentSource.removeItem(index);
+					paymentToList.removeItem(index);
 				}
 			}
 		});
@@ -216,25 +199,6 @@ public class IGotFormPanel extends VerticalPanel implements DetailPaneable {
 			md.println(amountBox.getErrorMessage());
 		}
 		
-		List<Data> dataList = PaymentDistributionDatabase.get().getDataProvider().getList();
-		
-		if(dataList.isEmpty()) {
-			valid = false;
-			md.println("- There should be atleast one transaction entry for the amount distribution.");
-		} else {
-			double totalAmount = 0d;
-			for(Data d : dataList) {
-				totalAmount += d.getAmount();
-			}
-			
-			if(totalAmount != amountBox.getAmount()) {
-				valid = false;
-				md.print("- The amount is not distributed. There is a difference of ");
-				md.println(Utility.getPrintableAmountWithSign(OneTimeDataManager.getOTD().getCurrecnySymbol(),
-						(amountBox.getAmount() - totalAmount)));
-			}
-		}
-		
 		if(amountBox.getAmount() == 0) {
 			valid = false;
 			md.println("- Amount should be more than 0.00");
@@ -255,7 +219,7 @@ public class IGotFormPanel extends VerticalPanel implements DetailPaneable {
 		dp.setVerticalAlignment(ALIGN_MIDDLE);
 		
 		dp.setHorizontalAlignment(ALIGN_LEFT);
-		Label lb = Utility.getLabel("iPaid Form", Constants.CSS_FORM_HEADING);
+		Label lb = Utility.getLabel("iGot Form", Constants.CSS_FORM_HEADING);
 		lb.getElement().getStyle().setPaddingLeft(5, Unit.PX);
 		dp.add(lb, DockPanel.WEST);
 		dp.setHorizontalAlignment(ALIGN_RIGHT);
@@ -264,43 +228,25 @@ public class IGotFormPanel extends VerticalPanel implements DetailPaneable {
 		
 		/////////////////////////////////////////////// CENTER
 		
-		FlexCellFormatter cellFormatter = ft.getFlexCellFormatter();
 		int row = -1;
 		
 		ft.setWidget(++row, 0, Utility.getLabel("Date"));
 		ft.setWidget(row, 1, transactionDate);
 		
-		ft.setWidget(row, 2, Utility.getLabel("Notes"));
-		ft.setWidget(row, 3, notes);
-		cellFormatter.setRowSpan(row, 3, 2);
-		cellFormatter.setVerticalAlignment(row, 3, HasVerticalAlignment.ALIGN_TOP);
-		
 		ft.setWidget(++row, 0, Utility.getLabel("Name"));
 		ft.setWidget(row, 1, transactionName);
+		
+		ft.setWidget(++row, 0, Utility.getLabel("From"));
+		ft.setWidget(row, 1, accountFromList);
+		
+		ft.setWidget(++row, 0, Utility.getLabel("In"));
+		ft.setWidget(row, 1, paymentToList);
 		
 		ft.setWidget(++row, 0, Utility.getLabel(OneTimeDataManager.getOTD().getCurrecnySymbol()));
 		ft.setWidget(row, 1, amountBox);
 		
-		ft.setWidget(row, 2, Utility.getLabel("From"));
-		ft.setWidget(row, 3, paymentSource);
-		
-		ft.setWidget(++row, 0, Utility.getLabel("Paid to:"));
-		cellFormatter.setColSpan(row, 0, 2);
-		cellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_LEFT);
-		ft.setWidget(row, 1, Utility.getLabel("Tags (Tags help you associate your expense):"));
-		cellFormatter.setColSpan(row, 1, 2);
-		cellFormatter.setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		
-		//////////////////add more people
-		ft.setWidget(++row, 0, pdp);
-		cellFormatter.setColSpan(row, 0, 2);
-		cellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_LEFT);
-		
-		// add tags
-		ft.setWidget(row, 2, tagList);
-//		cellFormatter.setColSpan(row, 2, 2);
-		cellFormatter.setHorizontalAlignment(row, 2, HasHorizontalAlignment.ALIGN_LEFT);
-		cellFormatter.setVerticalAlignment(row, 2, HasVerticalAlignment.ALIGN_TOP);
+		ft.setWidget(++row, 0, Utility.getLabel("Notes"));
+		ft.setWidget(row, 1, notes);
 		
 		this.add(ft);
 	}
@@ -339,27 +285,31 @@ public class IGotFormPanel extends VerticalPanel implements DetailPaneable {
 			this.amountBox.setAmount(dto.getTotalAmount());
 			this.notes.setText(dto.getNotes());
 			
-			for(String tag : dto.getSelectedTags()) {
-				for(int i = 0; i < tagList.getItemCount(); i++) {
-					if(tag.equals(tagList.getValue(i))) {
-						tagList.setItemSelected(i, true);
-					}
-				}
-			}
-			
+			// select outward account
 			if(!dto.getTransactionEntries().isEmpty()) {
-				AccountDTO outAcc =  dto.getTransactionEntries().get(0).getOutwardAccount();
-				for(int i = 0; i < paymentSource.getItemCount(); i++) {
-					if((outAcc.getAccountId() + "").equals(paymentSource.getValue(i))) {
-						paymentSource.setSelectedIndex(i);
+				AccountDTO inAcc =  dto.getTransactionEntries().get(0).getOutwardAccount();
+				for(int i = 0; i < accountFromList.getItemCount(); i++) {
+					if((inAcc.getAccountId() + "").equals(accountFromList.getValue(i))) {
+						accountFromList.setSelectedIndex(i);
 						break;
 					}
 				}
 			} else {
-				paymentSource.setSelectedIndex(0);
+				accountFromList.setSelectedIndex(0);
 			}
 			
-			pdp.updateData(getLinkedHashMap());
+			// select inward account
+			if(!dto.getTransactionEntries().isEmpty()) {
+				AccountDTO outAcc =  dto.getTransactionEntries().get(0).getInwardAccount();
+				for(int i = 0; i < paymentToList.getItemCount(); i++) {
+					if((outAcc.getAccountId() + "").equals(paymentToList.getValue(i))) {
+						paymentToList.setSelectedIndex(i);
+						break;
+					}
+				}
+			} else {
+				paymentToList.setSelectedIndex(0);
+			}
 		} else {
 			dto = new TransactionDTO();
 			dto.getSelectedTags().add("General");
@@ -367,45 +317,28 @@ public class IGotFormPanel extends VerticalPanel implements DetailPaneable {
 			dto.setName("");
 			dto.setAmount(0);
 			dto.setNotes("");
-			dto.setEntryType(TransactionDTO.ET_OUTWARD_TG);
+			dto.setEntryType(TransactionDTO.ET_INWARD_TG);
 			
 			populateData();// call itself to render the data
-			
-			// set Myself as default entry
-			AccountsDatabase.get().loadAccountsData(new AccountsLoadingDoneListener() {
-				@Override
-				public void accountsLoadingDone() {
-					Data d = new Data();
-					d.setAccount(AccountsDatabase.get().getMyself());
-					d.setAmount(amountBox.getAmount());
-					PaymentDistributionDatabase.get().addData(d);
-				}
-			});
 		}
 	}
 
-	private LinkedHashMap<AccountDTO, Double> getLinkedHashMap() {
-		LinkedHashMap<AccountDTO, Double> map = new LinkedHashMap<AccountDTO, Double>();
-		
-		if(null != dto) {
-			for(TransactionEntryDTO ted : dto.getTransactionEntries()) {
-				map.put(ted.getInwardAccount(), ted.getAmount());
-			}
-		}
-		
-		return map;
-	}
-
-	private void populateTagList() {
-		for(String tag : OneTimeDataManager.getOTD().getTags()) {
-			tagList.addItem(tag);
-		}
-	}
-
-	private void populatePaymentMode() {
+	private void populateAccountIn() {
 		for(AccountDTO a : OneTimeDataManager.getOTD().getUserSpecificPayableAccounts()) {
-			paymentSource.addItem(a.getAccountName(), a.getAccountId() + "");
+			paymentToList.addItem(a.getAccountName(), a.getAccountId() + "");
 		}
+	}
+
+	private void populateAccountFrom() {
+		AccountsDatabase.get().loadAccountsData(new AccountsLoadingDoneListener() {
+			@Override
+			public void accountsLoadingDone() {
+				List<AccountDTO> accs = AccountsDatabase.get().getAccountsOfType(AccountTypeDatabase.AT_PERSON, AccountTypeDatabase.AT_OTHER);
+				for(AccountDTO a : accs) {
+					accountFromList.addItem(a.getAccountName(), a.getAccountId() + "");
+				}
+			}
+		});
 	}
 	
 	public double getAmount() {
@@ -417,17 +350,11 @@ public class IGotFormPanel extends VerticalPanel implements DetailPaneable {
 		dto.setNotes(notes.getText());
 		dto.setDate(transactionDate.getValue());
 		// save payment mode
-		AccountDTO outward = AccountsDatabase.get().getAccount(
-				Long.parseLong(paymentSource.getValue(paymentSource.getSelectedIndex())));
+		AccountDTO inward = AccountsDatabase.get().getAccount(
+				Long.parseLong(paymentToList.getValue(paymentToList.getSelectedIndex())));
 		
-		// save tags
-		ArrayList<String> tags = new ArrayList<String>();
-		for(int i = 0; i < tagList.getItemCount(); i++) {
-			if(tagList.isItemSelected(i)) {
-				tags.add(tagList.getValue(i));
-			}
-		}
-		dto.setSelectedTags(tags);
+		AccountDTO outward = AccountsDatabase.get().getAccount(
+				Long.parseLong(accountFromList.getValue(accountFromList.getSelectedIndex())));
 		
 		if(0 >= dto.getTransactionId()) {
 			dto.setGroupId(PaneManager.gettList().getTransactionGroupId());
@@ -435,14 +362,13 @@ public class IGotFormPanel extends VerticalPanel implements DetailPaneable {
 		
 		// copy distribution
 		ArrayList<TransactionEntryDTO> tes = new ArrayList<TransactionEntryDTO>();
-		for(Data d : PaymentDistributionDatabase.get().getDataProvider().getList()) {
-			TransactionEntryDTO ted = new TransactionEntryDTO();
-			ted.setAmount(d.getAmount());
-			ted.setInwardAccount(d.getAccount());
-			ted.setOutwardAccount(outward);
-			
-			tes.add(ted);
-		}
+		
+		TransactionEntryDTO ted = new TransactionEntryDTO();
+		ted.setAmount(amountBox.getAmount());
+		ted.setInwardAccount(inward);
+		ted.setOutwardAccount(outward);
+		
+		tes.add(ted);
 		
 		dto.setTransactionEntries(tes);
 	}

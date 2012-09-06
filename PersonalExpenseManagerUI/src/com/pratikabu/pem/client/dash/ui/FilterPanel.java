@@ -23,7 +23,7 @@ import com.pratikabu.pem.shared.model.TransactionDTO;
 public class FilterPanel extends VerticalPanel {
 	private static FilterPanel filterPanel;
 	
-	private FilterDTO filter;
+	private static FilterDTO filter;
 	
 	private FlexTable ft;
 	
@@ -35,7 +35,6 @@ public class FilterPanel extends VerticalPanel {
 	public static FilterPanel get() {
 		if(null == filterPanel) {
 			filterPanel = new FilterPanel();
-			filterPanel.initFilter();
 		}
 		
 		filterPanel.populateFilterData();
@@ -85,7 +84,7 @@ public class FilterPanel extends VerticalPanel {
 				}
 				completeTransactionData();
 				
-				TransactionDatabase.get().refreshDisplays(null);
+				TransactionDatabase.get().fetchAndResetCounter();
 				ViewerDialog.get().close();
 			}
 		});
@@ -182,7 +181,7 @@ public class FilterPanel extends VerticalPanel {
 		}
 	}
 
-	private void initFilter() {
+	private static void initFilter() {
 		filter = new FilterDTO();
 		
 		Date startingDate = new Date();
@@ -195,7 +194,10 @@ public class FilterPanel extends VerticalPanel {
 		filter.setDirection(-1);
 	}
 
-	public FilterDTO getFilter() {
+	public static FilterDTO getFilter() {
+		if(null == filter) {
+			initFilter();
+		}
 		return filter;
 	}
 

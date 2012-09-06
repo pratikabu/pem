@@ -152,21 +152,21 @@ public class AccountsDatabase {
 		});
 	}
 	
-	public List<AccountDTO> getAccountsOfType(String accountType) {
-		if(AccountTypeDatabase.AT_ALL.equals(accountType)) {
-			return data;
-		}
-		
+	public List<AccountDTO> getAccountsOfType(String... accountTypes) {
 		List<AccountDTO> l = new ArrayList<AccountDTO>();
-		
-		if(null != accountType) {
-			for(AccountDTO a : data) {
-				if(accountType.equals(a.getAccountType())) {
-					l.add(a);
+		for(String atype : accountTypes) {
+			if(AccountTypeDatabase.AT_ALL.equals(atype)) {
+				return data;
+			}
+			
+			if(null != atype) {
+				for(AccountDTO a : data) {
+					if(atype.equals(a.getAccountType())) {
+						l.add(a);
+					}
 				}
 			}
 		}
-		
 		return l;
 	}
 	

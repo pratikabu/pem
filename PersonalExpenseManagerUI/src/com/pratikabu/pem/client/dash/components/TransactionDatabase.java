@@ -16,12 +16,11 @@
 
 package com.pratikabu.pem.client.dash.components;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.view.client.HasData;
-import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.pratikabu.pem.client.common.Utility;
 import com.pratikabu.pem.client.dash.PaneManager;
@@ -36,6 +35,8 @@ import com.pratikabu.pem.shared.model.TransactionDTO;
  * The data source for contact information used in the sample.
  */
 public class TransactionDatabase {
+	
+	private List<TransactionAndEntryDTO> dataList;
 
 	public static final ProvidesKey<TransactionAndEntryDTO> KEY_PROVIDER = new ProvidesKey<TransactionAndEntryDTO>() {
 		@Override
@@ -62,55 +63,42 @@ public class TransactionDatabase {
 	}
 
 	/**
-	 * The provider that holds the list of contacts in the database.
-	 */
-	private ListDataProvider<TransactionAndEntryDTO> dataProvider = new ListDataProvider<TransactionAndEntryDTO>();
-
-	/**
-	 * Add a new contact.
-	 * 
-	 * @param contact
-	 *            the contact to add.
-	 */
-	public void addTransactionEntry(TransactionAndEntryDTO contact) {
-		List<TransactionAndEntryDTO> contacts = dataProvider.getList();
-		// Remove the contact first so we don't add a duplicate.
-		contacts.remove(contact);
-		contacts.add(contact);
-	}
-
-	/**
-	 * Add a display to the database. The current range of interest of the
-	 * display will be populated with data.
-	 * @param display a {@Link HasData}.
-	 */
-	public void addDataDisplay(HasData<TransactionAndEntryDTO> display) {
-		dataProvider.addDataDisplay(display);
-	}
-
-	/**
 	 * Refresh all displays.
 	 */
-	public void refreshDisplays(Long transactionGroup) {
-		if(null == transactionGroup || -1L == transactionGroup) {
-			transactionGroup = null;
-			// assign the default transaction group
-			transactionGroup = TransactionGroupDatabase.get().getDefault().getId();
-		}
+	public void fetchAndResetCounter() {
+		Long transactionGroup = TransactionGroupDatabase.get().getDefault().getId();
 		
-		ServiceHelper.getPemservice().getAllTransactionsForGroupId(transactionGroup,
-				FilterPanel.get().getFilter(), 0, PaginationManager.get().getMaxResultCount(),
+		ServiceHelper.getPemservice().getFilterInfo(transactionGroup, FilterPanel.getFilter(),
 				new AsyncCallback<FilteredTransactionListData>() {
 			@Override
 			public void onSuccess(FilteredTransactionListData result) {
-				List<TransactionAndEntryDTO> tes = result.getTransactionAndEntries();
-				dataProvider.setList(tes);
-				dataProvider.refresh();
 				PaneManager.updateBalance(result);
 			}
 			
 			@Override
 			public void onFailure(Throwable caught) {
+				Utility.alert("Error fetching transactions");
+			}
+		});
+	}
+	
+	public void fetchTransactionsAndShow(int start, int offset) {
+		long transactionGroup = TransactionGroupDatabase.get().getDefault().getId();
+		
+		PaneManager.showLoading();
+		ServiceHelper.getPemservice().getAllTransactionsForGroupId(transactionGroup, FilterPanel.getFilter(), start, offset,
+				new AsyncCallback<ArrayList<TransactionAndEntryDTO>>() {
+			@Override
+			public void onSuccess(ArrayList<TransactionAndEntryDTO> result) {
+				dataList = result;
+				PaneManager.gettList().gettList().setRowData(dataList);
+				
+				PaneManager.hideLoading();
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				PaneManager.hideLoading();
 				Utility.alert("Error fetching transactions");
 			}
 		});
@@ -154,8 +142,7 @@ public class TransactionDatabase {
 	}
 	
 	public TransactionDTO getTransactionDTO(long txnId) {
-		List<TransactionAndEntryDTO> data = dataProvider.getList();
-		for(TransactionAndEntryDTO tae : data) {
+		for(TransactionAndEntryDTO tae : dataList) {
 			if(txnId == tae.getTransaction().getTransactionId()) {
 				return tae.getTransaction();
 			}

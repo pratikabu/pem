@@ -13,6 +13,7 @@ import com.pratikabu.pem.shared.model.AccountDTO;
 import com.pratikabu.pem.shared.model.AccountTypeDTO;
 import com.pratikabu.pem.shared.model.FilterDTO;
 import com.pratikabu.pem.shared.model.FilteredTransactionListData;
+import com.pratikabu.pem.shared.model.TransactionAndEntryDTO;
 import com.pratikabu.pem.shared.model.TransactionDTO;
 import com.pratikabu.pem.shared.model.UserSettingsDTO;
 
@@ -27,7 +28,7 @@ public interface PEMService extends RemoteService {
 	 * @param groupId if it is null then all the transactions for the user will be fetched
 	 * @return
 	 */
-	FilteredTransactionListData getAllTransactionsForGroupId(Long groupId, FilterDTO filter, int startPosition, int offset);
+	ArrayList<TransactionAndEntryDTO> getAllTransactionsForGroupId(Long groupId, FilterDTO filter, int startPosition, int offset);
 	
 	TransactionDTO getTransactionDetail(Long transactionId);
 	
@@ -50,4 +51,7 @@ public interface PEMService extends RemoteService {
 	UserSettingsDTO fetchUserSettings();
 
 	boolean saveUserSettings(UserSettingsDTO dto);
+
+	FilteredTransactionListData getFilterInfo(Long transactionGroup,
+			FilterDTO filter);
 }
