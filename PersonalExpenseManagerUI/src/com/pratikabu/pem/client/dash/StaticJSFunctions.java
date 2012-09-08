@@ -78,7 +78,7 @@ public class StaticJSFunctions {
 		// third menu for Tools
 		else if("toaccsetting".equals(toBeOpened)) {
 			// open Account Settings
-			ViewerDialog.showWidget(UserSettingsPanel.get(), "Hello");
+			ViewerDialog.showWidget(UserSettingsPanel.get(), "User specific settings");
 		} else if("toart".equals(toBeOpened)) {
 			// open Add Recursive Transaction
 		} else if("todtg".equals(toBeOpened)) {

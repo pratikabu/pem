@@ -347,4 +347,11 @@ public class CountryCurrencyDataLoad {
 		
 		SearchHelper.getFacade().saveModel(tobesaved.toArray());
 	}
+	
+	public static void main(String[] args) {
+		for(Entry<String, String> entry : currMap.entrySet()) {
+			String str = "INSERT INTO WebsiteData(code, type, meaning) VALUES('" + entry.getKey() + "', 2, '" + entry.getValue() + "');";
+			System.out.println(str);
+		}
+	}
 }

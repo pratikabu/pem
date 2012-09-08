@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.pratikabu.pem.model.PEMUser;
 import com.pratikabu.pem.model.utils.SearchHelper;
 import com.pratikabu.pem.server.PEMSecurity;
 
@@ -31,8 +32,11 @@ public class LoginServlet extends HttpServlet {
 		
 		String encEmail = PEMSecurity.encrypt(request.getParameter("email"));
 		String encPass = PEMSecurity.hashData(request.getParameter("password"));
-		if(SearchHelper.getFacade().isValidUser(encEmail, encPass)) {
-			response.getWriter().print("proceed.jsp");
+		
+		PEMUser user = SearchHelper.getFacade().getUserInfoFromEmail(encEmail);
+		if(null != user && encPass.equals(user.getPassword())) {
+			request.getSession().setAttribute("userId", user.getUid());
+			response.getWriter().print("/Dashboard.html");
 		} else {
 			response.getWriter().print("INVALID");
 		}

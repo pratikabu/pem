@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.pratikabu.pem.client.common.Constants;
 import com.pratikabu.pem.client.common.MessageDialog;
 import com.pratikabu.pem.client.common.Utility;
+import com.pratikabu.pem.client.dash.DashboardEntryPoint;
 import com.pratikabu.pem.client.dash.service.ServiceHelper;
 import com.pratikabu.pem.shared.model.UserSettingsDTO;
 
@@ -91,9 +92,13 @@ public class UserSettingsPanel extends VerticalPanel implements DetailPaneable {
 
 					@Override
 					public void onSuccess(Boolean result) {
+						Utility.alert("Settings saved succussfully.");
 						if(result) {
-							Utility.alert("Settings saved succussfully.");
-							ViewerDialog.get().close();
+							if(DashboardEntryPoint.isShowAccountInitBox()) {
+								Utility.navigateRelative("Dashboard.jsp");
+							} else {
+								ViewerDialog.get().close();
+							}
 						}
 					}
 				});

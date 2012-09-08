@@ -17,6 +17,7 @@ import com.pratikabu.pem.model.AccountType;
 import com.pratikabu.pem.model.PEMUser;
 import com.pratikabu.pem.model.TransactionGroup;
 import com.pratikabu.pem.model.utils.SearchHelper;
+import com.pratikabu.pem.model.utils.TestCompound;
 import com.pratikabu.pem.server.PEMSecurity;
 import com.pratikabu.pem.server.PEMServiceImpl;
 import com.pratikabu.pem.server.ServerSideHelper;
@@ -33,6 +34,14 @@ public class ProcessRegisterUserServlet extends HttpServlet {
     public ProcessRegisterUserServlet() {
         super();
     }
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		if(null != req.getParameter("initialize")) {
+			TestCompound.main(null);
+		}
+	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
@@ -52,16 +61,24 @@ public class ProcessRegisterUserServlet extends HttpServlet {
 
 	private void createNewUser(HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
+		// check whether this email is already registered or not.
+		String encEmail = PEMSecurity.encrypt(request.getParameter("email"));
+		PEMUser user = SearchHelper.getFacade().getUserInfoFromEmail(encEmail);
+		if(null != null) {// user already exists with the same email
+			response.getWriter().print("INVALID Account exists with same email. Kindly login or click Forget Password. " +
+					"If you don't remember.");
+			return;
+		}
+		
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.DATE, Integer.parseInt(request.getParameter("bdDay")));
 		cal.set(Calendar.MONTH, Integer.parseInt(request.getParameter("bdMonth")));
 		cal.set(Calendar.YEAR, Integer.parseInt(request.getParameter("bdYear")));
 		
-		PEMUser user = new PEMUser();
+		user = new PEMUser();
 		user.setFirstName(request.getParameter("firstName"));
 		user.setLastName(request.getParameter("lastName"));
-		user.setEmail(request.getParameter("email"));
-		user.setEmail(PEMSecurity.encrypt(user.getEmail()));// encrypt email
+		user.setEmail(encEmail);// encrypt email
 		user.setPassword(request.getParameter("password"));
 		user.setPassword(PEMSecurity.hashData(user.getPassword()));// hash the password
 		user.setGender(request.getParameter("gender").charAt(0));
@@ -75,7 +92,7 @@ public class ProcessRegisterUserServlet extends HttpServlet {
 			// TODO send a mail with activation link for this account
 			response.sendRedirect("proceed.jsp");
 		} else {
-			response.getWriter().print("INVALID");
+			response.getWriter().print("INVALID Problem while creating account. Try again.");
 		}
 	}
 

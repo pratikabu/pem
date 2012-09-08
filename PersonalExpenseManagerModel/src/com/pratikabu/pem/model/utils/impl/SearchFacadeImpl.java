@@ -129,7 +129,7 @@ public class SearchFacadeImpl implements SearchFacade {
 	}
 
 	@Override
-	public boolean isValidUser(String email, String password) {
+	public PEMUser getUserInfoFromEmail(String email) {
 		Session s = HibernateConfiguration.getFactory().getCurrentSession();
 		s.beginTransaction();
 		Query query = s.createQuery("FROM PEMUser WHERE email=:email");
@@ -137,7 +137,7 @@ public class SearchFacadeImpl implements SearchFacade {
 		PEMUser user = (PEMUser)query.uniqueResult();
 		s.getTransaction().commit();
 		
-		return null != user && password.equals(user.getPassword());
+		return user;
 	}
 
 	private void applyPagination(int startPosition, int offset, Object obj) {

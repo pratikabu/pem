@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.pratikabu.pem.model.Account;
+import com.pratikabu.pem.model.PEMUser;
 
 /**
  * @author pratsoni
@@ -39,7 +40,7 @@ public interface SearchFacade {
 	 */
 	boolean saveDeleteModels(List<Object> toBeSaved, List<Object> toBeDeleted);
 	
-	boolean isValidUser(String email, String password);
+	PEMUser getUserInfoFromEmail(String email);
 	
 	/**
 	 * It gives you freedom to fetch the list of particular type without any constraints.

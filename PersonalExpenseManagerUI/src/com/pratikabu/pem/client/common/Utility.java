@@ -171,11 +171,14 @@ public class Utility {
 		return lb;
 	}
 
-	public static void navigateRelative(String results) {
-		// TODO Auto-generated method stub
-		System.out.println(results);
-	}
-	
+	/**
+	 * redirect the browser to the given url
+	 * @param results
+	 */
+	public static native void navigateRelative(String url)/*-{
+		$wnd.location = url;
+	}-*/;
+
 	public static String get2DecimalAmount(double amount) {
 		return amountFormatter.format(amount);
 	}

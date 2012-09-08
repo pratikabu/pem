@@ -353,7 +353,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 	
 	public static long getCurrentUser(HttpSession session) {
 		Long userId = (Long) session.getAttribute("userId");
-		return userId == null ? 65536L : userId;
+		return userId == null ? -1 : userId;
 	}
 
 	@Override
@@ -492,7 +492,11 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 		Map<String, Object> criteria = new LinkedHashMap<String, Object>();
 		criteria.put("pk.type", type);
 		
-		List<WebsiteData> wdList = SearchHelper.getFacade().readAllObjects(WebsiteData.class, criteria, false, null, -1, -1, false, null);
+		Map<String, Integer> orderBy = new LinkedHashMap<String, Integer>();
+		orderBy.put("meaning", SearchHelper.ORDERBY_ASC);
+		
+		List<WebsiteData> wdList = SearchHelper.getFacade().readAllObjects(WebsiteData.class,
+				criteria, false, null, -1, -1, false, null);
 		
 		LinkedHashMap<String, String> val = new LinkedHashMap<String, String>();
 		for(WebsiteData wd : wdList) {

@@ -8,19 +8,19 @@
     <session-factory>
 
         <!-- Database connection settings -->
-        <property name="connection.driver_class">org.apache.derby.jdbc.ClientDriver</property>
-        <property name="connection.url">jdbc:derby://localhost:1527/pem;create=true</property>
-        <property name="connection.username">user</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://ec2-23-21-211-172.compute-1.amazonaws.com:3306/pemdb</property>
+        <property name="connection.username">user12</property>
         <property name="connection.password">password</property>
         
 <!--         to change the default schem -->
-        <property name="hibernate.default_schema">pem</property>
+        <property name="hibernate.default_schema">pemdb</property>
 
         <!-- JDBC connection pool (use the built-in) -->
         <property name="connection.pool_size">2</property>
 
         <!-- SQL dialect -->
-        <property name="dialect">org.hibernate.dialect.DerbyDialect</property>
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
 
         <!-- Enable Hibernate's current session context -->
 <!--         <property name="current_session_context_class">org.hibernate.context.ManagedSessionContext</property> -->

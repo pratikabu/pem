@@ -1,23 +1,25 @@
-<!doctype html>
-<!-- The DOCTYPE declaration above will set the     -->
-<!-- browser's rendering engine into                -->
-<!-- "Standards Mode". Replacing this declaration   -->
-<!-- with a "Quirks Mode" doctype is not supported. -->
+<%@page import="com.pratikabu.pem.server.servlet.StaticHtmlResources"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
+<link rel="shortcut icon" href="static/favicon.ico">
+
+
 <!--                                                               -->
 <!-- Consider inlining CSS to reduce the number of requested files -->
 <!--                                                               -->
-<link type="text/css" rel="stylesheet" href="stylesheet.css">
-<link href="menustyles.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="static/stylesheet.css">
+<link type="text/css" rel="stylesheet" href="static/menustyles.css">
 
 <!--                                           -->
 <!-- Any title is fine                         -->
 <!--                                           -->
-<title>Web Application Starter Project</title>
+<title>Login - Bucks</title>
 
 <!--                                           -->
 <!-- This script loads your compiled module.   -->
@@ -46,14 +48,8 @@
 			Your web browser must have JavaScript enabled in order for this
 			application to display correctly.</div>
 	</noscript>
-	<div id='cssmenu'>
-		<ul>
-			<li><a href='/home.jsp'><span>Home</span></a></li>
-			<li><a href='/aboutPEM.jsp'><span>About PEM</span></a></li>
-			<li><a href='/contactus'><span>Contact Us</span></a></li>
-			<li><a href='/privacyPolicy.jsp'><span>Privacy Policy</span></a></li>
-		</ul>
-	</div>
+	<%= StaticHtmlResources.getIconHeader(true) %>
+	<%= StaticHtmlResources.getMenuHeader() %>
 
 	<table align="center">
 		<tr>

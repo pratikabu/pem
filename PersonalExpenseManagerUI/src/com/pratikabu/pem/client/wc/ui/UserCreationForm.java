@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.pratikabu.pem.client.common.Constants;
+import com.pratikabu.pem.client.common.MessageDialog;
 import com.pratikabu.pem.client.common.Utility;
 
 /**
@@ -45,11 +46,14 @@ public class UserCreationForm extends FormPanel {
 		this.addSubmitCompleteHandler(new SubmitCompleteHandler() {
 			@Override
 			public void onSubmitComplete(SubmitCompleteEvent event) {
-				if("INVALID".equals(event.getResults())) {
-					validationMessage = "Error while account creation. Pleas try again.";
+				if(event.getResults().startsWith("INVALID")) {
+					validationMessage = event.getResults().substring("INVALID".length());
 					showError();
 				} else {
-					Utility.navigateRelative(event.getResults());
+					MessageDialog md = MessageDialog.get();
+					md.println("Your account has been successfully created.");
+					md.print("Kindly login to continue.");
+					md.show();
 				}
 			}
 		});

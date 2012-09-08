@@ -1,11 +1,14 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+<%@page import="com.pratikabu.pem.server.servlet.StaticHtmlResources"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Pratik Soni- Eighty_Coffee</title>
-<link rel="stylesheet" href="d-stylesheet.css">
-<link rel="stylesheet" href="stylesheet.css">
+<link rel="shortcut icon" href="static/favicon.ico">
+<title>Dashboard - Bucks</title>
+<link rel="stylesheet" href="static/d-stylesheet.css">
+<link rel="stylesheet" href="static/stylesheet.css">
 
 <script type="text/javascript" language="javascript"
 	src="dashboard/dashboard.nocache.js"></script>
@@ -25,12 +28,12 @@
 	</noscript>
 
 	<div class="headerSlot"
-		style="top: 0px; left: 0px; right: 0px; height: 50px;">
-		<div align="left" style="position: absolute; top: 0px; left: 0px;">
-			<a href="index.html" title="Pratik Soni">Pratik</a>
+		style="top: 0px; left: 0px; right: 0px; height: 65px;">
+		<div align="left" style="position: absolute; top: 0px; left: 50%; margin-left: -450px; right: 0px; width: 900px;">
+			<%= StaticHtmlResources.getIconHeader(false) %>
 		</div>
 		<div id="cssmenuOuter"
-			style="position: absolute; top: 20px; left: 0px; right: 0px; bottom: 0px;"
+			style="position: absolute; top: 35px; left: 0px; right: 0px; bottom: 0px;"
 			align="center">
 			<div id="cssmenu" style="width: 900px; position: relative;">
 				<ul>
@@ -69,12 +72,9 @@
 				</ul>
 			</div>
 		</div>
-		<div align="right" style="position: absolute; top: 0px; right: 0px">
-			<a href="index.html" title="Eighty_Coffee">E_C</a>
-		</div>
 	</div>
 	<div id="mainContent" class="mainContent"
-		style="bottom: 50px; top: 51px; width: 100%;">
+		style="bottom: 50px; top: 66px; width: 100%;">
 		<div id="centerContainer" class="mainContent"
 			style="bottom: 0px; top: 0px; margin-left: -450px; left: 50%; width: 900px; border-right: 1px SOLID #CBCBCB; border-left: 1px SOLID #CBCBCB;"">
 
