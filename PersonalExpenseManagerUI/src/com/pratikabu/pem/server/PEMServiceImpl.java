@@ -261,6 +261,7 @@ public class PEMServiceImpl extends RemoteServiceServlet implements PEMService {
 			ad.setAccountId(a.getAccountId());
 			ad.setAccountName(a.getAccName());
 			ad.setAccountType(a.getAccountType().getAtCode());
+			ad.setCurrentBalance(a.getCurrentBalance());
 			
 			accounts.add(ad);
 		}

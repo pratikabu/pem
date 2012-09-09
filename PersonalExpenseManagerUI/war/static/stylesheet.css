@@ -1,5 +1,9 @@
 /** CSS for the gadgets. */
 
+html {
+	height: 100%
+}
+
 .normalTextBox {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 16px;
@@ -130,4 +134,54 @@ a.paginationLinks:VISITED {
 	font-size: 16px;
 	color: #4E4E4E;
 	padding-left: 5px;
+}
+
+.footerSlot {
+	width: 100%;
+	border-top: 1px SOLID #CBCBCB;
+	background-color: #F8F8F8;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}
+
+.footerText {
+	font-family: Arial Unicode MS, Arial, sans-serif;
+	font-size: small;
+	color: #666;
+}
+
+a:link {
+	color: #3D8684;
+	text-decoration: none;
+}
+a:visited {
+	color: #3D8684;
+	text-decoration: none;
+}
+a:hover {
+	color: #9B2D2D;
+	text-decoration: underline;
+}
+a img{
+	border:0;
+}
+
+a.linkButton:link {
+	color: WHITE;
+	text-decoration: none;
+}
+a.linkButton:visited {
+	color: WHITE;
+	text-decoration: none;
+}
+a.linkButton:hover {
+	color: WHITE;
+	text-decoration: none;
+}
+
+.zeroMargin {
+	min-height: 100%;
+	margin: 0;
+	position: relative;
 }

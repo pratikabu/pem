@@ -48,7 +48,7 @@ public class AccountInitializeFilter implements Filter {
         	chain.doFilter(request, response);
         } else {
             HttpServletResponse res = (HttpServletResponse)response;
-            res.sendRedirect("Dashboard.html?showSetInitializeAccount=true");
+            res.sendRedirect("Dashboard.jsp?showSetInitializeAccount=true");
         }
 	}
 

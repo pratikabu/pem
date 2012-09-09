@@ -30,13 +30,14 @@
 	src="welcome/welcome.nocache.js"></script>
 </head>
 
+</head>
+
 <!--                                           -->
 <!-- The body can have arbitrary html, or      -->
 <!-- you can leave the body empty if you want  -->
 <!-- to create a completely dynamic UI.        -->
 <!--                                           -->
-<body>
-
+<body class="zeroMargin">
 	<!-- OPTIONAL: include this if you want history support -->
 	<iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1'
 		style="position: absolute; width: 0; height: 0; border: 0"></iframe>
@@ -48,14 +49,17 @@
 			Your web browser must have JavaScript enabled in order for this
 			application to display correctly.</div>
 	</noscript>
-	<%= StaticHtmlResources.getIconHeader(true) %>
-	<%= StaticHtmlResources.getMenuHeader() %>
-
-	<table align="center">
-		<tr>
-			<td id="loginFormContainer"></td>
-			<td id="signUpFormContainer"></td>
-		</tr>
-	</table>
+	
+	<table style="width: 100%;"><tr><td style="width: 150px;"><%= StaticHtmlResources.getIconHeader(true) %></td><td><%= StaticHtmlResources.getMenuHeader() %></td></tr></table>
+	<div id="mainContainer" align="center" style="width: 100%; padding-bottom: 87px;">
+		<table>
+			<tr>
+				<td id="loginFormContainer"></td>
+				<td id="signUpFormContainer"></td>
+			</tr>
+		</table>
+	</div>
+	<%= StaticHtmlResources.getFooterHtml() %>
 </body>
 </html>
+

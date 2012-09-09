@@ -64,8 +64,8 @@ public class ProcessRegisterUserServlet extends HttpServlet {
 		// check whether this email is already registered or not.
 		String encEmail = PEMSecurity.encrypt(request.getParameter("email"));
 		PEMUser user = SearchHelper.getFacade().getUserInfoFromEmail(encEmail);
-		if(null != null) {// user already exists with the same email
-			response.getWriter().print("INVALID Account exists with same email. Kindly login or click Forget Password. " +
+		if(null != user) {// user already exists with the same email
+			response.getWriter().print("INVALID Account already exists. Kindly login. " +
 					"If you don't remember.");
 			return;
 		}

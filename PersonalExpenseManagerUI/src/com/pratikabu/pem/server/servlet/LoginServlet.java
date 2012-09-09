@@ -28,6 +28,7 @@ public class LoginServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// login
 		response.setContentType("text/html");
 		
 		String encEmail = PEMSecurity.encrypt(request.getParameter("email"));
@@ -36,9 +37,20 @@ public class LoginServlet extends HttpServlet {
 		PEMUser user = SearchHelper.getFacade().getUserInfoFromEmail(encEmail);
 		if(null != user && encPass.equals(user.getPassword())) {
 			request.getSession().setAttribute("userId", user.getUid());
-			response.getWriter().print("/Dashboard.html");
+			response.getWriter().print("/Dashboard.jsp");
 		} else {
 			response.getWriter().print("INVALID");
+		}
+	}
+
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String logout = request.getParameter("logout");
+		
+		if(null != logout) {
+			request.getSession().removeAttribute("userId");
+			response.sendRedirect("index.jsp?logout=success");
 		}
 	}
 
