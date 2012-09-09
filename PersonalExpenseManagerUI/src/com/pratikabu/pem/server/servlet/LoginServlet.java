@@ -50,6 +50,7 @@ public class LoginServlet extends HttpServlet {
 		
 		if(null != logout) {
 			request.getSession().removeAttribute("userId");
+			request.getSession().invalidate();
 			response.sendRedirect("index.jsp?logout=success");
 		}
 	}

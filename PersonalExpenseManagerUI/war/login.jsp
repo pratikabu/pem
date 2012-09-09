@@ -50,7 +50,13 @@
 			application to display correctly.</div>
 	</noscript>
 	
-	<table style="width: 100%;"><tr><td style="width: 150px;"><%= StaticHtmlResources.getIconHeader(true) %></td><td><%= StaticHtmlResources.getMenuHeader() %></td></tr></table>
+	<div align="center" id="heardSlot" style="background: whiteSmoke; border-bottom: 1px solid #C5C5C5;">
+		<div style="width: 900px; position: relative; overflow: hidden; padding-top: 5px; padding-bottom: 10px;">
+			<div style="float: right; margin-bottom: 5px;"><%= StaticHtmlResources.getLoggedInHtml(session) %></div>
+			<div style="width: 150px; float: left; clear: both;"><%= StaticHtmlResources.getIconHeader(true) %></div>
+			<div style="width: 750px; float: right;"><%= StaticHtmlResources.getMenuHeader() %></div>
+		</div>
+	</div>
 	<div id="mainContainer" align="center" style="width: 100%; padding-bottom: 87px;">
 		<table>
 			<tr>
