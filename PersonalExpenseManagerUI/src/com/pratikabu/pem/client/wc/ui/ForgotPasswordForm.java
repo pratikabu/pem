@@ -3,22 +3,16 @@
  */
 package com.pratikabu.pem.client.wc.ui;
 
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.pratikabu.pem.client.common.Constants;
 import com.pratikabu.pem.client.common.Utility;
@@ -28,19 +22,17 @@ import com.pratikabu.pem.client.wc.WelcomeEntryPoint;
  * @author pratsoni
  *
  */
-public class LoginForm extends FormPanel {
+public class ForgotPasswordForm extends FormPanel {
 	private FlexTable ft;
 	
 	private TextBox email;
-	private PasswordTextBox password;
-	private CheckBox keepMeLoggedIn;
 	
-	private Button loginButton;
+	private Button sendEmail;
 	
 	private String validationMessage;
-	private HTML forgetPasswordHtml, errorHtml, registerNewAccount;
+	private HTML infoHtml, errorHtml;
 	
-	public LoginForm() {
+	public ForgotPasswordForm() {
 		initializeComponents();
 		placeComponents();
 	}
@@ -52,9 +44,9 @@ public class LoginForm extends FormPanel {
 			@Override
 			public void onSubmitComplete(SubmitCompleteEvent event) {
 				if("SUCCESS".equals(event.getResults())) {
-					Utility.navigateRelative("Dashboard.jsp");
+					Utility.navigateRelative("login.jsp");
 				} else if("INVALID".equals(event.getResults())) {
-					validationMessage = "Email or password invalid. Try again.";
+					validationMessage = "User not registered.";
 					showError();
 				} else {
 					validationMessage = "There is some problem from server side. Please try again.";
@@ -77,46 +69,23 @@ public class LoginForm extends FormPanel {
 			@Override
 			public void onKeyDown(KeyDownEvent event) {
 				if(Constants.KEY_ENTER == event.getNativeKeyCode()) {
-					password.setFocus(true);
-					password.selectAll();
+					sendReset();
 				}
 			}
 		});
-		
-		password = new PasswordTextBox();
-		password.setStyleName(Constants.CSS_NORMAL_TEXT);
-		password.setWidth(width);
-		Utility.updateNameAndId(password, "password");
-		password.addKeyDownHandler(new KeyDownHandler() {
-			@Override
-			public void onKeyDown(KeyDownEvent event) {
-				if(Constants.KEY_ENTER == event.getNativeKeyCode()) {
-					login();
-				}
-			}
-		});
-		
-		keepMeLoggedIn = new CheckBox("Keep me logged in");
-		keepMeLoggedIn.setValue(false);
-		keepMeLoggedIn.setStyleName(Constants.CSS_NORMAL_LABEL);
-		Utility.updateNameAndId(keepMeLoggedIn, "keepMeLoggedIn");
 		
 		// We can add style names to widgets
-		loginButton = Utility.getActionButton("Login");
-		loginButton.addClickHandler(new ClickHandler() {
+		sendEmail = Utility.getActionButton("Reset");
+		sendEmail.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				login();
+				sendReset();
 			}
 		});
 		
-		forgetPasswordHtml = new HTML();
-		forgetPasswordHtml.setStyleName(Constants.CSS_NORMAL_LABEL);
-		forgetPasswordHtml.setHTML(Utility.getSafeHtml("<a href='forgotPassword.jsp'>Forgot you password?</a>"));
-		
-		registerNewAccount = new HTML();
-		registerNewAccount.setStyleName(Constants.CSS_NORMAL_LABEL);
-		registerNewAccount.setHTML(Utility.getSafeHtml("Not a member. <a href='signup.jsp'>Join Now</a>."));
+		infoHtml = new HTML();
+		infoHtml.setStyleName(Constants.CSS_NORMAL_LABEL);
+		infoHtml.setHTML(Utility.getSafeHtml("Recovery steps will be sent in mail."));
 		
 		errorHtml = new HTML();
 	}
@@ -126,41 +95,27 @@ public class LoginForm extends FormPanel {
 		int row = -1;
 
 	    // Add a title to the form
-	    ft.setWidget(++row, 0, Utility.getLabel("Members Login", Constants.CSS_FORM_HEADING));
+	    ft.setWidget(++row, 0, Utility.getLabel("Reset Password", Constants.CSS_FORM_HEADING));
 	    cellFormatter.setColSpan(row, 0, 2);
 	    cellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER);
 		
 		ft.setWidget(++row, 0, Utility.getLabel("Email"));
 		ft.setWidget(row, 1, email);
-		ft.setWidget(++row, 0, Utility.getLabel("Password"));
-		ft.setWidget(row, 1, password);
-		ft.setWidget(++row, 1, keepMeLoggedIn);
 		
-		/// Login and register
-		DockPanel dp = new DockPanel();
-		dp.setWidth("100%");
-		dp.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		ft.setWidget(++row, 1, infoHtml);
 		
-		dp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		Label lb = Utility.getLabel("iPaid Form", Constants.CSS_FORM_HEADING);
-		lb.getElement().getStyle().setPaddingLeft(5, Unit.PX);
-		dp.add(loginButton, DockPanel.WEST);
-		dp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		dp.add(registerNewAccount, DockPanel.EAST);
-		/// ends
-		ft.setWidget(++row, 1, dp);
-		ft.setWidget(++row, 1, forgetPasswordHtml);
+		ft.setWidget(++row, 1, sendEmail);
 	    
 	    this.add(ft);
 	}
 	
-	private void login() {
+	private void sendReset() {
 		validateData();
 		
 		if (null == validationMessage) {
-			this.submit();
+//			this.submit();
 		}
-		
+		validationMessage = "For now this functionality is disabled.";
 		showError();
 	}
 	
@@ -175,7 +130,7 @@ public class LoginForm extends FormPanel {
 	}
 	
 	private void validateData() {
-		if(Utility.isEmptyValidation(email, password)) {
+		if(Utility.isEmptyValidation(email)) {
 			validationMessage = "Please complete the form.";
 		}
 		

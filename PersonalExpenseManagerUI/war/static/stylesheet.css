@@ -185,3 +185,9 @@ a.linkButton:hover {
 	margin: 0;
 	position: relative;
 }
+
+.loginContainerStyle {
+	border: 1px SOLID #CBCBCB;
+	border-radius: 10px;
+	background: WHITE;
+}

@@ -9,6 +9,7 @@
 	<filter-mapping>
 		<filter-name>LoginFilter</filter-name>
 		<url-pattern>/Dashboard.jsp</url-pattern>
+		<url-pattern>/login.jsp</url-pattern>
 	</filter-mapping>
 	
 	<filter>

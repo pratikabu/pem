@@ -1,0 +1,3 @@
+# Module dashboard
+# RPC service class, partial path of RPC policy file
+com.pratikabu.pem.client.dash.service.PEMService, BDBD611757F05DE0D5025F51855E5D8D.gwt.rpc

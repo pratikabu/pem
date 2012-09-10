@@ -35,15 +35,25 @@ public class LoginFilter implements Filter {
         long pemUserId = PEMServiceImpl.getCurrentUser(session);
         String requestedURL = req.getRequestURL().toString();
         if(-1 != pemUserId) {
-        	chain.doFilter(request, response);
-        } else {
-                HttpServletResponse res = (HttpServletResponse)response;
-                String query = req.getQueryString();
-                query = query == null ? "" : ("?" + query);
-                requestedURL = requestedURL.substring(requestedURL.lastIndexOf('/') + 1) +  query;
-                requestedURL = URLEncoder.encode(requestedURL, "UTF-8");
-                res.sendRedirect("login.jsp?resource=" + requestedURL);
-        }
+			if(requestedURL.contains("login.jsp")) {
+				HttpServletResponse res = (HttpServletResponse) response;
+				res.sendRedirect("index.jsp");
+			}
+			
+			chain.doFilter(request, response);
+		} else {
+			if(requestedURL.contains("login.jsp")) {
+				chain.doFilter(request, response);
+				return;
+			}
+			
+			HttpServletResponse res = (HttpServletResponse) response;
+			String query = req.getQueryString();
+			query = query == null ? "" : ("?" + query);
+			requestedURL = requestedURL.substring(requestedURL.lastIndexOf('/') + 1) + query;
+			requestedURL = URLEncoder.encode(requestedURL, "UTF-8");
+			res.sendRedirect("login.jsp?resource=" + requestedURL);
+		}
 	}
 
 	/**

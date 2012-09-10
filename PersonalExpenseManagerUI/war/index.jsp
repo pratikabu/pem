@@ -34,7 +34,7 @@
 <!-- to create a completely dynamic UI.        -->
 <!--                                           -->
 <body class="zeroMargin">
-	<div align="center" id="heardSlot" style="background: whiteSmoke; border-bottom: 1px solid #C5C5C5;">
+	<div align="center" id="heardSlot" style="background: #F8F8F8; border-bottom: 1px solid #C5C5C5;">
 		<div style="width: 900px; position: relative; overflow: hidden; padding-top: 5px; padding-bottom: 10px;">
 			<div style="float: right; margin-bottom: 5px;"><%= StaticHtmlResources.getLoggedInHtml(session) %></div>
 			<div style="width: 150px; float: left; clear: both;"><%= StaticHtmlResources.getIconHeader(true) %></div>

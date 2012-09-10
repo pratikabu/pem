@@ -9,14 +9,14 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.pratikabu.pem.client.common.Constants;
-import com.pratikabu.pem.client.common.MessageDialog;
 import com.pratikabu.pem.client.common.Utility;
+import com.pratikabu.pem.client.wc.WelcomeEntryPoint;
 
 /**
  * @author pratsoni
@@ -32,8 +32,9 @@ public class UserCreationForm extends FormPanel {
 	
 	private Button signUpButton;
 	
-	private Label errorLabel;
 	private String validationMessage;
+	
+	private HTML errorHtml;
 	
 	public UserCreationForm() {
 		initializeComponents();
@@ -46,20 +47,21 @@ public class UserCreationForm extends FormPanel {
 		this.addSubmitCompleteHandler(new SubmitCompleteHandler() {
 			@Override
 			public void onSubmitComplete(SubmitCompleteEvent event) {
-				if(event.getResults().startsWith("INVALID")) {
+				if(event.getResults().startsWith("SUCCESS")) {
+					Utility.navigateRelative("login.jsp");
+				} else if(event.getResults().startsWith("INVALID")) {
 					validationMessage = event.getResults().substring("INVALID".length());
 					showError();
 				} else {
-					MessageDialog md = MessageDialog.get();
-					md.println("Your account has been successfully created.");
-					md.print("Kindly login to continue.");
-					md.show();
+					validationMessage = "Some problem at server side. Please try again.";
+					showError();
 				}
 			}
 		});
 		
 		ft = new FlexTable();
-		ft.setCellSpacing(1);
+		ft.setStyleName("loginContainerStyle");
+		ft.setCellSpacing(10);
 		Utility.updateNameAndId(this, "signUpContainer");
 		
 		final String width = "280px";
@@ -114,7 +116,7 @@ public class UserCreationForm extends FormPanel {
 			}
 		});
 		
-		errorLabel = Utility.getErrorLabel("");
+		errorHtml = new HTML();
 	}
 
 	private void placeComponents() {
@@ -122,10 +124,10 @@ public class UserCreationForm extends FormPanel {
 		int row = 0;
 
 	    // Add a title to the form
-	    ft.setWidget(row, 0, Utility.getLabel("Sign Up! Its Free!", Constants.CSS_FORM_HEADING));
-	    cellFormatter.setColSpan(row, 0, 2);
-	    cellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER);
-		
+		ft.setWidget(row, 0, Utility.getLabel("Sign Up! Its Free!", Constants.CSS_FORM_HEADING));
+		cellFormatter.setColSpan(row, 0, 2);
+		cellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER);
+
 		ft.setWidget(++row, 0, Utility.getLabel("First Name"));
 		ft.setWidget(row, 1, firstName);
 		ft.setWidget(++row, 0, Utility.getLabel("Last Name"));
@@ -138,6 +140,8 @@ public class UserCreationForm extends FormPanel {
 		ft.setWidget(row, 1, password);
 		
 		ft.setWidget(++row, 0, Utility.getLabel("I am"));
+		
+		cellFormatter.setHorizontalAlignment(row, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		ft.setWidget(row, 1, genderBox);
 		ft.setWidget(++row, 0, Utility.getLabel("Birthday"));
 		ft.setWidget(row, 1, Utility.addHorizontally(-1, bdMonth, bdDay, bdYear));
@@ -147,12 +151,6 @@ public class UserCreationForm extends FormPanel {
 		
 		ft.setWidget(++row, 1, signUpButton);
 		
-		// Add the error label
-	    ft.setWidget(++row, 0, errorLabel);
-	    cellFormatter.setColSpan(row, 0, 2);
-	    cellFormatter.setHorizontalAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER);
-	    errorLabel.setVisible(false);
-	    
 	    this.add(ft);
 	}
 	
@@ -161,15 +159,16 @@ public class UserCreationForm extends FormPanel {
 		
 		if (null == validationMessage) {
 			this.submit();
-		} else {
-			showError();
 		}
+		
+		showError();
 	}
 	
 	private void showError( ) {
+		errorHtml.setVisible(null != validationMessage);
 		if(null != validationMessage) {
-			errorLabel.setVisible(true);
-			errorLabel.setText(validationMessage);
+			errorHtml.setHTML(validationMessage);
+			WelcomeEntryPoint.setWidgetInId(errorHtml, "errorLabel");
 		}
 		
 		validationMessage = null;// refresh it
@@ -179,6 +178,7 @@ public class UserCreationForm extends FormPanel {
 		if(Utility.isEmptyValidation(firstName, lastName, email, password)) {
 			validationMessage = "Please complete the form.";
 		}
+		
 		
 		if(null == validationMessage && !Utility.isValidEmail(email.getText())) {
 			validationMessage = "Please fill the correct email address.";
@@ -217,5 +217,9 @@ public class UserCreationForm extends FormPanel {
 		for(int i = startingYear; i <= currentYear; i++)
 		bdYear.addItem(i + "");
 		bdYear.setSelectedIndex(currentYear - startingYear - 18);
+	}
+
+	public void focusOn() {
+		firstName.setFocus(true);
 	}
 }

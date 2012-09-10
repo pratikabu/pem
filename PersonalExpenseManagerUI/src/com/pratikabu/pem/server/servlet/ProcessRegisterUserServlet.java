@@ -65,8 +65,8 @@ public class ProcessRegisterUserServlet extends HttpServlet {
 		String encEmail = PEMSecurity.encrypt(request.getParameter("email"));
 		PEMUser user = SearchHelper.getFacade().getUserInfoFromEmail(encEmail);
 		if(null != user) {// user already exists with the same email
-			response.getWriter().print("INVALID Account already exists. Kindly login. " +
-					"If you don't remember.");
+			response.getWriter().print("INVALID Account already exists. Kindly <a href='login.jsp'>Login</a>. " +
+					"Use <a href='forgotPassowrd.jsp'>Forgot Password</a> incase you forgot your password.");
 			return;
 		}
 		
@@ -90,7 +90,7 @@ public class ProcessRegisterUserServlet extends HttpServlet {
 		
 		if(SearchHelper.getFacade().saveModel(toBeSaved.toArray())) {
 			// TODO send a mail with activation link for this account
-			response.sendRedirect("proceed.jsp");
+			response.getWriter().print("SUCCESS");
 		} else {
 			response.getWriter().print("INVALID Problem while creating account. Try again.");
 		}

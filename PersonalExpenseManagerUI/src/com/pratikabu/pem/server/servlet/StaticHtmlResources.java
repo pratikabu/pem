@@ -39,9 +39,10 @@ public class StaticHtmlResources {
 	public static String getFooterHtml() {
 		return "<div id=\"footerContainer\" align=\"center\" class=\"footerSlot\" style=\"height: 46px; padding-top: " +
 				"20px; padding-bottom: 20px;\"> <table width=\"900px\" border=\"0\" class=\"footerText\"> <tr> <td width=" +
-				"\"50%\" align=\"left\"> <a href=\"http://www.facebook.com/pratikabu\" title=\"Subscribe me on Facebook" +
-				"\"><img src=\"static/facebook_16.png\" width=\"16\" height=\"16\"></a> <a href=\"http://twitter.com/#!/" +
-				"pratikabu\" title=\"Follow me on Twitter\"><img src=\"static/twitter_16.png\" width=\"16\" height=\"16\"></a>" +
+				"\"50%\" align=\"left\"> " +
+				"<div id=\"fb-root\"></div><script src=\"http://connect.facebook.net/en_US/all.js#appId=261305567305235&amp;" +
+				"xfbml=1\"></script> <fb:like href=\"pem.pratikabu.cloudbees.net\" send=\"false\" layout=\"button_count\" width=" +
+				"\"80\" show_faces=\"false\"></fb:like>" +
 				"</td> <td width=\"50%\" align=\"right\"> <a href=\"#\">About</a> | <a href=\"#\">FAQ</a> | <a href=\"#" +
 				"\">Privacy Policy</a> | <a href=\"#\">Mobile</a> | <a href=\"#\" class=\"tipholder\" title=\"" +
 				"Google Chrome Web App\"><img src=\"static/chrome_16.png\" align=\"top\"><span style=\"" +
@@ -53,7 +54,7 @@ public class StaticHtmlResources {
 		String str = "<span class=\"footerText\">";
 		
 		if(-1 == PEMServiceImpl.getCurrentUser(session)) {
-			str += "<strong><a href=\"login.jsp\">Login</a></strong> | <strong><a href=\"login.jsp\">Join</a></strong>";
+			str += "<strong><a href=\"login.jsp\">Login</a></strong> | <strong><a href=\"signup.jsp\">Join</a></strong>";
 		} else {
 			str += "Welcome to Bucks! <strong><a href=\"accounts.jsp\">Account</a></strong> | " +
 					"<strong><a href=\"loginServlet?logout=true\">Logout</a></strong>";

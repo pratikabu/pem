@@ -37,7 +37,7 @@ public class LoginServlet extends HttpServlet {
 		PEMUser user = SearchHelper.getFacade().getUserInfoFromEmail(encEmail);
 		if(null != user && encPass.equals(user.getPassword())) {
 			request.getSession().setAttribute("userId", user.getUid());
-			response.getWriter().print("/Dashboard.jsp");
+			response.getWriter().print("SUCCESS");
 		} else {
 			response.getWriter().print("INVALID");
 		}

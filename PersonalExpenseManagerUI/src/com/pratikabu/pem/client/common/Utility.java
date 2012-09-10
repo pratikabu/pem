@@ -115,6 +115,7 @@ public class Utility {
 	public static boolean isEmptyValidation(TextBoxBase... boxes) {
 		if(null != boxes) {
 			for(TextBoxBase t : boxes) {
+				t.setText(t.getText().trim());
 				if(null == t.getText() || t.getText().isEmpty()) {
 					return true;
 				}
@@ -124,12 +125,7 @@ public class Utility {
 	}
 	
 	public static boolean isValidEmail(String email) {
-		email = email.trim();
-		int atIndex = email.indexOf('@');
-		int dotIndex = email.indexOf('.');
-		
-		return -1 != atIndex && atIndex > 0 && -1 != dotIndex &&
-				dotIndex > (atIndex + 1) && dotIndex != (email.length() - 1);
+		return email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$");
 	}
 	
 	public static Button getActionButton(String text) {
