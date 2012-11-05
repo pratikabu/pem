@@ -15,18 +15,34 @@ import com.pratikabu.pem.model.Tag;
  * Created on : 24-Apr-2011, 12:49:44 AM
  */
 public class TestCompound {
-	public static void main(String[] args) {
-		initializeDB();
-		updateData();
-		CountryCurrencyDataLoad.saveData();
-		
-		System.out.println("Successfully updated/initialized.");
+	private static InitializerEvent event;
+	
+	public static void executeInitUpdate(InitializerEvent event) {
+		try {
+			TestCompound.event = event;
+			
+			print("initializing db...");
+			initializeDB();
+			print("db initializing done.");
+			print("updating db...");
+			updateData();
+			print("db updation done.");
+			
+			print("loading country data...");
+			CountryCurrencyDataLoad.saveData();
+			print("country data loaded.");
+			
+			print("Successfully updated/initialized.");
+		} catch(Throwable t) {
+			print("Exception occured while executing the last step.");
+			print("--- " + t.getMessage());
+		}
 	}
 
 	/**
 	 * @param args
 	 */
-	public static void initializeDB() {
+	private static void initializeDB() {
 		//to execute the configuration
 		new SchemaExport(HibernateConfiguration.getCfg()).create(true, true);
 		//create(true, true) script: to print sqls in sql logs, export: to send sqls to db server
@@ -44,7 +60,7 @@ public class TestCompound {
 		session.getTransaction().commit();//it saves the object here
 	}
 	
-	public static void updateData() {
+	private static void updateData() {
 		Tag tag = null;
 		
 		tag = new Tag();
@@ -107,6 +123,16 @@ public class TestCompound {
 		at.setMeaning("Others");
 		at.setDescription("Others");
 		SearchHelper.getFacade().saveModel(at);
+	}
+	
+	public static interface InitializerEvent {
+		void executionOutput(String out);
+	}
+
+	private static void print(String output) {
+		if(null != event) {
+			event.executionOutput(output);
+		}
 	}
 
 }

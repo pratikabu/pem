@@ -18,6 +18,7 @@ import com.pratikabu.pem.model.PEMUser;
 import com.pratikabu.pem.model.TransactionGroup;
 import com.pratikabu.pem.model.utils.SearchHelper;
 import com.pratikabu.pem.model.utils.TestCompound;
+import com.pratikabu.pem.model.utils.TestCompound.InitializerEvent;
 import com.pratikabu.pem.server.PEMSecurity;
 import com.pratikabu.pem.server.PEMServiceImpl;
 import com.pratikabu.pem.server.ServerSideHelper;
@@ -36,10 +37,22 @@ public class ProcessRegisterUserServlet extends HttpServlet {
     }
 
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+	protected void doGet(final HttpServletRequest req, final HttpServletResponse resp)
 			throws ServletException, IOException {
+		resp.setContentType("text/html");
+		
 		if(null != req.getParameter("initialize")) {
-			TestCompound.main(null);
+			TestCompound.executeInitUpdate(new InitializerEvent() {
+				@Override
+				public void executionOutput(String out) {
+					try {
+						resp.getWriter().print(out);
+						resp.getWriter().println("<br/>");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			});
 		}
 	}
 

@@ -195,7 +195,7 @@ public class UserCreationForm extends FormPanel {
 	
 	private void populateBirthday() {
 		int mnth = -1;
-		bdMonth.addItem("Jaunary", (++mnth) + "");
+		bdMonth.addItem("January", (++mnth) + "");
 		bdMonth.addItem("February", (++mnth) + "");
 		bdMonth.addItem("March", (++mnth) + "");
 		bdMonth.addItem("April", (++mnth) + "");

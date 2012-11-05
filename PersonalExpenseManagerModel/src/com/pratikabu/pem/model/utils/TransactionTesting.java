@@ -14,7 +14,7 @@ import com.pratikabu.pem.model.TransactionTable;
 public class TransactionTesting {
 	
 	public static void main(String[] args) {
-Map<String, Object> criteria = new LinkedHashMap<String, Object>();
+		Map<String, Object> criteria = new LinkedHashMap<String, Object>();
 		
 		Map<String, String> alias = new LinkedHashMap<String, String>();
 		alias.put("txn", "transaction");
