@@ -1,2 +1,0 @@
-serviceClass: com.pratikabu.pem.client.dash.service.PEMService
-path: BDBD611757F05DE0D5025F51855E5D8D.gwt.rpc
